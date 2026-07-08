@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Physics: แรงเสียดทาน ม.ต้น & Simulation Lab</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #0F172A; transition: background-color 0.25s ease, color 0.25s ease; }
+        .bg-slate-primary { background-color: #1E293B; }
+        .text-slate-primary { color: #1E293B; }
+        .bg-amber-secondary { background-color: #F97316; }
+        .text-amber-secondary { color: #F97316; }
+
+        /* ===== Theme toggle control ===== */
+        .theme-toggle-wrap { display:inline-flex; background:#1E293B; border:1px solid #334155; border-radius:9999px; padding:3px; gap:2px; }
+        .theme-toggle-btn { font-size:11px; font-weight:600; padding:6px 14px; border-radius:9999px; cursor:pointer; transition: all 0.2s ease; color:#94A3B8; background:transparent; border:none; white-space:nowrap; }
+        .theme-toggle-btn.active { background:#F97316; color:#fff; }
+        body.light-theme .theme-toggle-wrap { background:#E2E8F0; border-color:#CBD5E1; }
+        body.light-theme .theme-toggle-btn { color:#475569; }
+        body.light-theme .theme-toggle-btn.active { background:#F97316; color:#fff; }
+
+        /* ===== Light theme overrides ===== */
+        body.light-theme { background-color:#EEF2F7; color:#0F172A; }
+        body.light-theme * { transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+
+        /* Surfaces */
+        body.light-theme .bg-slate-900 { background-color:#FFFFFF; }
+        body.light-theme .bg-slate-950 { background-color:#F1F5F9; }
+        body.light-theme .bg-slate-850 { background-color:#EEF2F7; }
+        body.light-theme .bg-slate-800 { background-color:#E2E8F0; }
+        body.light-theme .bg-slate-700 { background-color:#CBD5E1; }
+        body.light-theme .hover\:bg-slate-850:hover { background-color:#E2E8F0; }
+        body.light-theme .hover\:bg-slate-700:hover { background-color:#CBD5E1; }
+
+        /* Base text */
+        body.light-theme .text-slate-100 { color:#0F172A; }
+        body.light-theme .text-slate-200 { color:#1E293B; }
+        body.light-theme .text-slate-300 { color:#334155; }
+        body.light-theme .text-slate-400 { color:#475569; }
+        body.light-theme .text-slate-500 { color:#64748B; }
+
+        /* Borders */
+        body.light-theme .border-slate-800 { border-color:#E2E8F0; }
+        body.light-theme .border-slate-850 { border-color:#E2E8F0; }
+        body.light-theme .border-slate-700 { border-color:#CBD5E1; }
+        body.light-theme .border-slate-700\/60 { border-color:#CBD5E1; }
+        body.light-theme .border-slate-600 { border-color:#94A3B8; }
+
+        /* Headings/emphasis text-white sitting on cards that are now light -> darken for readability,
+           but keep solid-color action buttons white */
+        body.light-theme .bg-slate-900 .text-white,
+        body.light-theme .bg-slate-950 .text-white,
+        body.light-theme .bg-emerald-950\/20.text-white,
+        body.light-theme .bg-rose-950\/20.text-white { color:#0F172A; }
+        body.light-theme #action-btn,
+        body.light-theme #remedial-btn { color:#FFFFFF; }
+
+        /* Accent text darkened to keep AA contrast on light surfaces */
+        body.light-theme .text-amber-400 { color:#B45309; }
+        body.light-theme .text-blue-400 { color:#1D4ED8; }
+        body.light-theme .text-emerald-400 { color:#047857; }
+        body.light-theme .text-orange-400 { color:#C2410C; }
+        body.light-theme .text-rose-400 { color:#BE123C; }
+        body.light-theme .text-sky-400 { color:#0369A1; }
+        body.light-theme .text-amber-200\/80 { color:#92400E; }
+
+        /* Dark-tinted callout panels -> light tints */
+        body.light-theme .bg-amber-950\/30 { background-color:#FFFBEB; }
+        body.light-theme .border-amber-900\/50 { border-color:#FDE68A; }
+        body.light-theme .bg-orange-950\/20 { background-color:#FFF7ED; }
+        body.light-theme .border-orange-900\/40 { border-color:#FED7AA; }
+        body.light-theme .bg-blue-950\/20 { background-color:#EFF6FF; }
+        body.light-theme .border-blue-900\/40 { border-color:#BFDBFE; }
+        body.light-theme .bg-emerald-950\/20 { background-color:#ECFDF5; }
+        body.light-theme .bg-rose-950\/20 { background-color:#FFF1F2; }
+
+        /* The physics simulation "device screen" stays fixed dark in both themes,
+           since its live vector overlay is styled for a dark stage */
+        body.light-theme .sim-fixed-dark.bg-slate-950 { background-color:#020617; }
+        body.light-theme .sim-fixed-dark.border-slate-850 { border-color:#1E293B; }
+        body.light-theme .sim-fixed-dark .text-amber-400 { color:#FBBF24; }
+        body.light-theme .sim-fixed-dark .text-sky-400 { color:#38BDF8; }
+        body.light-theme .sim-fixed-dark .text-orange-400 { color:#FB923C; }
+        body.light-theme .sim-fixed-dark .text-blue-400 { color:#60A5FA; }
+        body.light-theme .sim-fixed-dark .bg-slate-900\/90 { color:#CBD5E1; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <header class="bg-slate-900 border-b border-slate-800 py-8 px-4 text-center">
+        <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">💡 Owlvy Ultimate IQ - Adaptive Learning</span>
+        <h1 class="text-2xl md:text-4xl font-bold text-white mt-3">ระบบเรียนรู้และจำลองฟิสิกส์เรื่อง "แรงเสียดทาน"</h1>
+        <p class="text-slate-400 text-xs md:text-sm mt-2 max-w-xl mx-auto">เรียนรู้ทฤษฎี ทดลองกับห้องแล็บเสมือนจริง และตะลุยควิซอัจฉริยะ 30 ข้อแบบคัดกรองข้อผิดพลาดย้อนกลับมาประเมินซ้ำ</p>
+
+        <div class="mt-5 flex justify-center">
+            <div class="theme-toggle-wrap" role="group" aria-label="สลับธีมสีพื้นหลัง">
+                <button type="button" id="theme-btn-navy" class="theme-toggle-btn active" onclick="setTheme('navy')">🌌 Navy Deep Blue</button>
+                <button type="button" id="theme-btn-light" class="theme-toggle-btn" onclick="setTheme('light')">☀️ Light</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto px-4 py-6 space-y-8 flex-grow">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2.5 h-6 bg-amber-secondary rounded-full"></div>
+                    <h2 class="text-lg font-bold text-white">1. สรุปสาระสำคัญเรื่องแรงเสียดทาน (Friction)</h2>
+                </div>
+                <p class="text-xs md:text-sm text-slate-300 leading-relaxed">
+                    <strong>แรงเสียดทาน</strong> คือ แรงที่เกิดขึ้นระหว่างผิวสัมผัสของวัตถุสองชิ้น มีทิศทาง <span class="text-amber-secondary font-bold underline">ตรงกันข้าม</span> กับทิศทางการเคลื่อนที่ของวัตถุเสมอ แบ่งออกเป็น 2 ประเภทหลัก:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div class="p-3 rounded-xl bg-orange-950/20 border border-orange-900/40">
+                        <span class="font-bold text-orange-400">🛑 แรงเสียดทานสถิต (fs)</span>
+                        <p class="text-slate-400 mt-1">เกิดขึ้นเมื่อมีแรงมากระทำแต่ <span class="text-white">วัตถุยังอยู่นิ่ง</span> โดยค่าจะเพิ่มตามแรงผลักจนถึงจุดสูงสุด เรียกว่า "แรงเสียดทานสถิตสูงสุด"</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-blue-950/20 border border-blue-900/40">
+                        <span class="font-bold text-blue-400">🏃 แรงเสียดทานจลน์ (fk)</span>
+                        <p class="text-slate-400 mt-1">เกิดขึ้นในขณะที่ <span class="text-white">วัตถุกำลังเคลื่อนที่ไถล</span> มีค่าคงที่เสมอ และจะมีค่าน้อยกว่าแรงเสียดทานสถิตสูงสุดเสมอ</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400">⚡ <strong>ปัจจัยที่มีผล:</strong> 1. น้ำหนักกดทับตั้งฉากกับพื้นผิว (N) 2. ลักษณะผิวสัมผัสหรือสัมประสิทธิ์ความฝืด (&mu;) ไม่ขึ้นกับขนาดพื้นที่สัมผัส!</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between h-full">
+                <span class="text-xs font-bold text-slate-400 uppercase mb-2 block tracking-wider">📊 แผนภูมิความฝืดสัมบูรณ์ (&mu;)</span>
+                <div class="h-44 relative">
+                    <canvas id="surfaceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-slate-200 uppercase flex items-center">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span> 🔬 ห้องทดลองเสมือนจริง (Physics Simulation Lab)
+                </h3>
+                <button onclick="resetSim()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded-md transition cursor-pointer">🔄 รีเซ็ตแล็บ</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="sim-fixed-dark lg:col-span-2 bg-slate-950 rounded-xl overflow-hidden relative border border-slate-850 h-52">
+                    <canvas id="simCanvas" class="w-full h-full block"></canvas>
+                    
+                    <div class="absolute top-3 left-3 bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg text-[11px] space-y-0.5 z-10">
+                        <div>สถานะกล่อง: <span id="status-text" class="text-amber-400 font-bold">อยู่นิ่ง</span></div>
+                        <div>ความเร็ววัตถุ: <span id="velocity-text" class="text-sky-400 font-bold">0.00 m/s</span></div>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-slate-900/90 backdrop-blur border border-slate-800 p-2 rounded-lg text-[11px] space-y-0.5 text-right z-10">
+                        <div>แรงเสียดทานสถิตสูงสุด (Max fs): <span id="max-fs-val" class="text-orange-400 font-bold">0.0 N</span></div>
+                        <div>แรงเสียดทานจลน์ (fk): <span id="fk-val" class="text-blue-400 font-bold">0.0 N</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-850 p-4 rounded-xl border border-slate-800 flex flex-col justify-center space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400 flex justify-between">
+                            <span>ออกแรงผลักกล่อง (F):</span>
+                            <span class="text-amber-400 font-bold" id="push-val">35 N</span>
+                        </label>
+                        <input type="range" id="pushSlider" min="0" max="100" value="35" class="w-full accent-amber-500" oninput="updateSliders()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400 flex justify-between">
+                            <span>น้ำหนักรวมของวัตถุ (W):</span>
+                            <span class="text-sky-400 font-bold" id="weight-val">50 N</span>
+                        </label>
+                        <input type="range" id="weightSlider" min="10" max="100" value="50" class="w-full accent-sky-500" oninput="updateSliders()">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-slate-400">เลือกประเภทพื้นผิวสัมผัส (&mu;):</label>
+                        <select id="surfaceSelect" class="w-full bg-slate-900 border border-slate-700 text-xs rounded p-2 text-slate-200 mt-1 focus:outline-none" onchange="updateSliders()">
+                            <option value="0.2,0.15">🧊 ลานน้ำแข็งใสลื่น (&mu;s = 0.2, &mu;k = 0.15)</option>
+                            <option value="0.5,0.4" selected>🪵 พื้นไม้กระดานทั่วไป (&mu;s = 0.5, &mu;k = 0.4)</option>
+                            <option value="0.8,0.65">🛣️ พื้นถนนยางมะตอยหยาบ (&mu;s = 0.8, &mu;k = 0.65)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative">
+            <div class="flex items-center space-x-3 mb-6 border-b border-slate-800 pb-4">
+                <div class="w-3 h-7 bg-amber-secondary rounded-full"></div>
+                <h2 class="text-xl font-bold text-white">🏆 ควิซประเมินความรู้อัจฉริยะ (Adaptive Quiz 30 ข้อ)</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-xs bg-slate-950 p-4 rounded-xl border border-slate-850">
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl bg-amber-500/10 p-1.5 rounded-lg">🤖</span>
+                    <div>
+                        <h4 class="font-bold text-amber-400">คำใบ้แนะแนวทางจาก "OwlvyBot"</h4>
+                        <p class="text-slate-400 mt-0.5">คอยสะกิดกระบวนการคิดวิเคราะห์เบื้องหลังชอยส์ต่างๆ โดยไม่เฉลยคำตอบตรงๆ</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-3">
+                    <span class="text-2xl bg-blue-500/10 p-1.5 rounded-lg">👵</span>
+                    <div>
+                        <h4 class="font-bold text-blue-400">สรุปคำเฉลยเชิงลึกจาก "น้องไอสไตน์"</h4>
+                        <p class="text-slate-400 mt-0.5">คอยอธิบายหลักฟิสิกส์ ข้อบกพร่อง และความเข้าใจคลาดเคลื่อนอย่างเป็นระบบ</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-box" class="space-y-6">
+                <div class="flex justify-between items-center text-xs">
+                    <span id="quiz-mode-tag" class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-medium">รอบปกติ</span>
+                    <span id="progress-text" class="text-slate-400 font-medium">ข้อที่ 1 จาก 30</span>
+                </div>
+
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-amber-500 h-full transition-all duration-300" style="width: 3.3%"></div>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-850">
+                    <span id="quiz-level" class="text-[10px] uppercase font-bold text-slate-500 block mb-1">ระดับความคิด: -</span>
+                    <h3 id="question-text" class="text-sm md:text-base font-medium leading-relaxed text-slate-100">กำลังดาวน์โหลดชุดข้อสอบเข้าสู่ระบบ...</h3>
+                </div>
+
+                <div id="options-container" class="grid grid-cols-1 gap-3"></div>
+
+                <div id="feedback-panel" class="hidden space-y-3 pt-2">
+                    <div class="bg-amber-950/30 border border-amber-900/50 p-4 rounded-xl flex items-start space-x-3 text-xs">
+                        <span class="text-base">🤖</span>
+                        <div>
+                            <h5 class="font-bold text-amber-400">พี่ OwlvyBot แอบใบ้ให้คิด:</h5>
+                            <p id="hint-text" class="text-amber-200/80 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                    <div id="rational-box" class="hidden bg-slate-850 p-4 rounded-xl border border-slate-700/60 flex items-start space-x-3 text-xs">
+                        <span class="text-base">👵</span>
+                        <div>
+                            <h5 class="font-bold text-sky-400">คำอธิบายโครงสร้างเหตุผลโดย น้องไอสไตน์:</h5>
+                            <p id="rational-text" class="text-slate-300 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button id="action-btn" onclick="handleAction()" class="bg-amber-secondary hover:bg-orange-600 text-white font-bold text-xs md:text-sm px-6 py-3 rounded-lg transition shadow-md cursor-pointer">
+                        ตรวจสอบคำตอบ
+                    </button>
+                </div>
+            </div>
+
+            <div id="summary-box" class="hidden text-center py-10 space-y-6">
+                <span class="text-6xl block">📊</span>
+                <h3 class="text-2xl font-bold text-white">ประเมินผลลัพธ์การเรียนรู้สำเร็จ</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">คะแนนรวมความสามารถที่ทำได้ในรอบนี้:</p>
+                
+                <div class="inline-block bg-slate-950 border border-slate-850 rounded-2xl px-10 py-5 shadow-inner">
+                    <span id="final-score" class="text-5xl font-bold text-amber-400">0</span>
+                    <span id="score-max-text" class="text-slate-500 text-xl"> / 30 คะแนน</span>
+                </div>
+                
+                <p id="summary-desc" class="text-xs md:text-sm text-slate-300 max-w-md mx-auto leading-relaxed"></p>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-3 pt-4">
+                    <button onclick="restartFullQuiz()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-6 py-3 rounded-lg hover:bg-slate-700 transition cursor-pointer font-medium">🔄 ทำใหม่หมด (รีเซ็ตล้างค่า)</button>
+                    <button id="remedial-btn" onclick="startRemedialMode()" class="bg-amber-secondary text-white font-bold text-xs px-6 py-3 rounded-lg hover:bg-orange-600 transition cursor-pointer hidden shadow-lg">🎯 ตะลุยซ้ำเฉพาะข้อที่ผิด</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-850 text-center py-4 text-slate-500 text-[11px] tracking-wide mt-8">
+        &copy; Owlvy House Info Quiz System - Adaptive Physics TextBook Framework
+    </footer>
+
+    <script>
+        // =======================================================
+        // 📦 คลังข้อสอบวิเคราะห์ตามระดับ Bloom's Taxonomy แบบสมบูรณ์ 30 ข้อ 
+        // =======================================================
+        const quizData = [
+          {
+            "id": 1,
+            "level": "Remembering (ความจำ)",
+            "question": "ข้อใดต่อไปนี้อธิบายนิยามและลักษณะพื้นฐานของ 'แรงเสียดทาน' ได้ถูกต้องที่สุด?",
+            "options": [
+              "แรงที่มีทิศทางเดียวกับการเคลื่อนที่ของวัตถุเสมอ",
+              "แรงที่เกิดขึ้นระหว่างผิวสัมผัสของวัตถุ มีทิศทางตรงกันข้ามกับการเคลื่อนที่หรือทิศแรงที่พยายามขับเคลื่อน",
+              "แรงที่เกิดขึ้นเฉพาะเมื่อวัตถุเริ่มเคลื่อนที่และหายไปเมื่อวัตถุหยุดนิ่ง",
+              "แรงดึงดูดระหว่างมวลของวัตถุสองชิ้นที่อยู่ใกล้กัน"
+            ],
+            "answer": 1,
+            "hint": "คำว่า 'เสียดทาน' มันต้องคอยช่วยเหลือส่งเสริม หรือคอยขัดขวางต้านทานแรงของเรากันแน่นะ?",
+            "rational": "แรงเสียดทาน (Friction) คือแรงที่ต้านทานการเคลื่อนที่ของวัตถุ เกิดขึ้นระหว่างผิวสัมผัสของวัตถุสองชิ้น โดยมีทิศทางตรงกันข้ามกับทิศทางที่วัตถุกำลังเคลื่อนที่ หรือตรงข้ามกับทิศทางของแรงที่พยายามทำให้วัตถุเคลื่อนที่เสมอค่ะ"
+          },
+          {
+            "id": 2,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "ในขณะที่เราออกแรงผลักรถเข็นที่จอดอยู่นิ่งบนพื้นปูนหยาบ แต่รถเข็นยังไม่ขยับเลยแม้แต่น้อย แรงเสียดทานที่เกิดขึ้น ณ วินาทีนั้นเรียกว่าอะไรและมีขนาดเท่าใด?",
+            "options": [
+              "แรงเสียดทานจลน์ มีขนาดน้อยกว่าแรงที่ผลัก",
+              "แรงเสียดทานสถิต มีขนาดเท่ากับแรงที่ผลักพอดี",
+              "แรงเสียดทานสถิต มีขนาดมากกว่าแรงที่ผลัก",
+              "แรงเสียดทานจลน์ มีขนาดเท่ากับน้ำหนักของรถเข็น"
+            ],
+            "answer": 1,
+            "hint": "ถ้ารถเข็นยังคงอยู่นิ่งอย่างสมบูรณ์ตามกฎฟิสิกส์ แปลว่าแรงลัพธ์ที่กระทำต่อระบบต้องหักล้างกันจนเป็นศูนย์ (0) ใช่ไหมเอ่ย?",
+            "rational": "เมื่อวัตถุยังอยู่นิ่ง แรงต้านที่กระทำคือแรงเสียดทานสถิต (Static Friction) และตามกฎความสมดุลของแรง แรงต้านนี้จะมีขนาดแปรผันเพิ่มลดเท่ากับขนาดของแรงผลักในแนวราบพอดี วัตถุจึงยังรักษาสภาพนิ่งเฉื่อยอยู่ได้ค่ะ"
+          },
+          {
+            "id": 3,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "ปรากฏการณ์ใดในชีวิตประจำวันต่อไปนี้ แสดงให้เห็นว่า 'แรงเสียดทานสถิตสูงสุด' มีค่ามากกว่า 'แรงเสียดทานจลน์'?",
+            "options": [
+              "การที่รถจักรยานปั่นได้เร็วขึ้นเมื่อเราออกแรงกดลูกบันไดมากขึ้น",
+              "จังหวะออกแรงเฮือกแรกเพื่อให้ตู้เสื้อผ้าเริ่มขยับจะรู้สึกเหนื่อยกว่าตอนที่ตู้ไถลเลื่อนไปแล้ว",
+              "การที่เบรกของรถยนต์ทำงานได้ดีขึ้นเมื่อขับลุยไปบนถนนที่แห้งและสะอาด",
+              "วัตถุที่ตกลงมาจากที่สูงจะเคลื่อนที่เร็วขึ้นเรื่อย ๆ เนื่องจากแรงโน้มถ่วง"
+            ],
+            "answer": 1,
+            "hint": "ลองเปรียบเทียบความรู้สึกระหว่าง 'ตอนที่ของยังนิ่งแล้วเราต้องดันให้มันยอมเริ่มขยับตัวก้าวแรก' กับ 'ตอนที่ของเลื่อนไถลไหลไปยาวๆแล้ว' ตอนไหนเหนื่อยกว่ากันครับ?",
+            "rational": "ในทางฟิสิกส์ แรงเสียดทานสถิตสูงสุด (Maximum Static Friction) จะมีค่ามากกว่าแรงเสียดทานจลน์ (Kinetic Friction) เสมอ ทำให้จังหวะที่วัตถุกำลังจะเริ่มขยับต้องออกแรงเอาชนะแรงต้านมหาศาล แต่เมื่อวัตถุหลุดและเคลื่อนที่ไถลไปแล้ว แรงต้านจะลดระดับลงมาเล็กน้อยและคงที่ค่ะ"
+          },
+          {
+            "id": 4,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "คุณพ่อต้องการขนย้ายกล่องพัสดุหนัก 80 กิโลกรัมไปตามพื้นบ้าน หากคุณพ่อต้องการลดแรงเสียดทานเพื่อลากกล่องได้ง่ายที่สุดโดยใช้สิ่งของรอบตัว ควรเลือกใช้วิธีใด?",
+            "options": [
+              "นำผ้าห่มหนา ๆ มารองใต้กล่องพัสดุก่อนออกแรงลาก",
+              "เปลี่ยนไปลากบนพื้นกระเบื้องที่เพิ่งราดน้ำสบู่จนชุ่ม",
+              "ใช้เชือกเส้นใหญ่ผูกกล่องแล้วออกแรงดึงในแนวเฉียงขึ้น 45 องศา",
+              "สอดท่อพีวีซีทรงกลม 3-4 ท่อนไว้ใต้กล่องแล้วดันให้กล่องกลิ้งไปแทนการลาก"
+            ],
+            "answer": 3,
+            "hint": "การเปลี่ยนประเภทความเสียดทานจาก 'การลากครูดไถลไปตรงๆ' ให้กลายเป็น 'การหมุนกลิ้งของรูปทรงกระบอกหรือวงกลม' จะช่วยผ่อนแรงต้านทานสัมผัสได้มหาศาลเลยนะ!",
+            "rational": "การใช้ท่อพีวีซีทรงกลมมารองใต้กล่อง เป็นการเปลี่ยนรูปแบบความเสียดทานจากการไถล (Sliding Friction) ให้กลายเป็นแรงเสียดทานการกลิ้ง (Rolling Friction) ซึ่งในทางวิทยาศาสตร์ แรงเสียดทานจากการกลิ้งจะมีค่าน้อยกว่าแบบไถลอย่างมาก ช่วยทุ่นแรงได้ดีที่สุดและปลอดภัยต่อพื้นบ้านค่ะ"
+          },
+          {
+            "id": 5,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "หากนักเรียนต้องเดินลุยข้ามลานหินขรุขระที่มีน้ำตะไคร่เกาะอยู่จนลื่นมาก การเลือกสวมใส่รองเท้าลักษณะใดจะช่วยเพิ่มความปลอดภัยและป้องกันการลื่นล้มได้ดีที่สุด?",
+            "options": [
+              "รองเท้าหนังพื้นเรียบสนิทเพื่อเพิ่มพื้นที่ผิวสัมผัสเต็มฝ่าเท้า",
+              "รองเท้าบูทยางที่มีลวดลายร่องลึกและมีปุ่มยางหนาที่พื้นรองเท้า",
+              "รองเท้าผ้าใบน้ำหนักเบาพิเศษที่มีพื้นนุ่มยืดหยุ่นสูง",
+              "รองเท้าแตะฟองน้ำธรรมดาเพื่อให้เท้าขยับได้คล่องตัว"
+            ],
+            "answer": 1,
+            "hint": "เราต้องการเอาชนะความลื่นเลื่อนไหลของน้ำและตะไคร่ พื้นรองเท้าแบบไหนที่จะคอยตะกุยและรีดน้ำแยกสัมผัสออกจากหน้าผิวหินขรุขระได้ดีที่สุดครับ?",
+            "rational": "พื้นรองเท้าที่มีลวดลายร่องลึกและปุ่มหนาจะช่วยรีดน้ำและชั้นโคลนเหลวออกจากผิวหน้าสัมผัส และเพิ่มความสากความขรุขระขัดสีระหว่างพื้นผิว ส่งผลให้แรงเสียดทานสถิตเพิ่มขึ้น ป้องกันอุบัติเหตุการลื่นไถลได้ดีที่สุดค่ะ"
+          },
+          {
+            "id": 6,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "นักเรียนกลุ่มหนึ่งทดลองใช้เครื่องชั่งสปริงลากแท่งไม้ขนาดเท่ากัน 3 แท่ง ไปบนพื้นผิวปูนซีเมนต์พร้อมกัน ดัดแปลงสภาพผิวหน้าสัมผัสฐานดังนี้: แท่ง A (ผิวไม้เปลือย) ใช้แรงลาก 5 นิวตัน, แท่ง B (ติดกระดาษทรายหยาบ) ใช้แรงลาก 9 นิวตัน, แท่ง C (ทาจาระบีลื่น) ใช้แรงลาก 2 นิวตัน ข้อใดเรียงลำดับค่าสัมประสิทธิ์แรงเสียดทานจลน์ (&mu;k) ได้ถูกต้อง?",
+            "options": [
+              "แท่ง B > แท่ง A > แท่ง C",
+              "แท่ง C > แท่ง A > แท่ง B",
+              "แท่ง B > แท่ง C > แท่ง A",
+              "ทุกแท่งมีค่า &mu;k เท่ากันเพราะน้ำหนักและขนาดของแท่งไม้เท่ากันทุกประการ"
+            ],
+            "answer": 0,
+            "hint": "น้ำหนักแท่งไม้เท่ากันหมด (N คงที่) แต่แรงดึงที่ใช้อ่านค่าได้ไม่เท่ากัน ยิ่งออกแรงลากมาก แปลว่าผิวคู่นั้นมีความฝืดสากมาก สัมประสิทธิ์ความฝืดสัมผัสก็ต้องสูงตามไปด้วยใช่ไหมเอ่ย?",
+            "rational": "สัมประสิทธิ์แรงเสียดทาน (&mu;) เป็นค่าคงที่จำเพาะตัวระบุความฝืดระหว่างคู่ผิวสัมผัส จากสูตร f = &mu;N เมื่อมวลวัตถุ (N) เท่ากัน แรงเสียดทาน (f) จะแปรผันตรงกับค่า &mu; แท่ง B ออกแรงต้านมากสุดแปลว่าผิวสากสุด (&mu; สูงสุด) ส่วนแท่ง C ลื่นสุดออกแรงน้อยสุดแปลว่า &mu; ต่ำสุดค่ะ"
+          },
+          {
+            "id": 7,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "พิจารณาสมการแรงเสียดทาน f = &mu;N หากเรานำอิฐบล็อกสี่เหลี่ยมก้อนหนึ่งมาวางบนพื้นโต๊ะไม้ โดยทำการทดลองเปลี่ยนด้านที่วาง 3 แบบ: วางนอน (พื้นที่กว้างที่สุด), วางตะแคง (พื้นที่ปานกลาง), วางตั้ง (พื้นที่แคบที่สุด) แล้วใช้เครื่องชั่งสปริงลากด้วยความเร็วคงที่ แรงเสียดทานจลน์ที่เกิดขึ้นในทั้ง 3 กรณีจะเป็นอย่างไร?",
+            "options": [
+              "วางตั้งเกิดแรงเสียดทานมากที่สุดเพราะแรงกดกระจุกตัวอยู่ที่จุดเดียว",
+              "วางนอนเกิดแรงเสียดทานมากที่สุดเพราะมีพื้นที่ผิวสัมผัสกับโต๊ะมากที่สุด",
+              "แรงเสียดทานเท่ากันทั้ง 3 กรณี เนื่องจากน้ำหนักและชนิดของผิวสัมผัสไม่เปลี่ยนแปลง",
+              "ไม่สามารถสรุปได้เนื่องจากขนาดพื้นที่ผิวสัมผัสแปรผันตรงกับสัมประสิทธิ์แรงเสียดทาน"
+            ],
+            "answer": 2,
+            "hint": "กลับไปเพ่งพิจารณาสมการ f = &mu;N ให้ละเอียดถี่ถ้วนดูอีกครั้งสิครับ ในสมการนี้มีตัวแปรที่เกี่ยวกับ 'ขนาดความกว้างพื้นที่หน้าสัมผัส (Area)' อยู่หรือไม่เอ่ย?",
+            "rational": "ตามหลักกลศาสตร์ฟิสิกส์ แรงเสียดทานไม่ได้ขึ้นอยู่กับ 'ขนาดพื้นที่ของผิวสัมผัส' ตราบใดที่น้ำหนักวัตถุกดลงแนวตั้งฉาก (N) และเนื้อวัสดุคู่สัมผัส (&mu;) ยังคงเป็นชิ้นเดิมชิ้นเดิม ดังนั้น ไม่ว่าจะพลิกวางด้านใด แรงเสียดทานจลน์จะมีค่าเท่ากันสม่ำเสมอค่ะ"
+          },
+          {
+            "id": 8,
+            "level": "Evaluation (การประเมินค่า)",
+            "question": "ถ้านักเรียนเป็นวิศวกรออกแบบระบบเบรกของรถจักรยานยนต์ความเร็วสูง และต้องการเพิ่มแรงเสียดทานระหว่างผ้าเบรกกับจานเบรกให้ทำงานปลอดภัยที่สุด ปัจจัยใดที่เลือกปรับปรุงแล้วส่งผลน้อยที่สุดหรือไม่มีผลเลยต่อขนาดของแรงเสียดทาน?",
+            "options": [
+              "การเลือกใช้ส่วนผสมวัสดุผ้าเบรกที่มีความหนึบฝืดสูงขึ้น (เพิ่ม &mu;)",
+              "การออกแบบระบบปั๊มไฮดรอลิกให้เพิ่มแรงบีบกดคีบจานเบรกให้แน่นหนาขึ้น (เพิ่ม N)",
+              "การขยายความกว้างและพื้นที่ผิวหน้าสัมผัสของตัวผ้าเบรกให้ใหญ่ขึ้นเป็น 2 เท่า",
+              "การเปลี่ยนจานเบรกเป็นวัสดุคาร์บอนเซรามิกที่ทนความร้อนสูงและเหนียวฝืด"
+            ],
+            "answer": 2,
+            "hint": "ข้อนี้เชื่อมโยงกับทฤษฎีข้อก่อนหน้าเลยครับ ลองหาดูว่าตัวแปรข้อใดที่เป็นเรื่องของ 'พื้นที่ขนาด (Area)' ซึ่งอยู่นอกเหนือสมการคำนวณขนาดแรงเสียดทาน f = &mu;N",
+            "rational": "การขยายพื้นที่ผิวหน้าสัมผัสของผ้าเบรกให้ใหญ่ขึ้น ช่วยประโยชน์มหาศาลในแง่การกระจายแรงกด ช่วยขจัดความร้อนสะสม และลดอัตราการสึกหรอสึกหรอของวัสดุผ้าเบรกให้ยาวนานขึ้น แต่ในทางทฤษฎีกลศาสตร์ขนาดของแรงเสียดทานจะคงที่เท่าเดิม ตราบใดที่แรงกดบีบ (N) และค่าความฝืด (&mu;) ไม่เปลี่ยนค่ะ"
+          },
+          {
+            "id": 9,
+            "level": "Evaluation (การประเมินค่า)",
+            "question": "หากจู่ ๆ กฎฟิสิกส์บนโลกใบนี้ถูกดัดแปลงแปรเปลี่ยนทำให้ค่า 'แรงเสียดทานทุกชนิดบนโลกกลายเป็นศูนย์ (0)' ทันทีทันใด เหตุการณ์ในข้อใดคือภัยพิบัติกายภาพที่จะเกิดขึ้นจริงอย่างหลีกเลี่ยงไม่ได้?",
+            "options": [
+              "นกและเครื่องบินจะบินได้เร็วขึ้นอย่างไม่มีขีดจำกัดเนื่องจากไม่มีแรงต้านอากาศ",
+              "รถยนต์ทุกคันที่กำลังวิ่งบนถนนจะไม่สามารถหยุดหรือเลี้ยวโค้งได้ และล้อจะหมุนฟรีปั่นอยู่กับที่หากรถจอดนิ่ง",
+              "สิ่งก่อสร้างและอาคารคอนกรีตจะยึดเกาะกับพื้นดินได้แน่นหนาขึ้นเนื่องจากไม่มีแรงมาขัดขวาง",
+              "มนุษย์จะสามารถกระโดดได้สูงขึ้น 10 เท่าเพราะไม่มีแรงเสียดทานต้านทานขา"
+            ],
+            "answer": 1,
+            "hint": "นึกภาพเวลาเราขับรถเลี้ยวโค้งหรือก้าวเท้าเดินยันพื้นดิน ระบบเคลื่อนไหวและหยุดนิ่งเหล่านี้ต้องการความฝืดในการยึดจับสัมผัสใช่ไหมครับ? ถ้ายึดไม่ได้ทุกอย่างจะสไลด์เลื่อนลื่นอย่างไรนะ?",
+            "rational": "หากโลกไร้แรงเสียดทาน ยานพาหนะที่วิ่งอยู่จะไม่สามารถเหยียบเบรกเพื่อหยุดรถหรือเลี้ยวโค้งได้เลยเพราะล้อจะสไลด์ลื่นไถลอย่างไร้ทิศทาง และล้อรถที่จอดนิ่งก็จะปั่นฟรีอยู่กับที่เพราะหน้าร่องยางไม่สามารถเกาะพื้นเพื่อส่งแรงผลักรถไปข้างหน้า มนุษย์เราก็จะสไลด์ลื่นล้มอยู่กับที่คล้ายเดินบนลานน้ำแข็งมันค่ะ"
+          },
+          {
+            "id": 10,
+            "level": "Remembering (ความจำ)",
+            "question": "ชิ้นส่วนตลับโลหะกลมในแกนล้อจักรยานหรือล้อสเก็ตบอร์ด ถูกสร้างขึ้นมาเพื่อทำหน้าที่ในการ 'ลดแรงเสียดทานแบบไถลให้กลายเป็นแบบกลิ้ง' มีชื่อเรียกว่าอะไร?",
+            "options": [
+              "สายพานลำเลียง (Conveyor Belt)",
+              "ตลับลูกปืนเม็ดกลม (Ball Bearing)",
+              "เฟืองขับกำลัง (Gear)",
+              "ลูกสูบไฮดรอลิก (Hydraulic Piston)"
+            ],
+            "answer": 1,
+            "hint": "อุปกรณ์นี้ข้างในจะบรรจุเม็ดโลหะกลมๆชุบน้ำมันลื่นจำนวนมาก คอยเรียงสลับสับเปลี่ยนช่วยให้แกนวงล้อหมุนติ้วได้อย่างรวดเร็วและทนทาน",
+            "rational": "ตลับลูกปืนเม็ดกลม (Ball Bearing) คืออุปกรณ์วิศวกรรมที่นำมาใส่คั่นกลางระหว่างแกนหมุนที่ต้องสัมผัสกันขัดสีกัน เพื่อเปลี่ยนโหมดความเสียดทานแบบไถลครูด (Sliding) ให้กลายเป็นการหมุนกลิ้ง (Rolling) บนเม็ดกลม ซึ่งช่วยลดขนาดแรงเสียดทาน ลดความร้อนสะสม และถนอมวัสดุได้ดีที่สุดค่ะ"
+          },
+          {
+            "id": 11,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "แผนภูมิแสดงความสัมพันธ์ระหว่างแรงผลักแนวราบ (แกน X) กับขนาดแรงเสียดทาน (แกน Y) จะแสดงกราฟเป็นรูปแบบใดในจังหวะก่อนและหลังวัตถุเคลื่อนที่?",
+            "options": [
+              "เป็นเส้นตรงพุ่งเฉียงขึ้นเป็นระเบียบตลอดเวลาไม่มีวันลาดลง",
+              "ช่วงวัตถุนิ่งกราฟจะเฉียงพุ่งขึ้นจนถึงจุดสูงสุด จากนั้นหักตกลงมาเล็กน้อยแล้วเป็นเส้นราบคงที่ยาวขนานแกน X",
+              "เป็นเส้นตรงแนวราบราบเรียบขนานแกน X ตั้งแต่เริ่มต้นเปิดการทดลอง",
+              "ช่วงแรกจะคงที่แนวราบ จากนั้นจะพุ่งตั้งฉาก 90 องศาขึ้นไปเมื่อวัตถุเคลื่อนที่สำเร็จ"
+            ],
+            "answer": 1,
+            "hint": "ลองคิดตามนะ! ช่วงวัตถุนิ่ง แรงเสียดทานสถิตจะโตตามแรงผลัก (เฉียงขึ้น) จนถึงจุดพีคกำลังจะขยับ (fs max) พอวัตถุขยับไถลหลุดปุ๊บ แรงต้านยวบลงเล็กน้อยกลายเป็นแรงเสียดทานจลน์ที่เสถียรคงที่",
+            "rational": "กราฟช่วงแรงเสียดทานสถิตจะเป็นเส้นตรงเฉียงขึ้นทำมุม 45 องศา เพราะแรงเสียดทานสถิตจะปรับขนาดเท่ากับแรงผลักเสมอเพื่อรักษาสมดุลนิ่ง จนถึงจุดสูงสุด (fs max) เมื่อวัตถุเริ่มขยับไถล กราฟจะยวบตกลงมาอยู่ที่ระดับแรงเสียดทานจลน์ (fk) และลากยาวราบเป็นเส้นคงที่ตลอดไปค่ะ"
+          },
+          {
+            "id": 12,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "ในกิจกรรมแข่งลากเลื่อนไม้บนพื้นสนามหญ้า ถ้านักเรียนต้องการลดแรงเสียดทานจลน์สัมผัสให้น้อยที่สุดเพื่อช่วยให้ทีมลากเลื่อนไหลได้ไวและชนะ ควรเลือกปฏิบัติวิธีใด?",
+            "options": [
+              "ให้เพื่อนทีมงานที่มีน้ำหนักตัวเยอะที่สุดขึ้นไปนั่งบนกระดานไม้เพื่อเพิ่มแรงส่งกดทับ",
+              "พ่นสารน้ำมันหล่อลื่นหรือทาก้อนแว็กซ์เคลือบชโลมไว้ใต้ท้องแผ่นกระดานเลื่อนไม้",
+              "ดัดแปลงแผ่นไม้เลื่อนให้มีหน้ากว้างและแบนราบจมแนบสนิทติดหญ้ามากขึ้น",
+              "พยายามกระชากลากเชือกสลับสั้นยาวด้วยจังหวะความเร็วที่ไม่สม่ำเสมอ"
+            ],
+            "answer": 1,
+            "hint": "เราต้องการเปลี่ยนสภาพผิวสัมผัสขรุขระของเสี้ยนไม้และใบหญ้าไม่ให้เกี่ยวขัดกัน สารเหลวเหนียวมันชนิดใดที่สามารถแทรกกลางทำหน้าที่ฟิล์มสไลด์ได้ดีครับ?",
+            "rational": "การทาแว็กซ์เคลือบหรือชโลมน้ำมันหล่อลื่นใต้ท้องกระดานไม้ เป็นการเติมสารลดความเสียดทาน (Lubricant) เข้าไปบล็อกปิดร่องขรุขระ และกั้นผิวหน้าของเนื้อไม้กับใบหญ้าไม่ให้สัมผัสขัดสีกันโดยตรง ส่งผลให้ค่าสัมประสิทธิ์ &mu; ต่ำลง จึงเคลื่อนที่ลื่นและทุ่นแรงลากค่ะ"
+          },
+          {
+            "id": 13,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "รถยนต์วิ่งความเร็วสูงแล้วเหยียบเบรกกะทันหันจน 'ล้อล็อกตายสนิท' ไม่หมุนกลิ้ง ตัวรถไถลครูดลากเป็นทางยาวไปบนพื้นถนนคอนกรีตจนเกิดเสียงดังแสบแก้วหูและรอยยางไหม้สีดำ แรงเสียดทานที่หน้าสัมผัสยาง ณ วินาทีที่รถไถลครูดคือประเภทใด?",
+            "options": [
+              "แรงเสียดทานสถิตสูงสุด เนื่องจากวงล้อหยุดหมุนไปแล้ว",
+              "แรงเสียดทานกลิ้ง เนื่องจากยานพาหนะทำงานด้วยระบบล้อหมุน",
+              "แรงเสียดทานจลน์ เนื่องจากหน้าสัมผัสผิวเนื้อยางเกิดการเลื่อนไถลขัดสีสัมพัทธ์ไปบนพื้นถนนคอนกรีต",
+              "ไม่มีแรงเสียดทานเกิดขึ้นเนื่องจากรถยนต์หลุดสูญเสียการควบคุมไปแล้ว"
+            ],
+            "answer": 2,
+            "hint": "คีย์เวิร์ดสำคัญคือคำว่า 'ล้อล็อกและไถลครูดลากตรงไปข้างหน้า' ถ้าระบบวัตถุเลื่อนไถลครูดไปบนระนาบโดยไม่มีการหมุนกลิ้งของผิว แรงต้านที่เจอนั้นจัดเป็นรูปแบบใดเอ่ย?",
+            "rational": "เมื่อล้อล็อกตายและรถยังคงไถลครูดไปข้างหน้า หน้ายางรถยนต์จะเลื่อนไถลขัดสีสัมพัทธ์กับพื้นระนาบถนนคอนกรีตโดยไม่มีการหมุนกลิ้ง แรงต้านทานสัมผัสที่เกิดขึ้นในสภาวะที่ผิววัตถุเกิดการเลื่อนไถลเคลื่อนที่สัมพัทธ์กันจึงจัดเป็น 'แรงเสียดทานจลน์' (Kinetic Friction) ค่ะ"
+          },
+          {
+            "id": 14,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "ฟ้าใสทำการทดลองใช้สปริงลากกล่องบนโต๊ะตัวเดิมเปรียบเทียบ 2 ครั้ง ครั้งแรกดึงกล่องเปล่า ครั้งที่สองนำตุ้มเหล็กหนักวางทับซ้อนไว้บนกล่อง พบว่าครั้งที่สองต้องออกแรงดึงมากกว่าเดิมถึง 3 เท่า ข้อใดวิเคราะห์หลักฟิสิกส์ได้ถูกต้อง?",
+            "options": [
+              "การเพิ่มตุ้มเหล็กทำให้ค่าสัมประสิทธิ์ความฝืด (&mu;) ของหน้าสัมผัสสูงขึ้น",
+              "การเพิ่มตุ้มเหล็กทำให้น้ำหนักมวลรวมมากขึ้น แรงกดตั้งฉาก (N) จึงสูงขึ้น ขนาดแรงเสียดทานจึงโตตามสูตร f = &mu;N",
+              "ตุ้มเหล็กสร้างกระแสเหนี่ยวนำแม่เหล็กกับพื้นโต๊ะทำให้ดึงยากขึ้น",
+              "พื้นที่ผิวสัมผัสรวมแผ่ขยายใหญ่ขึ้นเนื่องจากน้ำหนักกดบีบเรียบสนิท"
+            ],
+            "answer": 1,
+            "hint": "ผิวหน้าสัมผัสคู่ทดลองยังคงเป็นกล่องไม้เดิมกับพื้นโต๊ะตัวเดิม (แปลว่าค่า &mu; เท่าเดิมคงที่) แต่สิ่งที่เปลี่ยนคือมวลระบบที่กดดิ่งลงพื้นหนาแน่นขึ้น ซึ่งเป็นการเพิ่มตัวแปรใดในสูตร f = &mu;N?",
+            "rational": "การวางตุ้มเหล็กทับด้านบนเป็นการเพิ่มมวลรวมของระบบ ส่งผลให้แรงปฏิกิริยากดตั้งฉากกับพื้นระนาบ (Normal Force: N) มีค่าสูงขึ้นเป็น 3 เท่า และจากสูตร f = &mu;N เมื่อ N มากขึ้น ขนาดแรงเสียดทาน (f) จะแปรผันตรงเพิ่มสูงตามไปด้วย โดยค่า &mu; ผิวหนังสัมผัสคู่เดิมยังเท่าเดิมค่ะ"
+          },
+          {
+            "id": 15,
+            "level": "Evaluation (การประเมินค่า)",
+            "question": "ในการแข่งขันท้าทายยกน้ำหนักโอลิมปิก ก่อนนักกีฬาจะเดินไปจับบาร์เหล็กยกขึ้น มักจะนำ 'ผงแป้งสีขาว' (แมกนีเซียมคาร์บอเนต) มาชโลมทาฝ่ามือจนขาวโพลน พฤติกรรมนี้ทำไปเพื่อประโยชน์หลักทางวิทยาศาสตร์ข้อใด?",
+            "options": [
+              "เพื่อลดแรงเสียดทานช่วยให้ฝ่ามือลื่นหมุนสไลด์ไปตามแกนเหล็กได้ง่ายโดยไม่เจ็บผิว",
+              "เพื่อทำความสะอาดและช่วยฆ่าเชื้อโรคสิ่งสกปรกที่เกาะสะสมอยู่รอบแกนบาร์เหล็ก",
+              "เพื่อดูดซับคราบน้ำเหงื่อที่ชื้นลื่น และเพิ่มความสากขรุขระ (&mu;) ช่วยให้ฝ่ามือยึดจับบาร์เหล็กแน่นหนาไม่หลุดตกใส่ตัว",
+              "เพื่อเพิ่มมวลน้ำหนักและแรงกดแนวดิ่ง (N) ให้สมดุลกล้ามเนื้อฝ่ามือ"
+            ],
+            "answer": 2,
+            "hint": "ถ้าฝ่ามือนักกีฬามีคราบน้ำเหงื่อไคลเปียกเยิ้ม น้ำเหงื่อจะทำหน้าที่คล้ายฟิล์มลื่นหล่อลื่นซึ่งจะอันตรายมาก ผงชอล์กสีขาวนี้จะเข้ามาแก้ไขและเพิ่มความปลอดภัยอย่างไรนะ?",
+            "rational": "คราบน้ำเหงื่อชื้นบนฝ่ามือเป็นสารลดความเสียดทานที่เป็นภัยอันตราย ผงชอล์กแมกนีเซียมจะช่วยดูดซับความชื้นเหงื่อให้แห้งสนิท และตัวผงแป้งสากจะช่วยเพิ่มสัมประสิทธิ์ความฝืด (&mu;) ระหว่างผิวเนื้อกับแกนเหล็ก ทำให้เกิดแรงเสียดทานสถิตที่สูงพอที่จะล็อกยึดบาร์เหล็กได้มั่นคงปลอดภัยค่ะ"
+          },
+          {
+            "id": 16,
+            "level": "Remembering (ความจำ)",
+            "question": "สัมประสิทธิ์ของแรงเสียดทาน (Coefficient of Friction) มักถูกแทนด้วยสัญลักษณ์ในข้อใด และมีหน่วยวัดทางฟิสิกส์อย่างไร?",
+            "options": [
+              "สัญลักษณ์ N มีหน่วยเป็น นิวตัน",
+              "สัญลักษณ์ μ (มิว) เป็นค่าอัตราส่วนที่ไม่มีหน่วย",
+              "สัญลักษณ์ f มีหน่วยเป็น นิวตัน-เมตร",
+              "สัญลักษณ์ F มีหน่วยเป็น กิโลกรัม"
+            ],
+            "answer": 1,
+            "hint": "ลองทบทวนสูตร f = μN ดูครับ ตัวแปรนี้เกิดขึ้นจากการนำแรงเสียดทานหารด้วยแรงกดตั้งฉาก ซึ่งมีหน่วยเป็นนิวตันทั้งคู่ เมื่อตัดหน่วยกันแล้วจะเหลืออะไรไหมนะ?",
+            "rational": "สัมประสิทธิ์ของแรงเสียดทานใช้สัญลักษณ์ตัวอักษรกรีกคือ μ (มิว) หาได้จากอัตราส่วนระหว่างขนาดของแรงเสียดทาน (f) ต่อขนาดของแรงกดตั้งฉาก (N) เนื่องจากเป็นปริมาณประเภทแรงเหมือนกัน หน่วยนิวตันจึงตัดกันหมด ทำให้ค่า μ เป็นค่าคงที่แสดงความฝืดของผิวสัมผัสที่ไม่มีหน่วยวัด"
+          },
+          {
+            "id": 17,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "ในการแข่งขันลากกระสอบป่านที่โรงเรียน หากนักเรียนสองคนลากวัตถุที่มีน้ำหนักเท่ากัน แต่คนหนึ่งลากบนพื้นคอนกรีตเรียบแห้ง อีกคนลากบนพื้นคอนกรีตที่เปียกน้ำ ข้อใดอธิบายความแตกต่างของแรงเสียดทานได้ถูกต้อง?",
+            "options": [
+              "พื้นเปียกน้ำมีแรงเสียดทานมากกว่าเพราะน้ำเพิ่มความหนาแน่นให้พื้นผิว",
+              "พื้นแห้งมีแรงเสียดทานน้อยกว่าเพราะโมเลกุลอากาศช่วยแบริ่งวัตถุ",
+              "พื้นเปียกน้ำมีแรงเสียดทานน้อยกว่าเพราะฟิล์มน้ำทำหน้าที่เป็นสารหล่อลื่นลดการเกาะเกี่ยวของผิวสัมผัส",
+              "ทั้งสองพื้นผิวมีแรงเสียดทานเท่ากันเพราะใช้กระสอบป่านเหมือนกัน"
+            ],
+            "answer": 2,
+            "hint": "ทำไมเวลาฝนตกถนนถึงลื่นและรถเบรกอยู่ได้ยากขึ้น? น้ำเข้าไปทำอะไรระหว่างหน้ายางกับผิวถนนคอนกรีตกันนะ?",
+            "rational": "โมเลกุลของน้ำที่แทรกอยู่ระหว่างผิวสัมผัสจะทำหน้าที่เป็นฟิล์มบาง ๆ คอยกั้นและลดการขัดสีเกี่ยวเกาะกันของความขรุขระบนพื้นผิว ส่งผลให้ค่าสัมประสิทธิ์ของแรงเสียดทาน (μ) ลดลง วัตถุจึงลื่นไถลได้ง่ายขึ้น"
+          },
+          {
+            "id": 18,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "เหตุใดในทางฟิสิกส์ รถยนต์ที่จอดอยู่บนทางลาดชัน จึงสามารถจอดนิ่งอยู่ได้โดยไม่ไถลตกลงมาด้านล่าง ทั้ง ๆ ที่มีแรงโน้มถ่วงพยายามดึงตัวรถลงมาตลอดเวลา?",
+            "options": [
+              "เพราะแรงต้านอากาศรอบ ๆ ตัวรถมีค่ามหาศาล",
+              "เพราะเกิดแรงเสียดทานสถิตระหว่างหน้ายางกับพื้นถนนที่มีทิศทางชี้ขึ้นไปตามทางลาดต้านแรงดึงทลายลงมา",
+              "เพราะแรงเสียดทานจลน์ของล้อรถแปรผันตรงจนกลายเป็นศูนย์",
+              "เพราะน้ำหนักของรถลดลงเมื่อจอดอยู่บนพื้นที่ที่มีความชัน"
+            ],
+            "answer": 1,
+            "hint": "ถ้ารถยังนิ่งสนิท แรงต้านที่ขัดขวางการไถลลงมาต้องเป็นแรงเสียดทานประเภทใด และทิศทางของมันต้องไปทางไหนเพื่อคานดันไม่ให้รถไหลลงล่าง?",
+            "rational": "เมื่อรถยนต์จอดนิ่งบนทางลาด แรงโน้มถ่วงจะแตกแรงดึงรถลงมาตามทางลาด แต่หน้ายางที่ฝืดกับพื้นถนนจะเกิด 'แรงเสียดทานสถิต' (Static Friction) ต้านกลับในทิศทางชี้ขึ้นขนานกับทางลาด หากแรงเสียดทานสถิตนี้มีค่าเท่ากับแรงดึงลง รถจะอยู่ในสภาวะสมดุลและจอดนิ่งได้โดยไม่ไถล"
+          },
+          {
+            "id": 19,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "เด็กชายเอ็มสังเกตว่า ลิฟต์โดยสารที่โรงเรียนหรือตามห้างสรรพสินค้า จะมีการใช้น้ำมันหล่อลื่นสูตรพิเศษทาเคลือบไว้ที่ 'รางเหล็กนำทาง' ของตัวลิฟต์ พฤติกรรมนี้มีประโยชน์หลักอย่างไรทางวิทยาศาสตร์?",
+            "options": [
+              "ช่วยเพิ่มน้ำหนักให้กับรางเหล็กทำให้โครงสร้างแข็งแรงขึ้น",
+              "ลดแรงเสียดทานจลน์เพื่อป้องกันการขัดสี เสียงดัง และลดความร้อนสะสมขณะลิฟต์เลื่อนขึ้น-ลง",
+              "เพิ่มแรงเสียดทานสถิตเพื่อช่วยให้ลิฟต์เบรกได้กะทันหันอย่างนุ่มนวล",
+              "ทำความสะอาดคราบฝุ่นละอองไม่ให้ยึดเกาะสายสลิงเหล็ก"
+            ],
+            "answer": 1,
+            "hint": "รางเหล็กกับตัวลิฟต์ต้องมีการเลื่อนไถลขัดสีกันตลอดทั้งวัน การทาสารหล่อลื่นจะเข้าไปช่วยลดหรือเพิ่มความฝืด และช่วยถนอมเนื้อโลหะอย่างไร?",
+            "rational": "การทาน้ำมันหล่อลื่นที่รางนำทางลิฟต์ มีวัตถุประสงค์เพื่อลดสัมประสิทธิ์แรงเสียดทานจลน์สัมพัทธ์ระหว่างตัวยึดลิฟต์กับรางเหล็ก ช่วยให้ลิฟต์เคลื่อนที่ได้อย่างลื่นไหล ลดการเกิดเสียงดังจากการขูดขีด และลดความร้อนสะสมจากการเสียดสี ซึ่งช่วยยืดอายุการใช้งานของระบบเครื่องกล"
+          },
+          {
+            "id": 20,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "ถ้านักเรียนเดินทางไปท่องเที่ยวและต้องเดินป่าลุยดินโคลนที่เฉอะแฉะ การที่นักเรียนเห็นชาวบ้านนำ 'เชือกเส้นหนา' มาพันรอบ ๆ หน้าสัมผัสของรองเท้าบูทป่า การกระทำนี้ให้ผลลัพธ์ตรงกับข้อใด?",
+            "options": [
+              "เป็นการลดแรงต้านอากาศทำให้เดินได้เร็วขึ้นในป่าทึบ",
+              "เป็นการลดพื้นที่ผิวสัมผัสเพื่อไม่ให้โคลนเหนียวมาติดใต้รองเท้า",
+              "เป็นการเพิ่มความขรุขระและสากของพื้นผิวรองเท้า เพื่อเพิ่มแรงเสียดทานในการยึดเกาะดินโคลนไม่ให้ลื่นล้ม",
+              "เป็นการเพิ่มแรงกดแนวตั้งฉาก (N) ทำให้รองเท้าจมลงไปในดินได้ลึกขึ้น"
+            ],
+            "answer": 2,
+            "hint": "เชือกเส้นหนา ๆ มีพื้นผิวที่ขรุขระและสาก เมื่อนำมาพันรอบรองเท้าเรียบ ๆ จะช่วยเพิ่มหรือลดค่าความฝืด (μ) ในการตะกุยดินโคลนเหลว?",
+            "rational": "การพันเชือกหนา ๆ รอบรองเท้าบูทช่วยเพิ่มความขรุขระและปุ่มปมสัมผัสขัดสีกับพื้นดิน เป็นการเพิ่มค่าสัมประสิทธิ์แรงเสียดทาน (μ) ทำให้เกิดแรงต้านทานการลื่นไถลได้ดีขึ้นในสภาวะที่ดินโคลนเหลวสูญเสียความฝืด ช่วยให้ยึดเกาะพื้นผิวธรรมชาติได้อย่างมั่นคงขึ้น"
+          },
+          {
+            "id": 21,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "วัตถุมวล 5 กิโลกรัม วางอยู่นิ่งบนพื้นที่มีค่าสัมประสิทธิ์แรงเสียดทานสถิต (μs) เท่ากับ 0.4 และสัมประสิทธิ์แรงเสียดทานจลน์ (μk) เท่ากับ 0.3 (กำหนดให้ g = 10 m/s²) หากออกแรงผลักวัตถุในแนวราบขนาด 15 นิวตัน แรงเสียดทานที่เกิดขึ้น ณ ขณะนั้นจะมีขนาดกี่นิวตัน?",
+            "options": [
+              "15 นิวตัน",
+              "20 นิวตัน",
+              "11.25 นิวตัน",
+              "0 นิวตัน"
+            ],
+            "answer": 0,
+            "hint": "ขั้นแรกต้องหา 'แรงเสียดทานสถิตสูงสุด' (fs max = μs * N) ออกมาดูก่อนว่าวัตถุนี้จะยอมขยับที่แรงกี่นิวตัน? ถ้ารู้แล้วลองดูซิว่า แรงผลัก 15 นิวตันของเรา เอาชนะมันได้หรือยัง?",
+            "rational": "คำนวณแรงกดแนวตั้งฉาก N = mg = 5 * 10 = 50 นิวตัน จากนั้นหาแรงเสียดทานสถิตสูงสุด fs max = 0.4 * 50 = 20 นิวตัน หมายความว่าต้องออกแรงมากกว่า 20 นิวตันวัตถุจึงจะเริ่มขยับ ในโจทย์ออกแรงผลักเพียง 15 นิวตัน ซึ่งน้อยกว่าแรงฉุดสูงสุด วัตถุจึงยังคง 'อยู่นิ่ง' และแรงเสียดทานสถิตที่เกิดขึ้นจริงจะเท่ากับแรงผลัก ณ ตอนนั้น คือ 15 นิวตัน พอดีตามกฎสมดุล"
+          },
+          {
+            "id": 22,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "จากโจทย์ข้อก่อนหน้า (วัตถุมวล 5 กิโลกรัม, μs = 0.4, μk = 0.3) หากเราเปลี่ยนไปออกแรงผลักวัตถุ in แนวราบขนาด 30 นิวตัน จนวัตถุหลุดและเคลื่อนที่ไถลไปบนพื้นแล้ว แรงเสียดทานจลน์ที่คอยต้านวัตถุอยู่ในขณะเคลื่อนที่จะมีขนาดกี่นิวตัน?",
+            "options": [
+              "30 นิวตัน",
+              "20 นิวตัน",
+              "15 นิวตัน",
+              "12 นิวตัน"
+            ],
+            "answer": 2,
+            "hint": "เมื่อแรงผลัก (30 N) ชนะแรงต้านสูงสุด (20 N) แล้ว วัตถุจะเปลี่ยนสถานะเป็น 'กำลังเคลื่อนที่' ดังนั้นแรงเสียดทานจะเปลี่ยนมาใช้สูตรของแรงเสียดทานจลน์ (fk = μk * N) ทันที ลองคำนวณดูครับ",
+            "rational": "เนื่องจากแรงผลัก 30 นิวตัน มีค่ามากกว่าแรงเสียดทานสถิตสูงสุด (20 นิวตัน) วัตถุจึงเคลื่อนที่ไถลไปบนพื้น แรงต้านที่กระทำต่อวัตถุขณะเคลื่อนที่จะเปลี่ยนเป็นแรงเสียดทานจลน์ทันที คำนวณจากสูตร fk = μk * N = 0.3 * 50 = 15 นิวตัน (และจะมีค่าคงที่ระดับนี้ต่อไปตลอดการเคลื่อนที่)"
+          },
+          {
+            "id": 23,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "ถ้านักเรียนทำการทดลองลากบล็อกไม้บนพื้นผิวชนิดหนึ่ง โดยใช้เครื่องชั่งสปริงและค่อย ๆ เพิ่มแรงดึงขึ้นเรื่อย ๆ พบว่าในจังหวะที่บล็อกไม้ 'กำลังจะเคลื่อนที่พอดี' เข็มของเครื่องชั่งสปริงดีดไปชี้ที่ 8 นิวตัน แต่เมื่อบล็อกไม้ไถลครูดไปด้วยความเร็วคงที่ เข็มกลับตกลงมานิ่งอยู่ที่ 6 นิวตัน ข้อใดวิเคราะห์ค่าแรงเสียดทานได้ถูกต้อง?",
+            "options": [
+              "แรงเสียดทานสถิตเท่ากับ 6 นิวตัน และแรงเสียดทานจลน์เท่ากับ 8 นิวตัน",
+              "แรงเสียดทานสถิตสูงสุดเท่ากับ 8 นิวตัน และแรงเสียดทานจลน์เท่ากับ 6 นิวตัน",
+              "เกิดความผิดพลาดในการทดลองเพราะแรงต้านตอนเคลื่อนที่ควรจะมากกว่าตอนอยู่นิ่ง",
+              "น้ำหนักของบล็อกไม้ลดลง 2 นิวตันหลังจากเคลื่อนที่"
+            ],
+            "answer": 1,
+            "hint": "จดจำคำสำคัญ: 'กำลังจะเคลื่อนที่พอดี' สัมพันธ์กับแรงเสียดทานสถิตจุดสูงสุด และ 'เคลื่อนที่ด้วยความเร็วคงที่' สัมพันธ์กับแรงเสียดทานจลน์ ลองจับคู่ตัวเลขดูครับ",
+            "rational": "แรงดึงที่จังหวะวัตถุกำลังจะเริ่มเคลื่อนที่พอดีคือค่าของ 'แรงเสียดทานสถิตสูงสุด' อ่านได้ 8 นิวตัน และแรงดึงที่ใช้ประคองให้วัตถุไถลไปได้ด้วยความเร็วคงที่คือค่าของ 'แรงเสียดทานจลน์' อ่านได้ 6 นิวตัน ซึ่งสอดคล้องตามหลักการที่ว่าแรงเสียดทานสถิตสูงสุดจะมากกว่าแรงเสียดทานจลน์เสมอ"
+          },
+          {
+            "id": 24,
+            "level": "Evaluation (การประเมินค่า)",
+            "question": "ในสภาวะน้ำท่วมขังขรุขระ ยางรถยนต์ขนาดยักษ์ของรถบรรทุกที่มี 'หน้ายางกว้างมาก' กับยางของรถจักรยานยนต์ที่มี 'หน้ายางแคบ' หากรถทั้งสองคันมีน้ำหนักกดลงบนพื้นถนนเท่ากัน และใช้วัสดุยางชนิดเดียวกัน ข้อใดประเมินขนาดแรงเสียดทานที่เกิดขึ้นได้ถูกต้องที่สุด?",
+            "options": [
+              "รถบรรทุกเกิดแรงเสียดทานมากกว่ามหาศาลเพราะหน้ายางกว้างกว่ามีพื้นที่เกาะถนนเยอะกว่า",
+              "รถจักรยานยนต์เกิดแรงเสียดทานมากกว่าเพราะแรงกดโฟกัสลงที่พื้นที่แคบทำให้ฝังลึก",
+              "ทั้งสองคันเกิดแรงเสียดทานเท่ากันเนื่องจากแรงเสียดทานขึ้นอยู่กับน้ำหนักกด (N) และวัสดุสัมผัส (μ) ไม่เกี่ยวกับขนาดพื้นที่ผิวสัมผัส",
+              "ไม่สามารถเปรียบเทียบได้เนื่องจากโครงสร้างล้อแปรผันตามรัศมีวงกลม"
+            ],
+            "answer": 2,
+            "hint": "หลักการนี้เหมือนกับโจทย์เรื่องการพลิกอิฐบล็อกสี่เหลี่ยมเลยครับ ลองทบทวนดูว่าสมการ f = μN สนใจขนาดพื้นที่ผิวสัมผัส (กว้างหรือแคบ) หรือไม่ ถ้าน้ำหนัก (N) และยาง (μ) เท่ากัน?",
+            "rational": "จากสูตรแรงเสียดทาน f = μN ปัจจัยที่มีผลมีเพียงสัมประสิทธิ์ความฝืดของวัสดุ (μ) และแรงกดแนวตั้งฉาก (N) เท่านั้น สมการฟิสิกส์ไม่มีตัวแปรพื้นที่ผิวสัมผัส (Area) เลย ดังนั้นถ้ารถทั้งสองน้ำหนักเท่ากันและยางเนื้อเดียวกัน แรงเสียดทานที่เกิดขึ้นจะเท่ากันทุกประการ หน้าสัมผัสกว้างช่วยเรื่องกระจายแรงและลดการสึกหรอเท่านั้น"
+          },
+          {
+            "id": 25,
+            "level": "Evaluation (การประเมินค่า)",
+            "question": "ข้อใดต่อไปนี้เป็นการเลือกใช้วิธีการ 'ลดแรงเสียดทาน' ที่เป็นโทษต่อความปลอดภัยในชีวิตประจำวัน และไม่ควรทำเด็ดขาด?",
+            "options": [
+              "การหยอดน้ำมันจักรหล่อลื่นที่บริเวณบานพับประตูบ้านที่ส่งเสียงดังเอี๊ยดอ๊าด",
+              "การฉีดสเปรย์น้ำมันหล่อลื่นขจัดความฝืดเข้าไปที่ชุดจานเบรกและผ้าเบรกของรถจักรยานยนต์เพื่อให้อัลลอยเงางาม",
+              "การทาจาระบีที่ชุดลูกปืนตลับภายในแกนหมุนของพัดลมที่ฝืดเคือง",
+              "การใช้แว็กซ์เหลวเคลือบใต้กระดานโต้คลื่นเพื่อให้สไลด์บนผิวน้ำได้เร็วขึ้น"
+            ],
+            "answer": 1,
+            "hint": "ระบบใดของรถยนต์หรือจักรยานยนต์ที่ 'ห้ามลื่นเด็ดขาด' เพราะจำเป็นต้องใช้ความฝืดในการหยุดล้อเพื่อความปลอดภัย? การเอาน้ำมันไปทาส่วนนั้นจะส่งผลร้ายอย่างไร?",
+            "rational": "ระบบเบรกของยานพาหนะทุกชนิดจำเป็นต้องพึ่งพาแรงเสียดทานสถิตและจลน์ที่สูงมากระหว่างผ้าเบรกกับจานเบรกเพื่อหยุดรถ การนำน้ำมันหล่อลื่นหรือสารเคลือบลื่นไปฉีดใส่จะทำให้ค่า μ ยวบลงจนเกือบเป็นศูนย์ ส่งผลให้เกิดอาการ 'เบรกแตก' รถไม่สามารถหยุดได้ ซึ่งเป็นอันตรายต่อชีวิตอย่างร้ายแรง"
+          },
+          {
+            "id": 26,
+            "level": "Remembering (ความจำ)",
+            "question": "แรงปฏิกิริยาในแนวตั้งฉาก หรือแรงกดวัตถุลงบนพื้นผิว (Normal Force) มีทิศทางตั้งฉากกับสิ่งใดเสมอ?",
+            "options": [
+              "มีทิศทางตั้งฉากกับทิศทางของแรงเสียดทานและแนวผิวสัมผัสเสมอ",
+              "มีทิศทางดิ่งลงสู่จุดศูนย์กลางของโลกตามแรงดึงดูดเสมอ",
+              "มีทิศทางขนานกับทิศทางการเคลื่อนที่ของวัตถุ",
+              "มีทิศทางพุ่งไปข้างหน้าตามแรงลัพธ์"
+            ],
+            "answer": 0,
+            "hint": "คำว่า 'Normal' ในทางคณิตศาสตร์และฟิสิกส์แปลว่า 'ตั้งฉาก' แรง N นี้เกิดขึ้นเมื่อวัตถุกดทับพื้นผิว พื้นผิวจึงดันสวนกลับมาในแนวใดลองคิดดูครับ",
+            "rational": "แรงปฏิกิริยาตั้งฉาก (Normal Force: N) คือแรงที่พื้นผิวโต้ตอบดันวัตถุในทิศทางที่ 'ตั้งฉากกับระนาบผิวสัมผัส' เสมอ ซึ่งจะทำมุม 90 องศากับแนวของแรงเสียดทานที่อยู่ในระนาบผิวสัมผัสขนานกับการเคลื่อนที่"
+          },
+          {
+            "id": 27,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "ปรากฏการณ์ธรรมชาติในข้อใดต่อไปนี้ ที่เกิดขึ้นได้เนื่องจากอิทธิพลของ 'แรงเสียดทานของอากาศ (Air Resistance)' ช่วยปกป้องสิ่งมีชีวิตบนโลกใบนี้?",
+            "options": [
+              "อากาศร้อนลอยตัวสูงขึ้นทำให้อุณหภูมิโลกสมดุล",
+              "เศษวัตถุอุกกาบาตจากอวกาศเกิดความร้อนสูงจนเผาไหม้หมดไปในชั้นบรรยากาศก่อนตกถึงพื้นโลก",
+              "การเกิดคลื่นยักษ์ในมหาสมุทรเนื่องจากลมพัดผ่านผิวน้ำ",
+              "ฝนกรดที่ตกลงมาครูดชะล้างสารเคมีบนยอดตึก"
+            ],
+            "answer": 1,
+            "hint": "เมื่อวัตถุเคลื่อนที่ผ่านชั้นบรรยากาศด้วยความเร็วที่สูงมาก ๆ โมเลกุลของอากาศจะเข้ามาขัดขวางและขัดสีรุนแรง ความเสียดทานขัดสีความเร็วสูงนี้จะเปลี่ยนรูปพลังงานกลให้กลายเป็นพลังงานชนิดใดนะ?",
+            "rational": "เมื่ออุกกาบาตพุ่งเข้าสู่ชั้นบรรยากาศโลกด้วยความเร็วสูงมาก จะเกิดแรงเสียดทานระหว่างผิวอุกกาบาตกับโมเลกุลอากาศ แรงต้านทานความเร็วสูงนี้ทำให้เกิดการเปลี่ยนรูปพลังงานจลน์เป็นพลังงานความร้อนที่สูงมหาศาล จนเกิดการลุกไหม้และสลายตัวไปในอากาศ ช่วยปกป้องผิวโลกจากการพุ่งชน"
+          },
+          {
+            "id": 28,
+            "level": "Understanding (ความเข้าใจ)",
+            "question": "ถ้านักเรียนเดินเหยียบเปลือกกล้วยหอมที่ตกอยู่บนพื้นปูนเรียบ แล้วเกิดอาการลื่นไถลหงายหลังทันที ปรากฏการณ์นี้อธิบายด้วยหลักการทางฟิสิกส์ของแรงเสียดทานได้อย่างไร?",
+            "options": [
+              "เปลือกกล้วยเพิ่มน้ำหนักกดทับแนวตั้งฉากทำให้รับน้ำหนักไม่ไหว",
+              "เนื้อเยื่อและสารเมือกใต้เปลือกกล้วยลดค่าสัมประสิทธิ์แรงเสียดทาน (μ) ระหว่างฝ่าเท้ากับพื้นจนเกือบเป็นศูนย์ ทำให้ไม่มีแรงเสียดทานสถิตคอยยึดเกาะพื้นขณะก้าวเดิน",
+              "เปลือกกล้วยเปลี่ยนแรงเสียดทานสถิตให้กลายเป็นแรงเสียดทานกลิ้ง",
+              "แรงต้านอากาศรอบ ๆ ตัวลดลงกะทันหันทำให้เสียการทรงตัว"
+            ],
+            "answer": 1,
+            "hint": "สารเมือกหนืด ๆ ของเปลือกกล้วยทำหน้าที่คล้ายกับน้ำมันหล่อลื่นใช่ไหมครับ? พอมันมาแทรกตรงกลางฝ่าเท้ายึดเกาะของเรา ความฝืดจะหายไปอย่างไร?",
+            "rational": "เปลือกกล้วยหอมมีสารเมือกและน้ำเป็นส่วนประกอบ ซึ่งทำหน้าที่เป็นสารลดความเสียดทาน (Lubricant) เมื่อเราเหยียบ สารนี้จะไปเคลือบแยกผิวสัมผัสของรองเท้าออกจากพื้นปูน ส่งผลให้ค่า μ ดิ่งลงต่ำมาก ทำให้ฝ่าเท้าไม่สามารถสร้างแรงเสียดทานสถิตยันพื้นเพื่อส่งตัวเดินไปข้างหน้าได้ จึงลื่นไถลทันที"
+          },
+          {
+            "id": 29,
+            "level": "Applying (การประยุกต์ใช้)",
+            "question": "ในช่วงฤดูฝนที่ถนนลื่นมาก ช่างซ่อมรถยนต์แนะนำให้เปิดใช้งานระบบ 'Traction Control' ในรถยนต์ ซึ่งระบบนี้จะคอยส่งสัญญาณไปสั่ง 'เบรกคุมล้อ' ไม่ให้ล้อหมุนเร็จนฟรีอยู่กับที่ การกระทำของระบบนี้สอดคล้องกับหลักการใด?",
+            "options": [
+              "พยายามรักษาสถานะล้อให้เกิดแรงเสียดทานสถิตกับถนน แทนที่จะลื่นไถลซึ่งจะกลายเป็นแรงเสียดทานจลน์ที่น้อยกว่า",
+              "พยายามลดแรงเสียดทานทั้งหมดเพื่อประหยัดน้ำมันเชื้อเพลิงขณะฝนตก",
+              "เปลี่ยนแรงเสียดทานจลน์ให้กลายเป็นแรงต้านอากาศรอบ ๆ บังโคลนล้อ",
+              "เพิ่มน้ำหนักของล้อรถยนต์ให้กดทับถนนแรงขึ้น 2 เท่า"
+            ],
+            "answer": 0,
+            "hint": "จำกฎเหล็กได้ไหมครับว่า แรงเสียดทานสถิตสูงสุด (ล้อเกาะพื้นหมุนไป) มีค่ามากกว่าแรงเสียดทานจลน์ (ล้อหมุนฟรีไถลคว้าง) เสมอ ถ้ารถล้อหมุนฟรีรถจะสูญเสียการเกาะถนนทันทีเพราะอะไร?",
+            "rational": "ตราบใดที่ล้อรถยนต์หมุนกลิ้งเกาะถนนโดยไม่ลื่นไถล หน้าสัมผัสยางกับถนนจะเป็น 'แรงเสียดทานสถิต' ซึ่งมีค่าสูงเกาะถนนได้ดี แต่ถ้าล้อหมุนเร็วเกินไปจนปัดลื่นไถลฟรี แรงต้านจะยวบลงมาเป็น 'แรงเสียดทานจลน์' ซึ่งน้อยกว่าและคุมรถไม่ได้ ระบบนี้จึงเข้ามาคุมไม่ให้ล้อหมุนฟรีเพื่อรักษาแรงเสียดทานสถิตที่เหนียวแน่นไว้"
+          },
+          {
+            "id": 30,
+            "level": "Analysis (การวิเคราะห์)",
+            "question": "นักเรียนคนหนึ่งออกแรง 10 นิวตัน ผลักกล่องไม้หนัก 20 นิวตัน ไปบนพื้นราบขรุขระ ปรากฏว่ากล่องไม้เคลื่อนที่ไปข้างหน้าด้วย 'ความเร็วคงที่สม่ำเสมอ' ข้อใดต่อไปนี้วิเคราะห์ขนาดและประเภทของแรงเสียดทานที่กระทำต่อกล่องไม้ได้ถูกต้อง?",
+            "options": [
+              "เกิดแรงเสียดทานสถิตขนาด 20 นิวตัน",
+              "เกิดแรงเสียดทานจลน์ขนาด 10 นิวตัน มีทิศตรงข้ามกับการเคลื่อนที่",
+              "เกิดแรงเสียดทานจลน์ขนาด 20 นิวตัน มีทิศเดียวกับการเคลื่อนที่",
+              "ไม่มีแรงเสียดทานเกิดขึ้นเพราะวัตถุมีความเร็วคงที่"
+            ],
+            "answer": 1,
+            "hint": "คำสำคัญคือคำว่า 'เคลื่อนที่' (ตัดแรงเสียดทานสถิตทิ้งได้เลย) และคำว่า 'ความเร็วคงที่สม่ำเสมอ' แปลว่าแรงลัพธ์เป็นศูนย์ ดังนั้นแรงต้านจลน์ต้องมีค่าเท่ากับแรงผลักของเราใช่ไหม?",
+            "rational": "เนื่องจากวัตถุมีการเคลื่อนที่ไปแล้ว แรงต้านที่เกิดขึ้นจึงเป็น 'แรงเสียดทานจลน์' และจากเงื่อนไขที่วัตถุเคลื่อนที่ด้วย 'ความเร็วคงที่' ตามกฎข้อที่ 1 ของนิวตัน แรงลัพธ์ต้องเป็นศูนย์ (ΣF = 0) ดังนั้น แรงเสียดทานจลน์ขัดขวางจึงต้องมีขนาดเท่ากับแรงผลักในแนวราบพอดี คือ 10 นิวตัน และมีทิศตรงข้ามกับการเคลื่อนที่"
+          }
+        ];
+
+        // Core App Logic States Variables
+        let surfaceChartInstance = null;
+        let activePool = [];
+        let wrongQuestions = [];
+        let currentIdx = 0;
+        let score = 0;
+        let selectedIdx = null;
+        let isChecked = false;
+        let isRemedialMode = false;
+
+        // Physics Live engine values
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        let posX = 80, velocity = 0, appliedForce = 35, weight = 50, muS = 0.5, muK = 0.4, isSimMoving = false;
+
+        window.onload = function() {
+            // Chart Loader
+            const chartCtx = document.getElementById('surfaceChart').getContext('2d');
+            surfaceChartInstance = new Chart(chartCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['🧊 น้ำแข็งมัน', '🪵 เนื้อไม้', '🛣️ ยางมะตอย'],
+                    datasets: [{
+                        label: 'สัมประสิทธิ์แรงเสียดทานสถิต (μs)',
+                        data: [0.2, 0.5, 0.8],
+                        backgroundColor: '#F97316',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, labels: { color: '#94A3B8', font: { family: 'Kanit', size: 9 } } } },
+                    scales: { y: { beginAtZero: true, max: 1, grid: { color: '#334155' }, ticks: { color: '#94A3B8' } }, x: { ticks: { color: '#94A3B8' } } }
+                }
+            });
+
+            // Start Quiz
+            initCanvas();
+            updateSliders();
+            drawPhysicsLoop();
+            restartFullQuiz();
+        };
+
+        // --- THEME TOGGLE (Navy Deep Blue / Light) ---
+        function setTheme(theme) {
+            const isLight = theme === 'light';
+            document.body.classList.toggle('light-theme', isLight);
+            document.getElementById('theme-btn-navy').classList.toggle('active', !isLight);
+            document.getElementById('theme-btn-light').classList.toggle('active', isLight);
+
+            // Re-color the Chart.js canvas (not affected by CSS) so labels stay readable
+            if (surfaceChartInstance) {
+                const tickColor = isLight ? '#334155' : '#94A3B8';
+                const gridColor = isLight ? '#E2E8F0' : '#334155';
+                surfaceChartInstance.options.plugins.legend.labels.color = tickColor;
+                surfaceChartInstance.options.scales.y.ticks.color = tickColor;
+                surfaceChartInstance.options.scales.y.grid.color = gridColor;
+                surfaceChartInstance.options.scales.x.ticks.color = tickColor;
+                surfaceChartInstance.update();
+            }
+        }
+
+        // --- QUIZ MANAGEMENT CORE ENGINE ---
+        function restartFullQuiz() {
+            isRemedialMode = false;
+            activePool = [...quizData].sort(() => Math.random() - 0.5); // Random Shuffle Entire 30 questions
+            wrongQuestions = [];
+            currentIdx = 0;
+            score = 0;
+            toggleQuizLayout(true);
+            document.getElementById('quiz-mode-tag').innerText = "รอบปกติ";
+            document.getElementById('quiz-mode-tag').className = "bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full font-medium";
+            loadQuestion();
+        }
+
+        function startRemedialMode() {
+            isRemedialMode = true;
+            activePool = [...wrongQuestions].sort(() => Math.random() - 0.5); // Shuffle only previous errors
+            wrongQuestions = [];
+            currentIdx = 0;
+            score = 0;
+            toggleQuizLayout(true);
+            document.getElementById('quiz-mode-tag').innerText = "🎯 รอบแก้ตัวข้อที่ผิด";
+            document.getElementById('quiz-mode-tag').className = "bg-rose-500/10 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-full font-medium";
+            loadQuestion();
+        }
+
+        function toggleQuizLayout(isPlaying) {
+            if(isPlaying) {
+                document.getElementById('quiz-box').classList.remove('hidden');
+                document.getElementById('summary-box').classList.add('hidden');
+            } else {
+                document.getElementById('quiz-box').classList.add('hidden');
+                document.getElementById('summary-box').classList.remove('hidden');
+            }
+        }
+
+        function loadQuestion() {
+            const q = activePool[currentIdx];
+            selectedIdx = null;
+            isChecked = false;
+
+            document.getElementById('progress-text').innerText = `ข้อที่ ${currentIdx + 1} จาก ${activePool.length}`;
+            document.getElementById('progress-bar').style.width = `${((currentIdx + 1) / activePool.length) * 100}%`;
+            document.getElementById('quiz-level').innerText = `ระดับความคิด: ${q.level}`;
+            document.getElementById('question-text').innerText = `${currentIdx + 1}. ${q.question}`;
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `opt-${idx}`;
+                btn.onclick = () => selectOption(idx);
+                btn.className = "w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-950 text-xs md:text-sm hover:bg-slate-850 text-slate-300 transition flex items-center justify-between cursor-pointer";
+                btn.innerHTML = `<span>${opt}</span><span id="dot-${idx}" class="w-3.5 h-3.5 rounded-full border border-slate-600 block shrink-0 ml-3"></span>`;
+                optContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback-panel').classList.add('hidden');
+            document.getElementById('rational-box').classList.add('hidden');
+            document.getElementById('hint-text').innerText = q.hint;
+
+            const actionBtn = document.getElementById('action-btn');
+            actionBtn.innerText = "ตรวจสอบคำตอบ";
+            actionBtn.className = "bg-amber-secondary hover:bg-orange-600 text-white font-bold text-xs md:text-sm px-6 py-2.5 rounded-lg transition cursor-pointer";
+        }
+
+        function selectOption(idx) {
+            if (isChecked) return;
+            selectedIdx = idx;
+            activePool[currentIdx].options.forEach((_, i) => {
+                document.getElementById(`opt-${i}`).className = "w-full text-left p-3 rounded-xl border border-slate-800 bg-slate-950 text-xs md:text-sm hover:bg-slate-850 text-slate-300 transition flex items-center justify-between cursor-pointer";
+                document.getElementById(`dot-${i}`).className = "w-3.5 h-3.5 rounded-full border border-slate-600 block shrink-0 ml-3";
+            });
+            document.getElementById(`opt-${idx}`).className = "w-full text-left p-3 rounded-xl border-2 border-amber-500 bg-slate-950 text-xs md:text-sm text-white font-medium flex items-center justify-between cursor-pointer";
+            document.getElementById(`dot-${idx}`).className = "w-3.5 h-3.5 rounded-full bg-amber-500 block shrink-0 ml-3";
+            
+            document.getElementById('feedback-panel').classList.remove('hidden');
+        }
+
+        function handleAction() {
+            if (selectedIdx === null) {
+                alert("กรุณาเลือกคำตอบข้อที่ชอบก่อนกดยืนยันนะเด็กๆ!");
+                return;
+            }
+            const q = activePool[currentIdx];
+
+            if (!isChecked) {
+                isChecked = true;
+                document.getElementById('rational-box').classList.remove('hidden');
+                document.getElementById('rational-text').innerText = q.rational;
+
+                if (selectedIdx === q.answer) {
+                    score++;
+                    document.getElementById(`opt-${selectedIdx}`).className = "w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-950/20 text-xs md:text-sm text-white font-medium flex items-center justify-between";
+                    document.getElementById(`dot-${selectedIdx}`).className = "w-3.5 h-3.5 rounded-full bg-emerald-500 block shrink-0 ml-3";
+                } else {
+                    wrongQuestions.push(q); // 🚨 คัดแยกข้อผิดพลาดยัดเข้าลิสต์สำรองแก้ตัวทันที!!
+                    document.getElementById(`opt-${selectedIdx}`).className = "w-full text-left p-3 rounded-xl border-2 border-rose-500 bg-rose-950/20 text-xs md:text-sm text-white font-medium flex items-center justify-between";
+                    document.getElementById(`dot-${selectedIdx}`).className = "w-3.5 h-3.5 rounded-full bg-rose-500 block shrink-0 ml-3";
+                    document.getElementById(`opt-${q.answer}`).className = "w-full text-left p-3 rounded-xl border-2 border-emerald-500 bg-slate-950 text-xs md:text-sm text-emerald-400 flex items-center justify-between";
+                }
+
+                const actionBtn = document.getElementById('action-btn');
+                if (currentIdx < activePool.length - 1) {
+                    actionBtn.innerText = "ข้อถัดไป ➔";
+                    actionBtn.className = "bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs md:text-sm px-6 py-2.5 rounded-lg transition cursor-pointer";
+                } else {
+                    actionBtn.innerText = "สรุปผลประเมินครูวิทย์ ➔";
+                    actionBtn.className = "bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs md:text-sm px-6 py-2.5 rounded-lg transition cursor-pointer";
+                }
+            } else {
+                if (currentIdx < activePool.length - 1) {
+                    currentIdx++;
+                    loadQuestion();
+                } else {
+                    showSummary();
+                }
+            }
+        }
+
+        function showSummary() {
+            toggleQuizLayout(false);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('score-max-text').innerText = ` / ${activePool.length} คะแนน`;
+            
+            const reBtn = document.getElementById('remedial-btn');
+            const desc = document.getElementById('summary-desc');
+
+            if (wrongQuestions.length > 0) {
+                reBtn.classList.remove('hidden');
+                reBtn.innerText = `🎯 สอบแก้ตัวข้อที่พลาด (${wrongQuestions.length} ข้อ)`;
+                desc.innerText = isRemedialMode 
+                    ? `พยายามได้ดีมากครับรอบแก้ตัวรอบนี้! เก็บตกถูกเพิ่มขึ้น แต่ยังมีข้อติดขัดอีกนิดหน่อย ${wrongQuestions.length} ข้อ ลุยทำซ้ำจนกว่าจะเต็มกันเลย!`
+                    : `รอบแรกผ่านไปนักเรียนตอบถูก ${score} ข้อ และยังมีจุดคลาดเคลื่อน ${wrongQuestions.length} ข้อ ระบบโมดูลอัจฉริยะคัดแยกข้อผิดพลาดไว้ให้แล้ว กดปุ่มสอบแก้ตัวได้เลยครับ`;
+            } else {
+                reBtn.classList.add('hidden');
+                desc.innerText = "🎉 ยอดเยี่ยมกระเทียมดองที่สุด! นักเรียนสามารถบรรลุระดับการประเมินคิดวิเคราะห์เต็มครบถ้วน 100% สมบูรณ์แบบ สะท้อนถึงความเข้าใจกลไกฟิสิกส์เรื่องแรงเสียดทานอย่างแท้จริงครับ!";
+            }
+        }
+
+        // --- 2D PHYSICS SIMULATION LABORATORY LOGIC ---
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth || 500;
+            canvas.height = 208;
+        }
+        function updateSliders() {
+            appliedForce = parseFloat(document.getElementById('pushSlider').value);
+            weight = parseFloat(document.getElementById('weightSlider').value);
+            const surfaceValues = document.getElementById('surfaceSelect').value.split(',');
+            muS = parseFloat(surfaceValues[0]);
+            muK = parseFloat(surfaceValues[1]);
+
+            document.getElementById('push-val').innerText = appliedForce + " N";
+            document.getElementById('weight-val').innerText = weight + " N";
+
+            const maxFs = Math.round(muS * weight * 10) / 10;
+            const fk = Math.round(muK * weight * 10) / 10;
+            document.getElementById('max-fs-val').innerText = maxFs.toFixed(1) + " N";
+            document.getElementById('fk-val').innerText = fk.toFixed(1) + " N";
+        }
+        function resetSim() {
+            posX = 50; velocity = 0; EmilyMode = false; isSimMoving = false;
+            document.getElementById('pushSlider').value = 35;
+            document.getElementById('weightSlider').value = 50;
+            document.getElementById('surfaceSelect').selectedIndex = 1;
+            updateSliders();
+        }
+        function drawPhysicsLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Ground Flat rendering
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 150, canvas.width, 15);
+            ctx.fillStyle = '#1E293B';
+            ctx.fillRect(0, 165, canvas.width, 50);
+
+            const maxFs = muS * weight;
+            const fk = muK * weight;
+            let actualFriction = 0;
+
+            if(!isSimMoving) {
+                if(appliedForce > maxFs) { isSimMoving = true; } 
+                else { actualFriction = appliedForce; }
+            }
+            if(isSimMoving) {
+                actualFriction = fk;
+                let netForce = appliedForce - actualFriction;
+                velocity += netForce * 0.04; 
+                velocity *= 0.96; // Artificial decay smooth friction drag
+                posX += velocity;
+
+                if (velocity < 0.01 && appliedForce <= maxFs) { isSimMoving = false; velocity = 0; }
+                if (posX > canvas.width) posX = -70; // Screen wraps around loop
+            }
+
+            document.getElementById('status-text').innerText = isSimMoving ? "กำลังไถลเคลื่อนที่" : "อยู่นิ่ง";
+            document.getElementById('status-text').className = isSimMoving ? "text-emerald-400 font-bold" : "text-amber-400 font-bold";
+            document.getElementById('velocity-text').innerText = (isSimMoving ? velocity : 0).toFixed(2) + " m/s";
+
+            // Drawing Block Entity Box
+            ctx.fillStyle = isSimMoving ? '#F97316' : '#334155';
+            ctx.strokeStyle = '#94A3B8';
+            ctx.lineWidth = 2;
+            ctx.fillRect(posX, 85, 65, 65);
+            ctx.strokeRect(posX, 85, 65, 65);
+
+            // Block labels Weight text
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 11px Kanit';
+            ctx.fillText("📦 มวลวัตถุ", posX + 9, 113);
+            ctx.fillText(weight + " N", posX + 19, 130);
+
+            // Force vector Arrow Applied (Yellow - Right)
+            if (appliedForce > 0) {
+                ctx.strokeStyle = '#EAB308'; ctx.lineWidth = 3; ctx.beginPath();
+                ctx.moveTo(posX + 65, 117); ctx.lineTo(posX + 65 + (appliedForce * 0.8), 117); ctx.stroke();
+                ctx.fillStyle = '#EAB308'; ctx.beginPath();
+                ctx.moveTo(posX + 65 + (appliedForce * 0.8), 112); ctx.lineTo(posX + 73 + (appliedForce * 0.8), 117); ctx.lineTo(posX + 65 + (appliedForce * 0.8), 122); ctx.fill();
+            }
+            // Friction vector Arrow (Red - Left)
+            if (actualFriction > 0) {
+                ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 3; ctx.beginPath();
+                ctx.moveTo(posX, 117); ctx.lineTo(posX - (actualFriction * 0.8), 117); ctx.stroke();
+                ctx.fillStyle = '#EF4444'; ctx.beginPath();
+                ctx.moveTo(posX - (actualFriction * 0.8), 112); ctx.lineTo(posX - 8 - (actualFriction * 0.8), 117); ctx.lineTo(posX - (actualFriction * 0.8), 122); ctx.fill();
+            }
+
+            requestAnimationFrame(drawPhysicsLoop);
+        }
+    </script>
+</body>
+</html>

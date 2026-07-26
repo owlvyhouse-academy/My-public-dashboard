@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: ระบบประสาทและกลไกการสั่งการ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 for beautiful alerts (replaces default alert) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #F1F5F9;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .selected-option {
+            border-color: #4F46E5 !important;
+            background-color: #EEF2FF !important;
+            color: #4F46E5 !important;
+        }
+        .correct-option {
+            border-color: #10B981 !important;
+            background-color: #D1FAE5 !important;
+            color: #065F46 !important;
+        }
+        .wrong-option {
+            border-color: #EF4444 !important;
+            background-color: #FEE2E2 !important;
+            color: #991B1B !important;
+        }
+        /* Custom Scrollbar for review section */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-3xl w-full bg-white rounded-2xl shadow-xl overflow-hidden relative">
+        
+        <!-- Header -->
+        <div class="bg-primary text-white p-6 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold"><i class="fas fa-brain mr-2"></i> ระบบประสาทและกลไกการสั่งการ</h1>
+            <p class="text-indigo-200 mt-2 text-sm md:text-base">แบบทดสอบวัดความเข้าใจ</p>
+        </div>
+
+        <!-- SCREEN 1: Start Screen -->
+        <div id="screen-start" class="p-8 text-center fade-in">
+            <div class="mb-8">
+                <i class="fas fa-microscope text-6xl text-primary mb-4"></i>
+                <h2 class="text-xl font-semibold text-gray-800">พร้อมที่จะทดสอบความรู้ของคุณหรือยัง?</h2>
+                <p class="text-gray-500 mt-2">เลือกโหมดการทดสอบที่คุณต้องการ</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <button onclick="startQuiz('full')" class="bg-primary hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 shadow-md flex items-center justify-center">
+                    <i class="fas fa-list-ol mr-2"></i> ทำทั้งหมด (30 ข้อ)
+                </button>
+                <button onclick="startQuiz('adaptive')" class="bg-secondary hover:bg-emerald-600 text-white font-semibold py-4 px-6 rounded-xl transition duration-300 shadow-md flex items-center justify-center">
+                    <i class="fas fa-bolt mr-2"></i> โหมด Adaptive (10 ข้อ)
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-6">* โหมด Adaptive จะวิเคราะห์จุดอ่อนและดึงข้อสอบในหมวดที่คุณไม่ถนัดมาให้ทำ</p>
+        </div>
+
+        <!-- SCREEN 2: Quiz Screen -->
+        <div id="screen-quiz" class="p-6 md:p-8 hidden fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider" id="topic-badge">หมวด: ทั่วไป</span>
+                <span class="bg-indigo-100 text-primary text-sm font-bold px-3 py-1 rounded-full">ข้อที่ <span id="current-q-num">1</span> / <span id="total-q-num">30</span></span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+                <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <!-- Question & Image -->
+            <h2 id="question-text" class="text-lg md:text-xl font-medium text-gray-800 mb-4 leading-relaxed">
+                คำถามจะแสดงที่นี่?
+            </h2>
+            
+            <div id="image-container" class="mb-6 hidden flex justify-center">
+                <!-- Fallback to placehold.co if image fails to load -->
+                <img id="question-image" src="" alt="ภาพประกอบข้อสอบ" class="max-w-full h-auto max-h-64 rounded-lg shadow-sm border border-gray-200 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/600x400/E2E8F0/475569?text=Image+Not+Found';">
+            </div>
+
+            <!-- Options -->
+            <div id="options-container" class="space-y-3 mb-8">
+                <!-- Options will be generated here by JS -->
+            </div>
+
+            <!-- Action Button -->
+            <div class="flex justify-end" id="next-btn-container" style="display: none;">
+                <button onclick="nextQuestion()" class="bg-dark hover:bg-gray-800 text-white font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+                    ข้อต่อไป <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: Result Screen -->
+        <div id="screen-result" class="p-8 text-center hidden fade-in">
+            <i class="fas fa-award text-7xl text-yellow-400 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">สรุปผลคะแนน</h2>
+            
+            <div class="text-6xl font-extrabold text-primary my-6">
+                <span id="score-display">0</span><span class="text-3xl text-gray-400">/<span id="max-score-display">30</span></span>
+            </div>
+            
+            <p id="result-message" class="text-lg text-gray-600 mb-8">ยอดเยี่ยมมาก!</p>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="reviewAnswers()" class="bg-indigo-100 hover:bg-indigo-200 text-primary font-semibold py-3 px-6 rounded-xl transition duration-300">
+                    <i class="fas fa-search mr-2"></i> ดูเฉลย
+                </button>
+                <button onclick="restartQuiz()" class="bg-primary hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition duration-300">
+                    <i class="fas fa-home mr-2"></i> กลับหน้าหลัก
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: Review Screen -->
+        <div id="screen-review" class="hidden fade-in w-full">
+            <div class="flex flex-col p-6 md:p-8" style="max-height: 85vh;">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b shrink-0">
+                    <i class="fas fa-clipboard-check text-secondary mr-2"></i> เฉลยแบบทดสอบ
+                </h2>
+                
+                <div id="review-container" class="flex-1 overflow-y-auto pr-2 space-y-6">
+                    <!-- Review items generated by JS -->
+                </div>
+
+                <div class="pt-4 border-t mt-4 text-center shrink-0">
+                    <button onclick="showResultScreen()" class="bg-dark hover:bg-gray-800 text-white font-medium py-2 px-6 rounded-lg transition duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i> กลับไปหน้าคะแนน
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ฐานข้อมูลข้อสอบ พร้อมระบุหมวดหมู่ (Topic) สำหรับ Adaptive System
+        const quizData = [
+            {
+                question: "เมื่อเราเหยียบสิ่งของที่มีความแหลมคม เส้นทางการเคลื่อนที่ของกระแสประสาทเพื่อให้เกิดการชักเท้าออกโดยอัตโนมัติ (Reflex Action) คือข้อใด",
+                image: "images/tedet63_sci_g8_01.jpg",
+                options: ["A → B → D → F", "E → C → A", "E → D → F", "A → C → E"],
+                correctAnswer: "E → D → F",
+                topic: "reflex"
+            },
+            {
+                question: "ศูนย์กลางการควบคุมปฏิกิริยารีเฟล็กซ์ (Reflex Center) ที่ทำหน้าที่ในวงจรการกระตุกของหัวเข่าคือส่วนใด",
+                options: ["สมองส่วนเซรีบรัม", "สมองส่วนเซรีเบลลัม", "ก้านสมอง", "ไขสันหลัง (Spinal Cord)"],
+                correctAnswer: "ไขสันหลัง (Spinal Cord)",
+                topic: "reflex"
+            },
+            {
+                question: "เหตุใดเราจึงรู้สึก 'เจ็บ' หลังจากที่ชักเท้าหนีจากการเหยียบตะปูไปแล้วเล็กน้อย",
+                options: ["กระแสประสาทเดินทางไปสมองช้ากว่าไขสันหลัง", "หน่วยรับความรู้สึกทำงานช้าลง", "กล้ามเนื้อตอบสนองก่อนเซลล์ประสาท", "สมองสั่งการให้เจ็บภายหลัง"],
+                correctAnswer: "กระแสประสาทเดินทางไปสมองช้ากว่าไขสันหลัง",
+                topic: "brain"
+            },
+            {
+                question: "พฤติกรรมใดต่อไปนี้จัดเป็นปฏิกิริยารีเฟล็กซ์ (Reflex Action) ที่มีกลไกเดียวกับการเคาะหัวเข่า",
+                options: ["การกะพริบตาเมื่อมีฝุ่นเข้าตา", "การยกมือตอบคำถามครู", "การเดินหลบแอ่งน้ำ", "การอ่านหนังสือพิมพ์"],
+                correctAnswer: "การกะพริบตาเมื่อมีฝุ่นเข้าตา",
+                topic: "reflex"
+            },
+            {
+                question: "ข้อใดกล่าว 'ผิด' เกี่ยวกับกลไกการสั่งการในปฏิกิริยารีเฟล็กซ์ที่หัวเข่า",
+                options: ["ไม่ต้องรอคำสั่งจากสมอง", "เป็นระบบประสาทภายใต้อำนาจจิตใจ", "ช่วยป้องกันอันตรายให้ร่างกาย", "ตอบสนองได้อย่างรวดเร็ว"],
+                correctAnswer: "เป็นระบบประสาทภายใต้อำนาจจิตใจ",
+                topic: "reflex"
+            },
+            {
+                question: "หน่วยรับความรู้สึก (Receptor) ทำหน้าที่อะไรในระบบประสาท",
+                options: ["สั่งการกล้ามเนื้อ", "เปลี่ยน 'สิ่งเร้า' ให้กลายเป็น 'กระแสประสาท'", "ประมวลผลข้อมูล", "หลั่งฮอร์โมน"],
+                correctAnswer: "เปลี่ยน 'สิ่งเร้า' ให้กลายเป็น 'กระแสประสาท'",
+                topic: "nerves"
+            },
+            {
+                question: "เมื่ออุณหภูมิภายนอกลดต่ำลง ร่างกายเกิดอาการขนลุก (Goosebumps) การตอบสนองนี้ควบคุมโดยส่วนใดเป็นหลัก",
+                options: ["ก้านสมองและระบบประสาทอัตโนมัติ", "สมองส่วนหน้า", "ไขสันหลัง", "ระบบประสาทโซมาติก"],
+                correctAnswer: "ก้านสมองและระบบประสาทอัตโนมัติ",
+                topic: "autonomic"
+            },
+            {
+                question: "การตอบสนองข้อใดที่ถือว่าเป็น 'พฤติกรรมที่มีมาแต่กำเนิด' (Innate behavior) และไม่ต้องอาศัยประสบการณ์",
+                options: ["การปั่นจักรยาน", "การเตะขาออกเมื่อเคาะที่ใต้สะบ้า", "การหยุดรถเมื่อเห็นไฟแดง", "การเล่นเปียโน"],
+                correctAnswer: "การเตะขาออกเมื่อเคาะที่ใต้สะบ้า",
+                topic: "behavior"
+            },
+            {
+                question: "กล้ามเนื้อต้นขา ในปฏิกิริยารีเฟล็กซ์หัวเข่า ทำหน้าที่เป็นอะไร",
+                options: ["หน่วยรับความรู้สึก (Receptor)", "หน่วยประมวลผล (Center)", "หน่วยปฏิบัติงาน (Effector)", "เซลล์ประสาทสั่งการ (Motor neuron)"],
+                correctAnswer: "หน่วยปฏิบัติงาน (Effector)",
+                topic: "nerves"
+            },
+            {
+                question: "เหตุใดแพทย์จึงใช้การเคาะที่หัวเข่าเพื่อตรวจเช็กระบบประสาท",
+                options: ["เพื่อวัดระดับแคลเซียมในกระดูก", "เพื่อประเมินความสมบูรณ์ของไขสันหลังและเส้นประสาท", "เพื่อตรวจการทำงานของสมองใหญ่", "เพื่อดูความแข็งแรงของกล้ามเนื้อ"],
+                correctAnswer: "เพื่อประเมินความสมบูรณ์ของไขสันหลังและเส้นประสาท",
+                topic: "clinical"
+            },
+            {
+                question: "ความเร็วในการนำกระแสประสาทในวงจรรีเฟล็กซ์จะเพิ่มขึ้นได้เนื่องจากปัจจัยใด",
+                options: ["การมีปลอกไมอีลิน (Myelin sheath) หุ้มแอกซอน", "ขนาดของเซลล์ประสาทที่เล็กลง", "การลดอุณหภูมิของร่างกาย", "การเพิ่มจำนวนจุดประสานประสาท (Synapse)"],
+                correctAnswer: "การมีปลอกไมอีลิน (Myelin sheath) หุ้มแอกซอน",
+                topic: "cells"
+            },
+            {
+                question: "ความรู้สึกเจ็บ (Pain) จากการเหยียบตะปู ถูกส่งไปประมวลผลที่บริเวณใดของสมองส่วนเซรีบรัม",
+                options: ["พูหน้า (Frontal lobe)", "พูข้าง (Parietal lobe)", "พูขมับ (Temporal lobe)", "พูท้ายทอย (Occipital lobe)"],
+                correctAnswer: "พูข้าง (Parietal lobe)",
+                topic: "brain"
+            },
+            {
+                question: "ถ้าเราต้องการ 'ฝึกรำไทย' จนชำนาญ อวัยวะใดจะเข้ามามีบทบาทเด่นในการจดจำจังหวะการเคลื่อนไหวที่ละเอียด",
+                options: ["เซรีบรัม (Cerebrum)", "ไฮโปทาลามัส (Hypothalamus)", "เซรีเบลลัม (Cerebellum)", "ทาลามัส (Thalamus)"],
+                correctAnswer: "เซรีเบลลัม (Cerebellum)",
+                topic: "brain"
+            },
+            {
+                question: "พิจารณาข้อความ: 'เมื่อเห็นไฟแดง คนขับรถจะเหยียบเบรกทันที' ข้อใดระบุกลไกได้ถูกต้องที่สุด",
+                options: ["เป็นปฏิกิริยารีเฟล็กซ์พื้นฐาน", "เป็นพฤติกรรมการเรียนรู้แบบมีเงื่อนไข (Conditioned reflex)", "ควบคุมโดยไขสันหลังเท่านั้น", "เป็นพฤติกรรมที่มีมาแต่กำเนิด"],
+                correctAnswer: "เป็นพฤติกรรมการเรียนรู้แบบมีเงื่อนไข (Conditioned reflex)",
+                topic: "behavior"
+            },
+            {
+                question: "ส่วนใดของเซลล์ประสาทที่ทำหน้าที่นำกระแสประสาท 'ออกจาก' ตัวเซลล์ไปยังเซลล์ถัดไป",
+                options: ["เดนไดรต์ (Dendrite)", "แอกซอน (Axon)", "นิวเคลียส (Nucleus)", "ไซแนปส์ (Synapse)"],
+                correctAnswer: "แอกซอน (Axon)",
+                topic: "cells"
+            }
+        ];
+
+        // State variables
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; // Store { questionData, selectedAnswer, isCorrect }
+        let currentMode = 'full';
+
+        // Map topic to Thai names for display
+        const topicNames = {
+            'reflex': 'รีเฟล็กซ์ (Reflex)',
+            'brain': 'สมอง (Brain)',
+            'nerves': 'ระบบเส้นประสาท',
+            'autonomic': 'ระบบประสาทอัตโนมัติ',
+            'behavior': 'พฤติกรรม',
+            'clinical': 'การแพทย์เบื้องต้น',
+            'cells': 'เซลล์ประสาท'
+        };
+
+        // ฟังก์ชันดึงประวัติการทำแบบทดสอบเพื่อหา "จุดอ่อน"
+        function getWeakestTopics() {
+            try {
+                const stats = JSON.parse(localStorage.getItem('neuroQuizStats')) || {};
+                let topicScores = [];
+                
+                for (let topic in stats) {
+                    if (stats[topic].total >= 2) { // ต้องเคยทำอย่างน้อย 2 ครั้งถึงจะวิเคราะห์
+                        let accuracy = stats[topic].correct / stats[topic].total;
+                        topicScores.push({ topic, accuracy });
+                    }
+                }
+
+                // เรียงลำดับจากความแม่นยำน้อย (อ่อน) ไปหามาก
+                topicScores.sort((a, b) => a.accuracy - b.accuracy);
+                return topicScores.map(t => t.topic);
+            } catch (e) {
+                console.warn("Could not access localStorage", e);
+                return [];
+            }
+        }
+
+        // ฟังก์ชันอัปเดตสถิติหลังจากตอบคำถาม
+        function updateTopicStats(topic, isCorrect) {
+            try {
+                let stats = JSON.parse(localStorage.getItem('neuroQuizStats')) || {};
+                if (!stats[topic]) {
+                    stats[topic] = { correct: 0, total: 0 };
+                }
+                stats[topic].total += 1;
+                if (isCorrect) {
+                    stats[topic].correct += 1;
+                }
+                localStorage.setItem('neuroQuizStats', JSON.stringify(stats));
+            } catch (e) {
+                console.warn("Could not write to localStorage", e);
+            }
+        }
+
+        // ฟังก์ชันจัดชุดข้อสอบสำหรับโหมด Adaptive (เน้นข้อที่อ่อน)
+        function generateAdaptiveSet() {
+            const weakestTopics = getWeakestTopics();
+            let selectedQuestions = [];
+            let allQuestions = [...quizData];
+            
+            // สลับลำดับข้อสอบก่อน
+            allQuestions.sort(() => Math.random() - 0.5);
+
+            // ถ้ามีประวัติจุดอ่อน ดึงหมวดที่อ่อนมาใส่ก่อน
+            if (weakestTopics.length > 0) {
+                const weakTopic = weakestTopics[0];
+                const weakQuestions = allQuestions.filter(q => q.topic === weakTopic);
+                
+                // เอาข้อที่อ่อนมาสุด 4 ข้อ
+                selectedQuestions.push(...weakQuestions.slice(0, 4));
+            }
+
+            // เติมข้ออื่นๆ ให้ครบ 10 ข้อ
+            for (let q of allQuestions) {
+                if (selectedQuestions.length >= 10) break;
+                if (!selectedQuestions.includes(q)) {
+                    selectedQuestions.push(q);
+                }
+            }
+
+            // สลับลำดับอีกครั้งก่อนแสดงผล
+            return selectedQuestions.sort(() => Math.random() - 0.5);
+        }
+
+        // UI Navigation functions
+        function showScreen(screenId) {
+            // Hide all screens
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-quiz').classList.add('hidden');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-review').classList.add('hidden');
+            
+            // Show target screen
+            document.getElementById('screen-' + screenId).classList.remove('hidden');
+        }
+
+        // เริ่มทำแบบทดสอบ
+        function startQuiz(mode) {
+            currentMode = mode;
+            score = 0;
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            if (mode === 'full') {
+                currentQuestions = [...quizData].sort(() => Math.random() - 0.5);
+                // ตัดให้เหลือ 30 ข้อ (ในกรณีที่ฐานข้อมูลมีมากกว่า)
+                if(currentQuestions.length > 30) currentQuestions = currentQuestions.slice(0, 30);
+            } else if (mode === 'adaptive') {
+                currentQuestions = generateAdaptiveSet();
+            }
+
+            document.getElementById('total-q-num').innerText = currentQuestions.length;
+            document.getElementById('max-score-display').innerText = currentQuestions.length;
+            
+            showScreen('quiz');
+            loadQuestion();
+        }
+
+        // โหลดคำถามขึ้นหน้าจอ
+        function loadQuestion() {
+            const questionData = currentQuestions[currentQuestionIndex];
+            
+            // Update Progress
+            document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            // Update Topic Badge
+            const topicDisplay = topicNames[questionData.topic] || 'ทั่วไป';
+            document.getElementById('topic-badge').innerText = 'หมวด: ' + topicDisplay;
+
+            // Update Text
+            document.getElementById('question-text').innerText = (currentQuestionIndex + 1) + ". " + questionData.question;
+            
+            // Update Image (if exists)
+            const imgContainer = document.getElementById('image-container');
+            const imgElement = document.getElementById('question-image');
+            if (questionData.image) {
+                imgElement.src = questionData.image;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            // Clear and Load Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            // Shuffle options
+            let options = [...questionData.options];
+            options.sort(() => Math.random() - 0.5);
+
+            options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 text-gray-700 font-medium option-btn';
+                btn.innerHTML = `<span class="inline-block w-6 font-bold text-indigo-500">${String.fromCharCode(65 + index)}.</span> ${opt}`;
+                btn.onclick = () => selectOption(btn, opt, questionData.correctAnswer);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Hide next button initially
+            document.getElementById('next-btn-container').style.display = 'none';
+        }
+
+        // เมื่อผู้ใช้เลือกคำตอบ
+        function selectOption(selectedBtn, selectedText, correctText) {
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+                btn.classList.remove('hover:border-indigo-300', 'hover:bg-indigo-50');
+            });
+
+            const isCorrect = selectedText === correctText;
+            const currentQ = currentQuestions[currentQuestionIndex];
+
+            // อัปเดตสถิติสำหรับ Adaptive mode
+            updateTopicStats(currentQ.topic, isCorrect);
+
+            // บันทึกคำตอบ
+            userAnswers.push({
+                questionData: currentQ,
+                selectedAnswer: selectedText,
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
+                score++;
+                selectedBtn.classList.add('correct-option');
+                selectedBtn.innerHTML += ' <i class="fas fa-check-circle float-right text-xl mt-0.5"></i>';
+            } else {
+                selectedBtn.classList.add('wrong-option');
+                selectedBtn.innerHTML += ' <i class="fas fa-times-circle float-right text-xl mt-0.5"></i>';
+                
+                // ไฮไลต์ข้อที่ถูกด้วย
+                buttons.forEach(btn => {
+                    if (btn.innerText.includes(correctText)) {
+                        btn.classList.add('correct-option', 'opacity-100');
+                        btn.classList.remove('opacity-70');
+                    }
+                });
+            }
+
+            // Show next button
+            const nextBtnContainer = document.getElementById('next-btn-container');
+            nextBtnContainer.style.display = 'flex';
+            
+            // เปลี่ยนข้อความปุ่มถ้าเป็นข้อสุดท้าย
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                const nextBtn = nextBtnContainer.querySelector('button');
+                nextBtn.innerHTML = 'ดูผลคะแนน <i class="fas fa-flag-checkered ml-2"></i>';
+                nextBtn.classList.replace('bg-dark', 'bg-primary');
+                nextBtn.classList.replace('hover:bg-gray-800', 'hover:bg-indigo-700');
+            }
+        }
+
+        // ไปข้อถัดไปหรือจบเกม
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        // สรุปผล
+        function finishQuiz() {
+            document.getElementById('score-display').innerText = score;
+            const percentage = (score / currentQuestions.length) * 100;
+            const msgEl = document.getElementById('result-message');
+            
+            if (percentage >= 80) {
+                msgEl.innerText = "ยอดเยี่ยมมาก! คุณมีความรู้เรื่องระบบประสาทเป็นอย่างดี";
+                msgEl.className = "text-lg text-emerald-600 mb-8 font-semibold";
+            } else if (percentage >= 50) {
+                msgEl.innerText = "ทำได้ดี! แต่ยังสามารถทบทวนเพิ่มเติมได้อีกนะ";
+                msgEl.className = "text-lg text-blue-600 mb-8 font-semibold";
+            } else {
+                msgEl.innerText = "พยายามอีกนิด! ลองทบทวนบทเรียนแล้วมาทดสอบใหม่นะ";
+                msgEl.className = "text-lg text-orange-600 mb-8 font-semibold";
+            }
+
+            showScreen('result');
+        }
+
+        // กลับหน้าแรก
+        function restartQuiz() {
+            // Reset next button state
+            const nextBtnContainer = document.getElementById('next-btn-container');
+            const nextBtn = nextBtnContainer.querySelector('button');
+            nextBtn.innerHTML = 'ข้อต่อไป <i class="fas fa-arrow-right ml-2"></i>';
+            nextBtn.classList.remove('bg-primary', 'hover:bg-indigo-700');
+            nextBtn.classList.add('bg-dark', 'hover:bg-gray-800');
+            
+            showScreen('start');
+        }
+
+        function showResultScreen() {
+            showScreen('result');
+        }
+
+        // แสดงหน้าเฉลย
+        function reviewAnswers() {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            userAnswers.forEach((ans, index) => {
+                const item = document.createElement('div');
+                item.className = 'bg-white border rounded-xl p-5 shadow-sm';
+                
+                const isCorrect = ans.isCorrect;
+                const icon = isCorrect ? '<i class="fas fa-check-circle text-secondary text-xl"></i>' : '<i class="fas fa-times-circle text-red-500 text-xl"></i>';
+                const borderColor = isCorrect ? 'border-l-4 border-l-secondary' : 'border-l-4 border-l-red-500';
+                
+                item.classList.add(...borderColor.split(' '));
+
+                let imageHtml = '';
+                if (ans.questionData.image) {
+                    imageHtml = `<div class="mt-3 mb-3"><img src="${ans.questionData.image}" class="max-h-32 rounded border object-contain" alt="ภาพประกอบ" onerror="this.onerror=null;this.style.display='none';"></div>`;
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="mt-1">${icon}</div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800 text-base md:text-lg mb-2">ข้อ ${index + 1}: ${ans.questionData.question}</h3>
+                            ${imageHtml}
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm space-y-2">
+                                <p class="text-gray-600"><span class="font-semibold">คุณตอบ:</span> <span class="${isCorrect ? 'text-secondary font-medium' : 'text-red-500 font-medium'}">${ans.selectedAnswer}</span></p>
+                                ${!isCorrect ? `<p class="text-gray-600"><span class="font-semibold text-emerald-600">คำตอบที่ถูกต้อง:</span> ${ans.questionData.correctAnswer}</p>` : ''}
+                                <p class="text-xs text-indigo-400 mt-2"><i class="fas fa-tag"></i> หมวด: ${topicNames[ans.questionData.topic] || 'ทั่วไป'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                reviewContainer.appendChild(item);
+            });
+
+            showScreen('review');
+        }
+    </script>
+</body>
+</html>

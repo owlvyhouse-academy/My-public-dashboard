@@ -499,7 +499,14 @@
       clearInterval(timerInterval);
     }
 
-      function requestAiRemedial() {
+         function requestAiRemedial() {
+      // 🔒 ตรวจสอบ Password ก่อนเข้าใช้งานระบบ AI
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        return; // หยุดทำงานทันทีถ้ารหัสผิดหรือกดยกเลิก
+      }
+
       let wrongList = [];
       questions.forEach(q => {
         if (mainUserAnswers[q.id] !== q.answer) {

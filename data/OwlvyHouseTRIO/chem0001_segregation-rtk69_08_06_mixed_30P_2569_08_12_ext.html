@@ -507,10 +507,11 @@
         return; // หยุดทำงานทันทีถ้ารหัสผิดหรือกดยกเลิก
       }
 
-      let wrongList = [];
+          let wrongList = [];
       questions.forEach(q => {
         if (mainUserAnswers[q.id] !== q.answer) {
-          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | คำอธิบายเพิ่ม: ${q.hint}`);
+          // เพิ่ม tag_skill และ tag_misconception ส่งให้ AI เพื่อให้สร้างข้อสอบซ่อมเสริมได้ตรงจุดอ่อนจริงๆ
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะที่ผิด: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | คำใบ้: ${q.hint}`);
         }
       });
 

@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IQ-Ready Test Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล ผู้ทำข้อสอบ</label>
+        <input type="text" id="student-name" placeholder="ด.ช. สมชาย ใจดี" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ระดับชั้นเรียน</label>
+        <select id="student-class" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white">
+          <option value="">-- เลือกระดับชั้น --</option>
+          <option value="G4">G4 (ประถมศึกษาปีที่ 4)</option>
+          <option value="G5">G5 (ประถมศึกษาปีที่ 5)</option>
+          <option value="G6">G6 (ประถมศึกษาปีที่ 6)</option>
+          <option value="G7">G7 (มัธยมศึกษาปีที่ 1)</option>
+          <option value="G8">G8 (มัธยมศึกษาปีที่ 2)</option>
+          <option value="G9">G9 (มัธยมศึกษาปีที่ 3)</option>
+        </select>
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; startQuiz('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; startQuiz('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email" class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 rounded-xl transition text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+     const quizTitle = "BIO-มัธยม-APP0001-RTK-Pollination-2569-08-17";
+     const quizDomain = "BIO";
+     const quizContent = "Pollination/การถ่ายละอองเรณู"; 
+
+    const questions = [
+{
+    id: 1,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollinator_ecosystem_role",
+    tag_skill: "L4",
+    tag_misconception: "bees_directly_feed_plants_or_affect_human_reproduction",
+    title: "ข้อที่ 1. ในระบบนิเวศการเกษตร หากพบว่าประชากรผึ้งลดลงอย่างกระทันหันจากสารเคมีกำจัดศัตรูพืช จะส่งผลกระทบโดยตรงอย่างไรต่อห่วงโซ่อาหารและความมั่นคงทางอาหารของมนุษย์",
+    image: "https://storage.googleapis.com/learning-platform/pollination-bee-interaction.png",
+    options: [
+      "1. พืชดอกขาดสารอาหารเร่งการเจริญเติบโตเนื่องจากผึ้งไม่สามารถนำสารอาหารมาป้อนได้",
+      "2. มนุษย์จะสูญเสียอัตราการเจริญพันธุ์โดยตรงเนื่องจากขาดฟีโรโมนที่ผึ้งสร้างขึ้น",
+      "3. พืชดอกหลายชนิดปฏิสนธิลดลง ทำให้ปริมาณผลและเมล็ดซึ่งเป็นแหล่งอาหารหลักของมนุษย์ลดลง",
+      "4. พืชทั้งหมดในระบบนิเวศหยุดทำการสังเคราะห์ด้วยแสงเพราะขาดเอนไซม์กระตุ้นจากผึ้ง"
+    ],
+    answer: 3,
+    hint: "พิจารณาบทบาทของแมลงในการช่วยถ่ายละอองเรณู (Pollinator) ซึ่งนำไปสู่กระบวนการปฏิสนธิและสร้างผล/เมล็ด"
+  },
+  {
+    id: 2,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "wind_vs_insect_pollination",
+    tag_skill: "L4",
+    tag_misconception: "seeds_formed_inside_anther",
+    title: "ข้อที่ 2. จากการศึกษาโครงสร้างดอกของธูปฤๅษี (Wind-pollinated) และดอกแดนดิไลออน (Insect-pollinated) ข้อใดอธิบายกลไกการถ่ายเรณูทางชีววิทยาได้ถูกต้อง",
+    image: "https://storage.googleapis.com/learning-platform/cattail-dandelion-structure.png",
+    options: [
+      "1. ละอองเรณูของธูปฤๅษีผลิตในปริมาณมาก และเบาเพื่อเพิ่มโอกาสปฏิสนธิผ่านการปลิวไปตามลม",
+      "2. เมล็ดของแดนดิไลออนเจริญและถูกสร้างขึ้นภายในอับเรณูของเกสรเพศผู้หลังได้รับแสงแดด",
+      "3. ดอกเพศผู้ของธูปฤๅษีแยกจากดอกเพศเมียเนื่องจากยังเป็นดอกไม้ที่ไม่โตเต็มวัยตามอายุขัย",
+      "4. การถ่ายเรณูของแดนดิไลออนไม่อาศัยแมลงเพราะมีเกสรเพศผู้และเพศเมียอยู่ในดอกเดียวกัน"
+    ],
+    answer: 1,
+    hint: "เปรียบเทียบลักษณะละอองเรณูและกลไกของพืชที่อาศัยลม (Anemophily) กับพืชที่อาศัยแมลง (Entomophily)"
+  },
+  {
+    id: 3,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "cross_pollination_mechanisms",
+    tag_skill: "L3",
+    tag_misconception: "high_temp_enhances_pollination",
+    title: "ข้อที่ 3. เกษตรกรปลูกข้าวโพดแล้วพบปัญหา 'ฝักฟันหัก' (เมล็ดติดไม่เต็มฝัก) เนื่องจากอุณหภูมิในแปลงสูงเกิน 38°C ในช่วงดอกเจริญเต็มที่ การแก้ปัญหาทางเทคนิคข้อใดตรงจุดที่สุด",
+    image: "",
+    options: [
+      "1. เพิ่มการใช้สารเคมีไล่แมลงเพื่อลดการแย่งเรณูของพืชชนิดอื่น",
+      "2. ทำการช่วยถ่ายเรณู (Hand pollination) ในช่วงเช้าที่อุณหภูมิเหมาะสมก่อนเรณูสูญเสียสภาพ",
+      "3. ใช้ถุงพลาสติกคลุมช่อดอกเพศผู้ไว้ตลอดเวลาเพื่อกักเก็บความชื้นและสร้างความร้อน",
+      "4. ตัดช่อดอกเพศผู้ออกทั้งหมดทันทีเพื่อเร่งให้ดอกเพศเมียสร้างละอองเรณูขึ้นมาเอง"
+    ],
+    answer: 2,
+    hint: "ละอองเรณูข้าวโพดทนความร้อนสูงได้จำกัด (ฝานสลายใน 2-3 ชม. ที่อุณหภูมิสูง) และการผสมข้ามต้นต้องการเรณูที่ยังมีชีวิต"
+  },
+  {
+    id: 4,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "anemophilous_adaptation",
+    tag_skill: "L4",
+    tag_misconception: "lower_anther_is_better_for_wind_pollination",
+    title: "ข้อที่ 4. หญ้าหลายชนิดปรับตัวสำหรับการถ่ายเรณูด้วยลม (Anemophily) โครงสร้างทางกายภาพแบบใดช่วยเพิ่มดรรชนีความสำเร็จในการรับละอองเรณูได้ดีที่สุด",
+    image: "",
+    options: [
+      "1. เกสรเพศผู้อยู่ต่ำกว่าเกสรเพศเมีย และมียอดเกสรเพศเมียขนาดเล็กสั้นซ่อนอยู่ในกลีบดอก",
+      "2. เกสรเพศผู้อยู่สูงกว่าเกสรเพศเมีย พร้อมก้านชูอับเรณูยาวแขวนนอกดอก และมียอดเกสรเพศเมียเป็นพู่ขนนก",
+      "3. มีกลีบดอกสีฉูดฉาดขนาดใหญ่ และผลิตน้ำหวานปริมาณมากที่โคนเกสรเพศเมีย",
+      "4. ละอองเรณูมีขนาดใหญ่ หนัก และมีสารเมือกเหนียวปกคลุมเพื่อต้านแรงลม"
+    ],
+    answer: 2,
+    hint: "พืชที่อาศัยลมต้องการโครงสร้างที่ละอองเรณูกระจายตัวได้ง่าย และยอดเกสรเพศเมียมีพื้นที่สัมผัสลมมาก (เช่น เป็นพู่)"
+  },
+  {
+    id: 5,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "floral_syndromes_identification",
+    tag_skill: "L4",
+    tag_misconception: "all_scented_flowers_are_wind_pollinated",
+    title: "ข้อที่ 5. จากข้อมูลการสำรวจลักษณะดอกพืช 4 ชนิด ดังนี้:\n- ดอก ก: กลีบดอกใหญ่, เรณูเหนียว, มีน้ำหวาน\n- ดอก ข: กลีบดอกเล็ก, อับเรณูห้อยนอกดอก, ไม่มีกลิ่น\n- ดอก ค: มีกลิ่นจัด, มีน้ำหวาน, เรณูเหนียว\n- ดอก ง: อับเรณูและยอดเกสรเพศเมียห้อยนอกดอก, ไม่มีน้ำหวาน\nดอกไม้ชนิดใดจัดอยู่ในกลุ่มถ่ายเรณูโดยอาศัยแมลง (Entomophilous flowers)",
+    image: "",
+    options: [
+      "1. ชนิด ข และ ง",
+      "2. ชนิด ก และ ค",
+      "3. ชนิด ก, ข และ ค",
+      "4. ชนิด ข, ค และ ง"
+    ],
+    answer: 2,
+    hint: "ดอกไม้ที่ใช้อาหาร/กลิ่น/สี ล่อแมลงมักมีกลีบดอกสีสด กลิ่นจัด น้ำหวาน และละอองเรณูเหนียวติดตัวแมลงได้ง่าย"
+  },
+  {
+    id: 6,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollination_definition_concepts",
+    tag_skill: "L2",
+    tag_misconception: "sepal_turns_into_fruit_after_fertilization",
+    title: "ข้อที่ 6. พิจารณาข้อความเกี่ยวกับกระบวนการถ่ายเรณูและการสืบพันธุ์ของพืชดอก ข้อใดระบุหลักการทางชีววิทยาได้ถูกต้องแม่นยำที่สุด",
+    image: "https://storage.googleapis.com/learning-platform/flower-anatomy-diagram.png",
+    options: [
+      "1. การถ่ายเรณูคือการเคลื่อนย้ายละอองเรณูจากอับเรณูไปยังยอดเกสรเพศเมีย",
+      "2. หลังการถ่ายปฏิสนธิสำเร็จ กลีบเลี้ยงจะเจริญขยายขนาดกลายเป็นเนื้อผลไม้หลักเสมอ",
+      "3. พืชที่ใช้อาการลมช่วยถ่ายเรณู จะผลิตละอองเรณูที่มีน้ำหนักมากและมีความเหนียวสูง",
+      "4. การถ่ายเรณูเกิดขึ้นเฉพาะเมื่อเกสรเพศผู้และเพศเมียอยู่ในดอกเดียวกันเท่านั้น"
+    ],
+    answer: 1,
+    hint: "แยกแยะความแตกต่างระหว่างคำว่า 'การถ่ายเรณู (Pollination)' และ 'การปฏิสนธิ (Fertilization)' รวมถึงหน้าที่ของส่วนประกอบดอก"
+  },
+  {
+    id: 7,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "self_vs_cross_pollination",
+    tag_skill: "L4",
+    tag_misconception: "bisexual_flowers_only_self_pollinate",
+    title: "ข้อที่ 7. พืชที่มีดอกแบบสมบูรณ์เพศ (Perfect flower) แต่มีกลไกเกสรเพศผู้และเกสรเพศเมียเจริญเติบโตพร้อมผสมไม่ตรงกัน (Dichogamy) มีวัตถุประสงค์ทางวิวัฒนาการอย่างไร",
+    image: "",
+    options: [
+      "1. ป้องกันการปฏิสนธิ เพื่อเปลี่ยนไปสืบพันธุ์แบบไม่อาศัยเพศ",
+      "2. หลีกเลี่ยงการผสมภายในดอกเดียวกัน (Self-pollination) เพื่อเพิ่มความหลากหลายทางพันธุกรรม",
+      "3. ลดการดึงดูดแมลงเนื่องจากพืชไม่ต้องการใช้น้ำหวาน",
+      "4. เร่งการสร้างผลโดยไม่ต้องพึ่งพาทั้งลมและแมลง"
+    ],
+    answer: 2,
+    hint: "คิดถึงข้อดีของการผสมข้ามต้น (Cross-pollination) ต่อการรอดชีวิตและความหลากหลายของสิ่งมีชีวิต"
+  },
+  {
+    id: 8,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_structure_adaptation",
+    tag_skill: "L3",
+    tag_misconception: "pollen_wall_is_water_permeable_easily",
+    title: "ข้อที่ 8. โครงสร้างผนังชั้นนอกของละอองเรณู (Exine) ที่ประกอบด้วยสารสโปโรพอลเลนิน (Sporopollenin) มีความสำคัญต่อการถ่ายเรณูอย่างไร",
+    image: "",
+    options: [
+      "1. ช่วยย่อยสลายยอดเกสรเพศเมียเพื่อแทรกตัวเข้าไปทันที",
+      "2. ทนทานต่อแรงกายภาพ การย่อยสลาย และการสูญเสียน้ำระหว่างการขนส่งในอากาศหรือติดไปกับสัตว์",
+      "3. ทำหน้าที่ละลายน้ำเพื่อดึงดูดให้แมลงเข้ามาดื่มกิน",
+      "4. เปลี่ยนแสงอาทิตย์ให้เป็นพลังงานความร้อนเพื่อกระตุ้นการงอกของท่อเรณู"
+    ],
+    answer: 2,
+    hint: "Sporopollenin เป็นสารไบโอโพลิเมอร์ที่มีความทนทานสูงมากทางธรรมชาติ ช่วยปกป้องสารพันธุกรรมภายในเรณู"
+  },
+  {
+    id: 9,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "coevolution_plants_pollinators",
+    tag_skill: "L4",
+    tag_misconception: "flowers_color_for_human_aesthetic",
+    title: "ข้อที่ 9. ดอกกล้วยไม้บางชนิดมีรูปร่างและกลิ่นลอกเลียนแบบฟีโรโมนของแมลงเพศเมีย (Sexual deception) ปรากฏการณ์นี้จัดเป็นตัวอย่างของสิ่งใด",
+    image: "",
+    options: [
+      "1. การวิวัฒนาการร่วมกัน (Co-evolution) ระหว่างพืชและแมลงถ่ายเรณู",
+      "2. การแข่งขันระหว่างพืชต่างสายพันธุ์เพื่อแย่งชิงแร่ธาตุในดิน",
+      "3. ภาวะปรสิตที่พืชดูดกลืนสารอาหารจากตัวแมลงเพศผู้",
+      "4. การปรับตัวเพื่อชะลอการถ่ายเรณูในฤดูแล้ง"
+    ],
+    answer: 1,
+    hint: "การที่พืชมีลักษณะจำเพาะเจาะจงสูงมากเพื่อดึงดูดแมลงสายพันธุ์ใดสายพันธุ์หนึ่งโดยเฉพาะ"
+  },
+  {
+    id: 10,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "nectar_guides_function",
+    tag_skill: "L3",
+    tag_misconception: "insects_see_exact_same_colors_as_humans",
+    title: "ข้อที่ 10. ลวดลายบนกลีบดอกไม้บางชนิดที่มองเห็นได้ดีภายใต้รังสีอัลตราไวโอเลต (UV Nectar Guides) มีประโยชน์ต่อการถ่ายเรณูอย่างไร",
+    image: "",
+    options: [
+      "1. สะท้อนแสงอาทิตย์เพื่อเพิ่มอุณหภูมิภายในดอกไม้",
+      "2. ชี้ทางให้แมลงสืบค้นตำแหน่งของแหล่งน้ำหวานและเกสรได้อย่างแม่นยำ",
+      "3. ป้องกันไม่ให้ลมพัดละอองเรณูออกนอกดอกไม้",
+      "4. ฆ่าเชื้อแบคทีเรียที่อาจจะเข้ามาย่อยสลายน้ำหวาน"
+    ],
+    answer: 2,
+    hint: "แมลง เช่น ผึ้ง สามารถมองเห็นคลื่นแสงช่วงรังสี UV ได้ดี นำไปสู่กลไกสัญลักษณ์นำทาง (Nectar guide)"
+  },
+  {
+    id: 11,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "hydrophily_mechanisms",
+    tag_skill: "L3",
+    tag_misconception: "water_plants_only_use_insects",
+    title: "ข้อที่ 11. พืชใต้น้ำบางชนิด เช่น สาหร่ายหางกระรอก หรือ คาบอมบา มีปรับตัวในการถ่ายละอองเรณูผ่านน้ำ (Hydrophily) อย่างไร",
+    image: "",
+    options: [
+      "1. สร้างละอองเรณูที่มีความหนาแน่นเท่ากับน้ำหรือลอยน้ำได้ และผนังทนทานต่อการเปื่อยเปื่อย",
+      "2. สร้างดอกขนาดใหญ่สีสดใสเหนือระดับน้ำเพื่อล่อปลาให้มาถ่ายเรณู",
+      "3. เปลี่ยนให้เกสรเพศเมียสามารถว่ายน้ำไปหาเกสรเพศผู้ได้เอง",
+      "4. ใช้น้ำมันหอมระเหยเข้มข้นเพื่อทำให้น้ำรอบๆ ดอกไม้แข็งตัว"
+    ],
+    answer: 1,
+    hint: "คิดถึงการเคลื่อนตัวของเรณูในตัวกลางที่เป็นของเหลว (น้ำ) และการป้องกันการสูญเสียสภาพ"
+  },
+  {
+    id: 12,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "artificial_pollination_techniques",
+    tag_skill: "L3",
+    tag_misconception: "hand_pollination_can_be_done_anytime",
+    title: "ข้อที่ 12. ในการปรับปรุงพันธุ์พืช ผู้วิจัยต้องทำการปั่นเรณู (Hand pollination) ข้อใดเป็นขั้นตอนที่ถูกต้องเพื่อป้องกันการปนเปื้อนเรณูที่ไม่ต้องการ",
+    image: "",
+    options: [
+      "1. ฉีดสารกำจัดแมลงใส่ดอกแม่พันธุ์ทันทีหลังเปิดถุงออก",
+      "2. ตัดอับเรณูของดอกแม่พันธุ์ออกก่อนอับเรณูแตก (Emasculation) แล้วครอบถุงไว้",
+      "3. นำละอองเรณูจากพืชต่างวงศ์มาผสมเพื่อเพิ่มความแข็งแรง",
+      "4. ล้างยอดเกสรเพศเมียด้วยน้ำส้มสายชูหลังทาเรณูเสร็จ"
+    ],
+    answer: 2,
+    hint: "การป้องกันการผสมตัวเอง (Selfing) ในดอกแม่พันธุ์ ต้องกำจัดเกสรเพศผู้ออกตั้งแต่ยังไม่แก่จัด"
+  },
+  {
+    id: 13,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "incompatibility_systems",
+    tag_skill: "L4",
+    tag_misconception: "any_pollen_landing_on_stigma_will_germinate",
+    title: "ข้อที่ 13. แม้จะมีละอองเรณูตกบนยอดเกสรเพศเมียจำนวนมาก แต่พบว่าไม่เกิดการงอกของท่อเรณู ปรากฏการณ์ Self-incompatibility เกิดจากกลไกใด",
+    image: "",
+    options: [
+      "1. พืชไม่มีพลังงาน ATP เพียงพอในการสร้างท่อเรณู",
+      "2. ปฏิกิริยาทางเคมีและโปรตีนจดจำบนยอดเกสรเพศเมียยับยั้งการงอกของเรณูที่มีรหัสพันธุกรรมใกล้เคียงกัน",
+      "3. ท่อเรณูถูกแมลงขนาดเล็กกัดกินจนหมดสิ้น",
+      "4. ยอดเกสรเพศเมียมีสภาพเป็นกรดสูงจนทำลายผนังเรณูทุกชนิด"
+    ],
+    answer: 2,
+    hint: "พืชมีระบบการรับรู้ทางชีวเคมี (Biochemical recognition) เพื่อปฏิเสธเรณูจากต้นเดียวกันหรือยีนซ้ำกัน"
+  },
+  {
+    id: 14,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "night_pollinators_adaptation",
+    tag_skill: "L3",
+    tag_misconception: "night_blooming_flowers_are_brightly_colored",
+    title: "ข้อที่ 14. ดอกไม้ที่บานกลางคืน (เช่น ดอกกวาวผา ดอกชมนาด) มักมีลักษณะทางสรีรวิทยาเพื่อการถ่ายเรณูแบบใด",
+    image: "",
+    options: [
+      "1. กลีบดอกสีขาวหรือสีอ่อน ส่งกลิ่นหอมแรง เพื่อล่อค้างคาวหรือผีเสื้อกลางคืน",
+      "2. กลีบดอกสีแดงเข้มสดใสเพื่อสะท้อนแสงดวงจันทร์",
+      "3. ไม่มีกลิ่นหอมเลยเนื่องจากสัตว์กลางคืนมองเห็นได้ดีในความมืด",
+      "4. สร้างละอองเรณูเป็นของเหลวเพื่อหลีกเลี่ยงน้ำค้าง"
+    ],
+    answer: 1,
+    hint: "สัตว์ที่ออกหากินกลางคืนอาศัยกลิ่นและการมองเห็นสีสว่าง (สีขาว) ในความมืด"
+  },
+  {
+    id: 15,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollination_to_fertilization_timeline",
+    tag_skill: "L2",
+    tag_misconception: "pollination_is_the_same_as_fertilization",
+    title: "ข้อที่ 15. ลำดับเหตุการณ์ใดเรียงลำดับขั้นตอนการสืบพันธุ์แบบอาศัยเพศของพืชดอกได้อย่างถูกต้อง",
+    image: "",
+    options: [
+      "1. การปฏิสนธิ -> การถ่ายเรณู -> การงอกของท่อเรณู -> การเกิดผลและเมล็ด",
+      "2. การถ่ายเรณู -> การงอกของท่อเรณู -> การปฏิสนธิคู่ -> การเกิดผลและเมล็ด",
+      "3. การงอกของท่อเรณู -> การถ่ายเรณู -> การเกิดผลและเมล็ด -> การปฏิสนธิ",
+      "4. การถ่ายเรณู -> การเกิดผลและเมล็ด -> การปฏิสนธิ -> การงอกของท่อเรณู"
+    ],
+    answer: 2,
+    hint: "กระบวนการเริ่มจากการตกลงของเรณู (Pollination) ตามด้วยการเจริญของท่อเรณู แทรกไปปฏิสนธิ (Fertilization)"
+  },
+  {
+    id: 16,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "ornithophily_adaptations",
+    tag_skill: "L3",
+    tag_misconception: "birds_are_attracted_by_scent_only",
+    title: "ข้อที่ 16. ดอกไม้ที่อาศัยนก (such as Hummingbirds หรือ นกกินปลี) ในการถ่ายเรณู (Ornithophily) มักมีลักษณะเฉพาะอย่างไร",
+    image: "",
+    options: [
+      "1. ท่อกลีบดอกยาว หลอดสวมพอดีกับปากนก ดอกสีแดง/ส้มสดใส และไม่มีกลิ่นฉุน",
+      "2. ดอกขนาดเล็กมาก ซ่อนอยู่ใต้ใบ สีน้ำตาล และมีกลิ่นเน่าเสีย",
+      "3. กลีบดอกเบาบาง ละอองเรณูหลุดง่ายเมื่อโดนแรงลมจาก cánh นก",
+      "4. บานเฉพาะเวลากลางคืนและมีน้ำหวานพิษกำจัดแมลง"
+    ],
+    answer: 1,
+    hint: "นกมองเห็นสีสด (โดยเฉพาะสีแดง) ได้ดีมาก แต่มักมีประสาทรับกลิ่นที่ไม่ดีเท่าแมลง"
+  },
+  {
+    id: 17,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "climate_change_impact_pollination",
+    tag_skill: "L4",
+    tag_misconception: "global_warming_only_helps_plants_grow_faster",
+    title: "ข้อที่ 17. ภาวะโลกร้อนส่งผลให้เวลาการบานของดอกไม้ (Phenology) ไม่สัมพันธ์กับช่วงเวลาการตื่นจากการจำศีลของแมลงถ่ายเรณู (Temporal mismatch) จะส่งผลกระทบอย่างไร",
+    image: "",
+    options: [
+      "1. พืชจะเปลี่ยนไปถ่ายเรณูด้วยการอาศัยสัตว์เลี้ยงลูกด้วยนมแทนทันที",
+      "2. อัตราการปฏิสนธิของพืชลดลง และประชากรแมลงขาดแคลนอาหาร ส่งผลกระทบต่อผลผลิตพืชพรรณ",
+      "3. พืชทุกชนิดจะวิวัฒนาการเป็นดอกสมบูรณ์เพศภายใน 1 ฤดูกาล",
+      "4. แมลงจะเร่งการเจริญเติบโตจนสามารถถ่ายเรณูได้โดยไม่ต้องใช้น้ำหวาน"
+    ],
+    answer: 2,
+    hint: "หากช่วงเวลาการบานของดอกไม้กับการออกหากินของแมลงไม่ตรงกัน (Phenological mismatch) ย่อมลดโอกาสการถ่ายเรณู"
+  },
+  {
+    id: 18,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "stigma_receptivity",
+    tag_skill: "L3",
+    tag_misconception: "stigma_is_always_receptive",
+    title: "ข้อที่ 18. ความพร้อมของยอดเกสรเพศเมีย (Stigma receptivity) สังเกตได้จากลักษณะทางกายภาพในข้อใด",
+    image: "",
+    options: [
+      "1. มีสารเมือกเหนียวหรือน้ำหวานแห้งแข็งกลายเป็นเกราะป้องกัน",
+      "2. ยอดเกสรเพศเมียขยายขนาด มีสารเมือกเหนียว ชื้น หรือมีขนเล็กๆ เพื่อดักจับเรณู",
+      "3. ยอดเกสรเพศเมียเหี่ยวเฉาและเปลี่ยนเป็นสีน้ำตาลเข้ม",
+      "4. ยอดเกสรเพศเมียหดตัวกลับเข้าไปภายในรังไข่"
+    ],
+    answer: 2,
+    hint: "การดักจับละอองเรณูต้องการความชื้นและสารเมือกเหนียว (Sticky fluids) เพื่อยึดเกาะและส่งเสริมการงอก"
+  },
+  {
+    id: 19,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_viability_factors",
+    tag_skill: "L4",
+    tag_misconception: "pollen_lives_forever",
+    title: "ข้อที่ 19. ปัจจัยสิ่งแวดล้อมข้อใดมีผลกระทบความสืบเนื่องของความสดชีวิตละอองเรณู (Pollen viability) ในแปลงปลูกพืชมากที่สุด",
+    image: "",
+    options: [
+      "1. ความชื้นสัมพัทธ์และอุณหภูมิอากาศที่สูงเกินไปทำให้ละอองเรณูสูญเสียน้ำและฝานสลาย",
+      "2. ปริมาณแก๊สออกซิเจนในอากาศที่เพิ่มขึ้นเล็กน้อย",
+      "3. ความเข้มของสนามแม่เหล็กโลกในพื้นที่ปลูก",
+      "4. ความเร็วลมที่คงที่ตลอด 24 ชั่วโมง"
+    ],
+    answer: 1,
+    hint: "อุณหภูมิที่ร้อนจัดและความแห้งแล้งส่งผลให้สารชีวโมเลกุลในเรณูเสื่อมสภาพอย่างรวดเร็ว"
+  },
+  {
+    id: 20,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "cheating_pollinators",
+    tag_skill: "L4",
+    tag_misconception: "all_visiting_insects_are_effective_pollinators",
+    title: "ข้อที่ 20. พฤติกรรม 'Nectar robbing' ของมดหรือแตนบางชนิดที่เจาะโคนกลีบดอกเพื่อกินน้ำหวานโดยไม่สัมผัสเกสร มีผลต่อพืชอย่างไร",
+    image: "",
+    options: [
+      "1. ช่วยเพิ่มประสิทธิภาพการถ่ายเรณูเพราะดอกไม้จะผลิตน้ำหวานมากขึ้น",
+      "2. พืชสูญเสียน้ำหวานฟรีโดยไม่ได้รับประโยชน์จากการถ่ายเรณู (Pollination failure)",
+      "3. กระตุ้นให้พืชเปลี่ยนเกสรเพศผู้เป็นเกสรเพศเมียทันที",
+      "4. ทำให้ดอกไม้เปลี่ยนสีกลายเป็นสีดำเพื่อไล่แมลง"
+    ],
+    answer: 2,
+    hint: "สิ่งมีชีวิตที่เข้ามากินน้ำหวานโดยไม่ช่วยขนส่งเรณู จัดเป็นผู้ขโมยน้ำหวาน (Nectar robber)"
+  },
+  {
+    id: 21,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "heterostyly_mechanism",
+    tag_skill: "L4",
+    tag_misconception: "different_style_lengths_are_abnormalities",
+    title: "ข้อที่ 21. พืชที่มีลักษณะ Heterostyly (ก้านชูเกสรเพศเมียและเกสรเพศผู้ยาวไม่เท่ากันในต่างต้น) มีกลไกป้องกันเรื่องใด",
+    image: "",
+    options: [
+      "1. ป้องกันการสืบพันธุ์แบบไม่อาศัยเพศ",
+      "2. ป้องกันการถ่ายเรณูภายในดอกเดียวกัน (Self-pollination) เพื่อส่งเสริมการผสมข้าม",
+      "3. ป้องกันไม่ให้ลมพัดดอกไม้หลุดจากก้าน",
+      "4. ป้องกันแมลงขนาดใหญ่เข้ามาแย่งพื้นที่วางไข่"
+    ],
+    answer: 2,
+    hint: "ความแตกต่างของตำแหน่งความสูงเกสร (Spatial separation) ช่วยให้แมลงสัมผัสเรณูและนำไปติดต้นอื่นที่ความสูงตรงกัน"
+  },
+  {
+    id: 22,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollinium_structure",
+    tag_skill: "L3",
+    tag_misconception: "pollen_is_always_single_grains",
+    title: "ข้อที่ 22. กลุ่มก้อนละอองเรณูที่รวมตัวกันเป็นก้อนแข็ง เรียกว่า 'กลุ่มเรณู (Pollinium)' พบได้ในพืชวงศ์ใด และมีประโยชน์อย่างไร",
+    image: "",
+    options: [
+      "1. พบในวงศ์กล้วยไม้ ช่วยให้แมลงขนส่งเรณูจำนวนมากได้ในครั้งเดียว",
+      "2. พบในพืชตระกูลหญ้า ช่วยให้ปลิวไปตามลมได้ไกลขึ้น",
+      "3. พบในพืชตระกูลสน ช่วยป้องกันน้ำเข้าสู่เซลล์ไข่",
+      "4. พบในพืชน้ำ เพื่อให้จมลงสู่พื้นดินใต้ท้องน้ำ"
+    ],
+    answer: 1,
+    hint: "พืชวงศ์กล้วยไม้ (Orchidaceae) มีโครงสร้างละอองเรณูติดกันเป็นก้อน (Pollinium) เพื่อประสิทธิภาพการถ่ายเรณูผ่านแมลง"
+  },
+  {
+    id: 23,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "cleistogamy_adaptation",
+    tag_skill: "L4",
+    tag_misconception: "closed_flowers_cannot_reproduce",
+    title: "ข้อที่ 23. ดอกไม้แบบ Cleistogamous ซึ่งเป็นดอกไม้ที่ไม่ยอมบานเลยตลอดอายุขัย มีกระบวนการถ่ายเรณูอย่างไร และมีข้อดีอย่างไร",
+    image: "",
+    options: [
+      "1. อาศัยลมพัดผ่านกลีบดอกที่ปิดอยู่ และเพิ่มความหลากหลายทางพันธุกรรม",
+      "2. เกิดการถ่ายเรณูภายในดอกที่ปิดสนิท การันตีการติดเมล็ดโดยไม่ต้องพึ่งพาตัวถ่ายเรณูภายนอก",
+      "3. อาศัยแมลงขนาดเล็กมากมุดเข้าไปถ่ายเรณู ทำให้ได้สายพันธุ์ใหม่เสมอ",
+      "4. ไม่มีการถ่ายเรณู แต่สร้างเมล็ดจากการแบ่งเซลล์แบบไมโทซิสเท่านั้น"
+    ],
+    answer: 2,
+    hint: "Cleistogamy คือกลไกการถ่ายเรณูในดอกปิด รับประกันการติดผลแม้ในสภาพแวดล้อมที่ไร้แมลงหรือลม"
+  },
+  {
+    id: 24,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "chiropterophily_syndrome",
+    tag_skill: "L3",
+    tag_misconception: "bats_only_eat_fruit_not_nectar",
+    title: "ข้อที่ 24. ดอกไม้ที่ถ่ายเรณูโดยค้างคาว (Chiropterophily) เช่น ดอกสะตอ ดอกทุเรียน มักมีลักษณะสำคัญในข้อใด",
+    image: "",
+    options: [
+      "1. บานกลางวัน มีสีแดงสด และดอกมีขนาดเล็กมาก",
+      "2. บานกลางคืน ชูอยู่นอกทรงพุ่ม มีน้ำหวานปริมาณมาก และส่งกลิ่นคาวหรือกลิ่นผลไม้หมัก",
+      "3. ไม่มีน้ำหวาน มีอับเรณูขนาดเล็กซ่อนอยู่ในกลีบดอก",
+      "4. กลีบดอกบอบบาง เปราะง่าย เมื่อสัมผัสจะหุบกางทันที"
+    ],
+    answer: 2,
+    hint: "ค้างคาวมีขนาดตัวใหญ่ ต้องการพลังงานสูงจากน้ำหวานจำนวนมาก และออกหากินตอนกลางคืน"
+  },
+  {
+    id: 25,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_tube_growth",
+    tag_skill: "L3",
+    tag_misconception: "pollen_tube_grows_by_gravity_only",
+    title: "ข้อที่ 25. การงอกของท่อเรณู (Pollen tube) ลงไปตามก้านเกสรเพศเมียเข้าสู่รังไข่อาศัยกลไกการนำทางแบบใด (Chemotaxis)",
+    image: "",
+    options: [
+      "1. สารเคมีกลุ่มแคลเซียมและกลูโคส/ซูโครสที่หลั่งจากออวุลและออเกรต",
+      "2. ทิศทางของกระแสลมที่พัดผ่านลำต้น",
+      "3. แรงดึงดูดของแม่เหล็กโลกที่ขั้วเหนือ",
+      "4. แสงสว่างจากดวงอาทิตย์ที่ส่องผ่านรังไข่"
+    ],
+    answer: 1,
+    hint: "ท่อเรณูงอกเข้าหาออวุลโดยการตอบสนองต่อสารเคมี (Chemotropic response) ที่หลั่งจากออวุล/เซลล์รังไข่"
+  },
+  {
+    id: 26,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "monoecy_vs_dioecy",
+    tag_skill: "L4",
+    tag_misconception: "dioecious_plants_can_self_pollinate",
+    title: "ข้อที่ 26. พืชแยกเพศต่างต้น (Dioecious plants) เช่น มะละกอกระเทย/ตัวผู้/ตัวเมีย หรือ อินทผลัม มีผลต่อรูปแบบการถ่ายเรณูอย่างไร",
+    image: "",
+    options: [
+      "1. บังคับให้เกิดการถ่ายเรณูแบบผสมข้ามต้น (Cross-pollination) 100%",
+      "2. บังคับให้เกิดการถ่ายเรณูภายในต้นเดียวกันเท่านั้น",
+      "3. ไม่จำเป็นต้องอาศัยการถ่ายเรณูในการติดผล",
+      "4. ทำให้ละอองเรณูมีสองเพศในเม็ดเดียวกัน"
+    ],
+    answer: 1,
+    hint: "เมื่อดอกเพศผู้และดอกเพศเมียอยู่แยกคนละต้นกัน การถ่ายเรณูข้ามต้นจึงเป็นทางเลือกเดียวในการสืบพันธุ์แบบอาศัยเพศ"
+  },
+  {
+    id: 27,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "economic_impact_pollinators",
+    tag_skill: "L4",
+    tag_misconception: "wind_pollinates_all_fruit_crops",
+    title: "ข้อที่ 27. ในสวนพืชเศรษฐกิจ เช่น อัลมอนด์ วนิลา หรือทุเรียน หากขาดแมลงถ่ายเรณูตามธรรมชาติ เจ้าของสวนจะต้องรับภาระต้นทุนใดเพิ่มขึ้นมากที่สุด",
+    image: "",
+    options: [
+      "1. ค่าปุ๋ยเคมีเร่งราก",
+      "2. ค่าแรงงานคนในการช่วยถ่ายเรณูด้วยมือ (Hand pollination)",
+      "3. ค่าไฟสำหรับเปิดแสงสว่างตอนกลางคืน",
+      "4. ค่าสารเคมีกำจัดวัชพืช"
+    ],
+    answer: 2,
+    hint: "พืชเศรษฐกิจบางชนิดหากไม่มีแมลง ต้องใช้มนุษย์เขี่ยเกสรทีละดอก ซึ่งอาศัยแรงงานและต้นทุนสูงมาก"
+  },
+  {
+    id: 28,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "myrmecophily_pollination",
+    tag_skill: "L3",
+    tag_misconception: "ants_are_the_best_pollinators_for_all_flowers",
+    title: "ข้อที่ 28. ทำไมมดจึงมักไม่ค่อยเป็นตัวถ่ายเรณูที่ดี (Inefficient pollinators) สำหรับดอกไม้ส่วนใหญ่",
+    image: "",
+    options: [
+      "1. มดหลั่งสารปฏิชีวนะจากต่อม Metapleural gland บนตัว ซึ่งทำลายความสดชีวิตของละอองเรณู",
+      "2. มดไม่มีขาในการเดินบนดอกไม้",
+      "3. มดชอบกินเฉพาะกลีบดอก ไม่กินน้ำหวาน",
+      "4. ละอองเรณูทำให้มดเป็นอัมพาต"
+    ],
+    answer: 1,
+    hint: "มดมีต่อมสร้างสารต่อต้านเชื้อโรคซึ่งส่งผลข้างเคียงยับยั้งการงอกของละอองเรณู (Ant-pollen incompatibility)"
+  },
+  {
+    id: 29,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_allele_competition",
+    tag_skill: "L4",
+    tag_misconception: "first_pollen_always_wins",
+    title: "ข้อที่ 29. ปรากฏการณ์ Pollen competition (การแข่งขันของเรณู) บนยอดเกสรเพศเมียส่งผลดีต่อประชากรพืชอย่างไร",
+    image: "",
+    options: [
+      "1. คัดเลือกเฉพาะละอองเรณูที่มีท่อเรณูแข็งแรงและยีนสมบูรณ์ที่สุดไปปฏิสนธิกับไข่",
+      "2. ทำให้พืชสร้างเมล็ดที่มีขนาดใหญ่เท่ากันทุกเมล็ด",
+      "3. ทำลายไข่ที่ไม่ต้องการทิ้งไป",
+      "4. ช่วยให้เกิดการสืบพันธุ์แบบไม่อาศัยเพศรวดเร็วขึ้น"
+    ],
+    answer: 1,
+    hint: "การงอกแข่งกันของท่อเรณูจำนวนมาก (Male gametophyte competition) เป็นกลไกการคัดเลือกทางธรรมชาติ"
+  },
+  {
+    id: 30,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "fig_wasp_mutualism",
+    tag_skill: "L4",
+    tag_misconception: "fig_is_a_simple_fruit_without_flowers",
+    title: "ข้อที่ 30. ความสัมพันธ์ระหว่างดอกมะเดื่อ (Fig syconium) และแตนมะเดื่อ (Fig wasp) จัดเป็นความสัมพันธ์แบบใดในการถ่ายเรณู",
+    image: "",
+    options: [
+      "1. ภาวะอิงอาศัย (Commensalism) ที่แตนได้ประโยชน์ฝ่ายเดียว",
+      "2. ภาวะพึ่งพากันแบบจำเพาะเจาะจงสูง (Obligate mutualism) ที่ต่างฝ่ายต่างขาดกันไม่ได้ในการดำรงพันธุ์",
+      "3. ภาวะการล่าเหยื่อ (Predation) ที่ดอกมะเดื่อกินแตนเป็นอาหาร",
+      "4. ภาวะแข่งขัน (Competition) ในการแย่งชิงพื้นที่ในป่า"
+    ],
+    answer: 2,
+    hint: "แตนใช้ดอกมะเดื่อเป็นที่วางไข่และถ่ายเรณูให้มะเดื่อ โดยพืชและแมลงคู่นี้พัฒนามาด้วยกันจนขาดฝ่ายใดฝ่ายหนึ่งไม่ได้"
+  }
+  
+];
+
+    const extraQuestions = [
+ {
+    id: 1,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_nature_misconception",
+    tag_skill: "L4",
+    tag_misconception: "pollen_is_female_gamete",
+    title: "ข้อท้าทายที่ 1. นักเรียนคนหนึ่งเข้าใจว่า 'ละอองเรณูคือเซลล์สืบพันธุ์เพศผู้ (Sperm cell)' คำกล่าวนี้ถูกต้องหรือไม่ตามหลักพฤกษศาสตร์",
+    image: "",
+    options: [
+      "1. ถูกต้อง เพราะละอองเรณูทำหน้าที่ผสมกับไข่โดยตรง",
+      "2. ไม่ถูกต้อง เพราะละอองเรณูคือ Gametophyte เพศผู้ที่สร้าง สเปิร์มนิวเคลียส อยู่ภายใน",
+      "3. ถูกต้อง เพราะละอองเรณูสร้างจากเกสรเพศผู้เท่านั้น",
+      "4. ไม่ถูกต้อง เพราะละอองเรณูคือเซลล์สืบพันธุ์เพศเมีย"
+    ],
+    answer: 2,
+    hint: "ละอองเรณู (Pollen grain) คือ Microgametophyte ที่ยังต้องงอกท่อเรณูและสร้าง สเปิร์มนิวเคลียส (Sperm nuclei) 2 ตัว"
+  },
+  {
+    id: 2,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "fertilization_vs_pollination",
+    tag_skill: "L4",
+    tag_misconception: "pollination_guarantees_seed_formation",
+    title: "ข้อท้าทายที่ 2. หากละอองเรณูตกบนยอดเกสรเพศเมียแล้ว (Pollination) ข้อใดเป็นปัจจัยที่อาจทำให้ 'ไม่เกิดเมล็ด' ขึ้น",
+    image: "",
+    options: [
+      "1. เกิดปฏิกิริยาไม่เข้ากัน (Incompatibility) หรือท่อเรณูงอกไปไม่ถึงออวุล",
+      "2. พืชสังเคราะห์ด้วยแสงมากเกินไปจนทำลายละอองเรณู",
+      "3. ละอองเรณูแปลงสภาพกลายเป็นกลีบดอกใหม่",
+      "4. ออวุลเปลี่ยนเป็นเกสรเพศผู้ทันทีหลังสัมผัสเรณู"
+    ],
+    answer: 1,
+    hint: "การถ่ายเรณูเป็นเพียงขั้นตอนแรก การปฏิสนธิและการพัฒนาเป็นเมล็ดอาจล้มเหลวได้จากหลายกลไกชีวเคมี"
+  },
+  {
+    id: 3,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "bright_colors_misconception",
+    tag_skill: "L4",
+    tag_misconception: "all_bright_flowers_use_wind",
+    title: "ข้อท้าทายที่ 3. ดอกไม้ที่มีสีแดงสด แต่ไม่มีกลิ่นหอม มักถ่ายเรณูโดยอาศัยสิ่งใดเป็นหลัก",
+    image: "",
+    options: [
+      "1. ลม",
+      "2. นก (เช่น นกฮัมมิ่งเบิร์ด)",
+      "3. ผีเสื้อกลางคืน",
+      "4. น้ำ"
+    ],
+    answer: 2,
+    hint: "นกมองเห็นสีแดงได้ดีเยี่ยมแต่มักไร้ประสาทรับกลิ่น ส่วนแมลงส่วนใหญ่ไม่ตอบสนองต่อสีแดงเท่าสีอื่น"
+  },
+  {
+    id: 4,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "wind_pollination_pollen_properties",
+    tag_skill: "L4",
+    tag_misconception: "wind_pollen_is_sticky",
+    title: "ข้อท้าทายที่ 4. ทำไมพืชที่ใช้อาการลมช่วยถ่ายเรณูจึงไม่ควรมีละอองเรณูที่เหนียว (Sticky pollen)",
+    image: "",
+    options: [
+      "1. เพราะจะทำให้ละอองเรณูเกาะกันเป็นก้อนหนักจนลมไม่สามารถพัดพาไปได้",
+      "2. เพราะจะทำให้ละอองเรณูย่อยสลายกลายเป็นแก๊ส",
+      "3. เพราะจะดึงดูดแมลงเข้ามาหลอกกินละอองเรณูจนหมด",
+      "4. เพราะความเหนียวจะทำลายรังไข่เมื่อตกกระทบ"
+    ],
+    answer: 1,
+    hint: "การถ่ายเรณูด้วยลมต้องการละอองเรณูที่แห้ง ลื่น เบา เพื่อกระจายไปตามกระแสลมได้ไกล"
+  },
+  {
+    id: 5,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "self_pollination_genetics",
+    tag_skill: "L4",
+    tag_misconception: "self_pollination_is_asexual",
+    title: "ข้อท้าทายที่ 5. การถ่ายเรณูภายในดอกเดียวกัน (Self-pollination) จัดเป็นการสืบพันธุ์ประเภทใด และส่งผลต่อยีนอย่างไร",
+    image: "",
+    options: [
+      "1. ไม่อาศัยเพศ / ได้ลูกที่มีพันธุกรรมเหมือนแม่ 100%",
+      "2. อาศัยเพศ / ยังคงมีการรวมกันของเซลล์สืบพันธุ์ แต่อัตราความหลากหลายทางพันธุกรรมต่ำกว่าผสมข้าม",
+      "3. ไม่อาศัยเพศ / ได้ลูกที่มีการกลายพันธุ์สูงมาก",
+      "4. ไม่จัดเป็นการสืบพันธุ์ แต่เป็นการเจริญเติบโตของลำต้น"
+    ],
+    answer: 2,
+    hint: "Self-pollination ยังคงใช้การสร้างไมโอซิสและการปฏิสนธิของเซลล์ไข่กับสเปิร์ม จึงเป็นการสืบพันธุ์แบบอาศัยเพศ"
+  },
+  {
+    id: 6,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "odor_types_and_pollinators",
+    tag_skill: "L4",
+    tag_misconception: "foul_smell_repels_all_creatures",
+    title: "ข้อท้าทายที่ 6. ดอกบัวผุด (Rafflesia) ที่มีกลิ่นเหม็นเน่าคล้ายเนื้อซากสัตว์ มีวัตถุประสงค์ในการถ่ายเรณูอย่างไร",
+    image: "",
+    options: [
+      "1. ป้องกันไม่ให้สิ่งมีชีวิตเข้าใกล้ดอกไม้",
+      "2. ล่อแมลงวันและด้วงกินซากสัตว์ให้เข้ามาช่วยถ่ายเรณู",
+      "3. ฆ่าแมลงเพื่อนำมาเป็นสารอาหารบำรุงราก",
+      "4. ขับไล่ค้างคาวในเวลากลางคืน"
+    ],
+    answer: 2,
+    hint: "กลิ่นเน่าเหม็น (Carrion smell) เป็นกลไกล่อแมลงเฉพาะกลุ่ม เช่น แมลงวัน หรือ ด้วงซากสัตว์ (Carrion beetles)"
+  },
+  {
+    id: 7,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "fruit_without_pollination",
+    tag_skill: "L4",
+    tag_misconception: "all_fruits_need_pollination",
+    title: "ข้อท้าทายที่ 7. กล้วยหอมที่ไม่มีเมล็ด สามารถเจริญเป็นผลได้โดยไม่ต้องผ่านการถ่ายเรณูปฏิสนธิ ปรากฏการณ์นี้เรียกว่าอะไร",
+    image: "",
+    options: [
+      "1. Parthenocarpy (การเกิดผลพาร์เทโนคาร์พี)",
+      "2. Double fertilization",
+      "3. Cross-pollination failure",
+      "4. Cleistogamy"
+    ],
+    answer: 1,
+    hint: "กระบวนการสร้างผลโดยไม่ผ่านการปฏิสนธิ เรียกว่า Parthenocarpy ทำให้ได้ผลที่ไร้เมล็ด"
+  },
+  {
+    id: 8,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_grain_count",
+    tag_skill: "L4",
+    tag_misconception: "one_pollen_grain_makes_multiple_seeds",
+    title: "ข้อท้าทายที่ 8. ในผลมะละกอ 1 ฝักที่มี เมล็ด 200 เมล็ด ต้องการละอองเรณูอย่างน้อยที่สุดกี่เม็ดในการปฏิสนธิให้ได้เมล็ดจำนวนนี้",
+    image: "",
+    options: [
+      "1. 1 เม็ด",
+      "2. 100 เม็ด",
+      "3. 200 เม็ด",
+      "4. 400 เม็ด"
+    ],
+    answer: 3,
+    hint: "เมล็ด 1 เม็ด เกิดจากการปฏิสนธิของ 1 ออวุล กับ 1 ท่อเรณู (ซึ่งมาจากละอองเรณู 1 เม็ด)"
+  },
+  {
+    id: 9,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_allergy_cause",
+    tag_skill: "L4",
+    tag_misconception: "showy_flowers_cause_most_allergies",
+    title: "ข้อท้าทายที่ 10. ละอองเรณูที่ก่อให้เกิดโรคภูมิแพ้ทางเดินหายใจ (Hay fever) ในมนุษย์ ส่วนใหญ่มาจากพืชกลุ่มใด",
+    image: "",
+    options: [
+      "1. พืชที่มีดอกสวยงาม กลิ่นหอม และถ่ายเรณูโดยแมลง",
+      "2. พืชตระกูลหญ้าและไม้ต้นที่ถ่ายเรณูด้วยลม ซึ่งเรณูมีขนาดเล็ก ละเอียด ปล่องในอากาศจำนวนมาก",
+      "3. พืชน้ำที่ละอองเรณูลอยอยู่ในน้ำ",
+      "4. พืชจำพวกกล้วยไม้ที่ละอองเรณูเป็นก้อนเหนียว"
+    ],
+    answer: 2,
+    hint: "พืชที่อาศัยลมสร้างละอองเรณูเบาและปริมาณมหาศาล ปลิวฟุ้งในอากาศทำให้มนุษย์สูดดมเข้าไปได้ง่าย"
+  },
+  {
+    id: 10,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "nectar_composition",
+    tag_skill: "L3",
+    tag_misconception: "nectar_is_pure_water",
+    title: "ข้อท้าทายที่ 10. สารอาหารหลักที่เป็นองค์ประกอบในน้ำหวาน (Nectar) ของดอกไม้เพื่อรางวัลแก่แมลงคือสารใด",
+    image: "",
+    options: [
+      "1. สารละลายน้ำตาล (ซูโครส กลิโคส ฟรุกโตส) และกรดอะมิโนบางชนิด",
+      "2. ไขมันและคอเลสเตอรอลบริสุทธิ์",
+      "3. แก๊สคาร์บอนไดออกไซด์ละลายน้ำ",
+      "4. สารเม็ดสีคลอโรฟิลล์"
+    ],
+    answer: 1,
+    hint: "น้ำหวานเป็นแหล่งพลังงานคาร์โบไฮเดรตหลักที่พืชผลิตขึ้นเพื่อดึงดูดตัวถ่ายเรณู"
+  },
+  {
+    id: 11,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "buzz_pollination",
+    tag_skill: "L4",
+    tag_misconception: "all_bees_pollinate_all_flowers_the_same_way",
+    title: "ข้อท้าทายที่ 11. การถ่ายเรณูแบบ Buzz pollination (Sonication) ที่พบในพืชจำพวกมะเขือเทศ ต้องอาศัยสิ่งใดจากแมลง",
+    image: "",
+    options: [
+      "1. การสั่นสะเทือนของกล้ามเนื้อบินของผึ้งบางชนิด (เช่น ผึ้งบัมเบิลบี) ในความถี่เฉพาะเพื่อสลัดเรณูออกจากรูอับเรณู",
+      "2. การดูดน้ำหวานจนกลีบดอกร่วง",
+      "3. การใช้กัดกลีบดอกให้เป็นรูเพื่อระบายความร้อน",
+      "4. การปล่อยสารเคมีกรดเพื่อละลายอับเรณู"
+    ],
+    answer: 1,
+    hint: "พืชวงศ์มะเขือ (Solanaceae) มีอับเรณูแบบเปิดเป็นรูที่ปลาย (Poricidal dehiscence) ต้องอาศัยแรงสั่นสะเทือนสลัดเรณูออก"
+  },
+  {
+    id: 12,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "petals_function",
+    tag_skill: "L2",
+    tag_misconception: "petals_are_only_for_protection",
+    title: "ข้อท้าทายที่ 12. หน้าที่หลักทางชีววิทยาของกลีบดอก (Petal) ที่มีสีสันสวยงามคือข้อใด",
+    image: "",
+    options: [
+      "1. ล่อสิ่งมีชีวิตภายนอกให้เข้ามาช่วยทำการถ่ายเรณู",
+      "2. ทำหน้าที่สังเคราะห์ด้วยแสงเป็นหลักแทนใบ",
+      "3. สะสมน้ำเสียของพืชเพื่อขับทิ้ง",
+      "4. ป้องกันไม่ให้รากพืชดูดน้ำมากเกินไป"
+    ],
+    answer: 1,
+    hint: "สีสันและรูปร่างของกลีบดอกพัฒนาขึ้นเพื่อเป็นสัญญาณชีวภาพ (Visual signals) ล่อแมลงและสัตว์ถ่ายเรณู"
+  },
+  {
+    id: 13,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "unisexual_flower_pollination",
+    tag_skill: "L3",
+    tag_misconception: "imperfect_flowers_cannot_reproduce",
+    title: "ข้อท้าทายที่ 13. ดอกไม้ไม่สมบูรณ์เพศ (Imperfect flower) ข้อใดอธิบายโอกาสการถ่ายเรณูได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. ต้องเกิดการถ่ายเรณูข้ามดอกเสมอ (ไม่ว่าจะอยู่ในต้นเดียวกันหรือต่างต้นกัน)",
+      "2. ไม่สามารถถ่ายเรณูได้เลยเพราะขาดองค์ประกอบหลัก",
+      "3. เกิดการถ่ายเรณูภายในดอกเดียวกันเท่านั้น",
+      "4. ถ่ายเรณูได้เฉพาะเวลากลางคืนเท่านั้น"
+    ],
+    answer: 1,
+    hint: "ดอกไม่สมบูรณ์เพศจะมีเฉพาะเกสรเพศผู้ หรือเกสรเพศเมียอย่างใดอย่างหนึ่งในดอกนั้น การถ่ายเรณูจึงต้องย้ายข้ามดอก"
+  },
+  {
+    id: 14,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "anther_dehiscence",
+    tag_skill: "L3",
+    tag_misconception: "anther_opens_when_wet",
+    title: "ข้อท้าทายที่ 14. สภาพอากาศแบบใดที่ส่งเสริมการแตกของอับเรณู (Anther dehiscence) เพื่อปลดปล่อยละอองเรณูได้ดีที่สุด",
+    image: "",
+    options: [
+      "1. สภาพอากาศแห้งและความชื้นต่ำ ช่วยให้ผนังอับเรณูสูญเสียน้ำ ตึง และปริแตกออก",
+      "2. สภาพที่มีฝนตกหนักและหมอกหนาจัด",
+      "3. สภาพที่มีความชื้นสัมพัทธ์ 100%",
+      "4. สภาพอุณหภูมิติดลบจนอับเรณูเป็นน้ำแข็ง"
+    ],
+    answer: 1,
+    hint: "กลไกการแตกของอับเรณูอาศัยการสูญเสียน้ำของเนื้อเยื่อ Endothecium ทำให้เกิดแรงตึงและแตกออก"
+  },
+  {
+    id: 15,
+    domain: "BIO",
+    content: "Pollination/การถ่ายละอองเรณู",
+    tag_content: "pollen_tube_cell_components",
+    tag_skill: "L4",
+    tag_misconception: "pollen_has_only_one_nucleus",
+    title: "ข้อท้าทายที่ 15. ในเรณูที่เจริญเต็มที่พร้อมถ่ายเรณู ประกอบด้วยนิวเคลียสประเภทใดบ้าง",
+    image: "",
+    options: [
+      "1. Tube nucleus (สร้างท่อ) และ Generative nucleus (แบ่งตัวได้ 2 สเปิร์มนิวเคลียส)",
+      "2. Egg nucleus และ Polar nuclei",
+      "3. Central nucleus และ Synergid nucleus",
+      "4. Endosperm nucleus และ Seed coat nucleus"
+    ],
+    answer: 1,
+    hint: "แกมีโทไฟต์เพศผู้ของพืชดอกช่วงกระจายเรณูมักมี 2 เซลล์/นิวเคลียสหลัก คือ Tube cell และ Generative cell"
+  }
+    ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        const name = document.getElementById('student-name').value.trim();
+        const email = document.getElementById('student-email').value.trim();
+        const studentClass = document.getElementById('student-class').value;
+        
+        if (!name || !studentClass) {
+          errorBox.innerText = "⚠️ กรุณากรอกชื่อ-นามสกุล และเลือกระดับชั้นให้ครบถ้วน";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = `${name} [${studentClass}]`;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+      document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3>
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      const name = document.getElementById('student-name').value.trim();
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = document.getElementById('student-class').value;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

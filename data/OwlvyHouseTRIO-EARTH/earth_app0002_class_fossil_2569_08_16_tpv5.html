@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IQ-Ready Test Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล ผู้ทำข้อสอบ</label>
+        <input type="text" id="student-name" placeholder="ด.ช. สมชาย ใจดี" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ระดับชั้นเรียน</label>
+        <select id="student-class" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white">
+          <option value="">-- เลือกระดับชั้น --</option>
+          <option value="G4">G4 (ประถมศึกษาปีที่ 4)</option>
+          <option value="G5">G5 (ประถมศึกษาปีที่ 5)</option>
+          <option value="G6">G6 (ประถมศึกษาปีที่ 6)</option>
+          <option value="G7">G7 (มัธยมศึกษาปีที่ 1)</option>
+          <option value="G8">G8 (มัธยมศึกษาปีที่ 2)</option>
+          <option value="G9">G9 (มัธยมศึกษาปีที่ 3)</option>
+        </select>
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; startQuiz('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; startQuiz('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email" class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-3 rounded-xl transition text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+     const quizTitle = "EARTH-APP0002-Class-Fossil-69-08-16";
+     const quizDomain = "EARTH";
+     const quizContent = "ซากดึกดำบรรพ์และบรรพ์ดัชนี";
+    
+    const questions = [
+ {
+    id: 1,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossil_formation_rock_types",
+    tag_skill: "L4",
+    tag_misconception: "fossils_can_form_in_any_rock_type",
+    title: "ข้อที่ 1. นักบรรพชีวินวิทยาลงพื้นที่สำรวจชั้นหินในบริเวณหุบเขาแห่งหนึ่ง และเก็บตัวอย่างหินประเภทต่างๆ มาวิเคราะห์ เพื่อค้นหาซากดึกดำบรรพ์ของสิ่งมีชีวิตโบราณ หินประเภทใดในตัวอย่างต่อไปนี้ที่มีโอกาสพบซากดึกดำบรรพ์น้อยที่สุดหรือไม่มีโอกาสพบเลย",
+    image: "",
+    options: [
+      "1. หินที่เกิดจากการตกตะกอนทับถมกันของโคลนและดินเหนียวในแอ่งน้ำนิ่ง",
+      "2. หินที่มีสีเข้ม มีรูพรุนจำนวนมาก เกิดจากการเย็นตัวอย่างรวดเร็วของลาวาบนผิวโลก",
+      "3. หินที่เกิดจากเม็ดทรายสเกลขนาดเล็กอัดแน่นกันจนแข็งในบริเวณชายหาดโบราณ",
+      "4. หินที่เกิดจากเศษกรวดและตะกอนขนาดใหญ่เชื่อมประสานกันด้วยสารละลายแร่ธาตุ"
+    ],
+    answer: 2,
+    hint: "พิจารณากระบวนการเกิดของหินแต่ละชนิด สารความร้อนสูงจากอัคนีหรือภูเขาไฟส่งผลอย่างไรต่อโครงร่างของสิ่งมีชีวิต"
+  },
+  {
+    id: 2,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossil_preservation_metamorphism",
+    tag_skill: "L3",
+    tag_misconception: "acid_destroys_fossils_in_metamorphism",
+    title: "ข้อที่ 2. นักเรียนคนหนึ่งกล่าวว่า 'เราไม่ค่อยพบซากดึกดำบรรพ์ในหินแปรและหินอัคนี เนื่องจากหินทั้งสองประเภทมีความเป็นกรดสูงมากจนกัดกร่อนซากดึกดำบรรพ์จนหมด' ข้อใดอธิบายเกี่ยวกับความเข้าใจนี้ได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. ถูกต้อง เพราะหินอัคนีและหินแปรเกิดจากสารละลายกรดเข้มข้นใต้เปลือกโลก",
+      "2. ไม่ถูกต้อง เพราะเหตุผลที่แท้จริงคือความร้อนและความดันสูงมากในกระบวนการเกิดที่ทำลายโครงร่างซากสิ่งมีชีวิต",
+      "3. ถูกต้อง เฉพาะในหินอัคนีเท่านั้นที่กรดกัดกร่อน ส่วนหินแปรเกิดจากการหลอมเหลวสมบูรณ์",
+      "4. ไม่ถูกต้อง เพราะซากดึกดำบรรพ์สามารถทนต่อกรดและความร้อนในหินอัคนีได้ แต่ทนความดันในหินแปรไม่ได้"
+    ],
+    answer: 2,
+    hint: "คิดถึงปัจจัยทางกายภาพหลัก (อุณหภูมิและความดัน) ที่เกิดขึ้นขณะเกิดหินอัคนีและการแปรสภาพของหิน"
+  },
+  {
+    id: 3,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossil_characteristics_and_occurrence",
+    tag_skill: "L4",
+    tag_misconception: "all_dead_organisms_become_fossils",
+    title: "ข้อที่ 3. พิจารณาข้อความเกี่ยวกับการเกิดและการพบซากดึกดำบรรพ์ต่อไปนี้\n1. ซากดึกดำบรรพ์พบได้ในหินตะกอนเป็นหลัก\n2. สิ่งมีชีวิตทุกชนิดเมื่อตายลงจะถูกเปลี่ยนเป็นซากดึกดำบรรพ์เสมอ\n3. โครงร่างหรือร่องรอยของสิ่งมีชีวิตที่ถูกเก็บรักษาไว้ในหินเรียกว่าซากดึกดำบรรพ์\n4. ชั้นหินที่มีซากดึกดำบรรพ์อยู่ลึกที่สุดจะมีอายุน้อยที่สุด\nข้อความใดถูกต้องตามหลักธรณีวิทยา",
+    image: "",
+    options: [
+      "1. ข้อ 1 และ 2",
+      "2. ข้อ 2 และ 4",
+      "3. ข้อ 1 และ 3",
+      "4. ข้อ 3 และ 4"
+    ],
+    answer: 3,
+    hint: "การเกิดซากดึกดำบรรพ์ต้องมีเงื่อนไขพิเศษ และกฎการลำดับชั้นหินระบุว่าชั้นล่างสุดมักจะมีอายุอย่างไร"
+  },
+  {
+    id: 4,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "permineralization_minerals",
+    tag_skill: "L2",
+    tag_misconception: "only_calcite_forms_fossils",
+    title: "ข้อที่ 4. ในกระบวนการเกิดซากดึกดำบรรพ์แบบกลายเป็นหิน (Permineralization/Replacement) สารละลายแร่ธาตุในน้ำใต้ดินจะเข้าไปตกผลึกแทนที่ในช่องว่างหรือโครงสร้างเดิมของสิ่งมีชีวิต แร่ธาตุในข้อใดที่มีบทบาทสำคัญในการทำให้เกิดโครงร่างแข็งดังกล่าว",
+    image: "",
+    options: [
+      "1. แคลไซต์ เท่านั้น",
+      "2. ซิลิกา เท่านั้น",
+      "3. โดโลไมต์ เท่านั้น",
+      "4. ทั้งแคลไซต์ ซิลิกา และโดโลไมต์"
+    ],
+    answer: 4,
+    hint: "สารละลายแร่ธาตุที่พบในธรรมชาติและพบบ่อยในน้ำใต้ดินสามารถเป็นได้หลากหลายชนิดตามสภาพแวดล้อมทางธรณีวิทยา"
+  },
+  {
+    id: 5,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "trace_fossils_dinosaur_tracks",
+    tag_skill: "L3",
+    tag_misconception: "dinosaur_footprints_are_body_fossils",
+    title: "ข้อที่ 5. ทีมนักธรณีวิทยาค้นพบรอยเท้าขนาดใหญ่ของไดโนเสาร์ประทับอยู่บนลานหินทรายบริเวณลำน้ำโบราณ ซากดึกดำบรรพ์ลักษณะนี้จัดอยู่ในประเภทใด และให้ข้อมูลหลักเกี่ยวกับอะไร",
+    image: "",
+    options: [
+      "1. ซากดึกดำบรรพ์โครงร่างแข็ง (Body Fossil) - ให้ข้อมูลเกี่ยวกับโครงสร้างกระดูกและขนาดกะโหลกศีรษะ",
+      "2. ร่องรอยกลายเป็นหิน (Trace Fossil) - ให้ข้อมูลเกี่ยวกับพฤติกรรม ท่าทางการเดิน และขนาดของตัวสิ่งมีชีวิต",
+      "3. การคงสภาพสมบูรณ์ (Unaltered Remains) - ให้ข้อมูลเกี่ยวกับดีเอ็นเอและพฤติกรรมการกินอาหาร",
+      "4. รอยพิมพ์และรูปหล่อ (Molds and Casts) - ให้ข้อมูลเฉพาะองค์ประกอบเคมีของผิวหนัง"
+    ],
+    answer: 2,
+    hint: "รอยเท้า รอยชอนไช หรือมูลสัตว์ ถือเป็นร่องรอยการทำกิจกรรมของสิ่งมีชีวิต ไม่ใช่ชิ้นส่วนร่างกาย"
+  },
+  {
+    id: 6,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossilization_processes_comparison",
+    tag_skill: "L4",
+    tag_misconception: "freezing_is_same_as_petrification",
+    title: "ข้อที่ 6. พิจารณาตัวอย่างซากดึกดำบรรพ์ต่อไปนี้: (ก) ฟันปลาฉลาม (ข) ไม้กลายเป็นหิน (ค) ซากแมมมอธในชั้นน้ำแข็งไซบีเรีย (ง) โครงกระดูกไดโนเสาร์ ข้อใดระบุซากดึกดำบรรพ์ที่มีกระบวนการเกิดแตกต่างจากข้ออื่นอย่างชัดเจน",
+    image: "",
+    options: [
+      "1. (ก) เพราะเป็นการแทนที่ด้วยแร่ธาตุสังเคราะห์",
+      "2. (ข) เพราะเกิดขึ้นเฉพาะกับสิ่งมีชีวิตที่เป็นพืชเท่านั้น",
+      "3. (ค) เพราะเป็นการคงสภาพแบบเดิมโดยไม่มีการเปลี่ยนสารเคมีหรือเนื้อเยื่อ (Unaltered Remains)",
+      "4. (ง) เพราะเกิดจากการตกอ่างตะกอนน้ำลึกเท่านั้น"
+    ],
+    answer: 3,
+    hint: "พิจารณาว่าข้อใดที่เนื้อเยื่ออ่อนและส่วนประกอบเดิมยังคงอยู่ครบถ้วนโดยไม่ถูกแทนที่ด้วยแร่ธาตุ"
+  },
+  {
+    id: 7,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "palaeoenvironment_reconstruction",
+    tag_skill: "L4",
+    tag_misconception: "limestone_only_forms_on_mountains",
+    title: "ข้อที่ 7. สำรวจพบชั้นหินปูนบนยอดเขาสูงแห่งหนึ่ง เมื่อกะเทาะชั้นหินพบซากดึกดำบรรพ์ของปะการัง หอยสองฝา และซากสัตว์ที่มีเท้าลักษณะคล้ายใบพายมีพังผืด จากหลักฐานนี้ สภาพแวดล้อมในอดีตของพื้นที่ภูเขานี้ควรเป็นแบบใด",
+    image: "",
+    options: [
+      "1. ป่าสนบนยอดเขาสูงที่มีอากาศหนาวเย็น",
+      "2. ทะเลทรายแห้งแล้งที่มีแอ่งน้ำขนาดเล็ก",
+      "3. ทะเลหรือมหาสมุทรน้ำตื้นที่เคยยกตัวขึ้นเนื่องจากการเปลี่ยนแปลงของเปลือกโลก",
+      "4. บึงน้ำจืดขนาดใหญ่กลางทวีป"
+    ],
+    answer: 3,
+    hint: "ปะการังและสิ่งมีชีวิตที่มีอวัยวะคล้ายใบพายส่วนใหญ่อาศัยอยู่ในสภาพแวดล้อมแบบใด"
+  },
+  {
+    id: 8,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossil_classification_criteria",
+    tag_skill: "L3",
+    tag_misconception: "fossils_are_classified_by_color_only",
+    title: "ข้อที่ 8. หากต้องการจัดกลุ่ม 'ซากดึกดำบรรพ์ปลา' และ 'ซากดึกดำบรรพ์แอมโมไนต์' ไว้ในกลุ่มเดียวกัน และแยก 'ซากดึกดำบรรพ์ใบเฟิร์น' ออกไป ไดอะแกรมการจำแนกนี้ใช้เกณฑ์ใดในการจัดกลุ่ม",
+    image: "",
+    options: [
+      "1. เกณฑ์การเป็นซากดึกดำบรรพ์พืช vs ซากดึกดำบรรพ์สัตว์",
+      "2. เกณฑ์สถานที่อยู่อาศัย (บนบก vs ในน้ำ)",
+      "3. เกณฑ์ประเภทของสิ่งมีชีวิต (สัตว์ในน้ำ vs พืชบนบก)",
+      "4. ถูกทั้งข้อ 2 และ ข้อ 3"
+    ],
+    answer: 4,
+    hint: "ปลาและแอมโมไนต์เป็นสัตว์ที่อาศัยอยู่ในแหล่งน้ำ ส่วนเฟิร์นเป็นพืชที่เจริญบนบก"
+  },
+  {
+    id: 9,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "vertebrate_fossil_rarity",
+    tag_skill: "L4",
+    tag_misconception: "vertebrate_fossils_are_rare_because_they_had_no_hard_parts",
+    title: "ข้อที่ 9. เหตุใดซากดึกดำบรรพ์ของสัตว์มีกระดูกสันหลังบกจึงพบได้น้อยกว่าซากดึกดำบรรพ์ของสัตว์ไม่มีกระดูกสันหลังในทะเลอย่างมาก",
+    image: "",
+    options: [
+      "1. เพราะสัตว์มีกระดูกสันหลังบกไม่มีโครงร่างแข็งที่จะเกิดซากดึกดำบรรพ์ได้",
+      "2. เพราะเมื่อสัตว์บกตาย ซากมักจะสัมผัสกับอากาศและจุลินทรีย์ทำให้ย่อยสลายรวดเร็วก่อนถูกตะกอนทับถม",
+      "3. เพราะกระดูกของสัตว์บกละลายได้ดีในน้ำฝนมากกว่ากระดองของสัตว์ทะเล",
+      "4. เพราะสัตว์มีกระดูกสันหลังมีวิวัฒนาการสั้นกว่าพืชมาก"
+    ],
+    answer: 2,
+    hint: "การฝังกลบอย่างรวดเร็ว (Quick Burial) เพื่อหลีกเลี่ยงแก๊สออกซิเจนและจุลินทรีย์ย่อยสลายเป็นปัจจัยสำคัญในการเกิดซากดึกดำบรรพ์"
+  },
+  {
+    id: 10,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "index_fossil_properties",
+    tag_skill: "L3",
+    tag_misconception: "index_fossils_must_exist_for_a_long_geological_time",
+    title: "ข้อที่ 10. คุณสมบัติที่สำคัญที่สุดของ 'ซากดึกดำบรรพ์ดัชนี (Index Fossil)' ที่ใช้ในการระบุและเปรียบเทียบอายุของชั้นหินอย่างแม่นยำคือข้อใด",
+    image: "",
+    options: [
+      "1. มีช่วงอายุการดำรงชีวิตที่ยาวนานมาก และพบกระจายอยู่แคบๆ เฉพาะบางพื้นที่",
+      "2. มีช่วงอายุการดำรงชีวิตที่สั้น วิวัฒนาการเร็ว และแพร่กระจายกว้างขวางทั่วโลก",
+      "3. พบเฉพาะในหินอัคนี และมีโครงร่างเปราะบางย่อยสลายง่าย",
+      "4. เป็นสิ่งมีชีวิตที่ยังไม่สูญพันธุ์ในปัจจุบัน และพบปริมาณน้อยมาก"
+    ],
+    answer: 2,
+    hint: "ซากดึกดำบรรพ์ดัชนีต้องเจาะจงช่วงเวลาทางธรณีวิทยา (สั้น) แต่พบได้ในหลายพื้นที่ทั่วโลก (กว้าง)"
+  },
+  {
+    id: 11,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "geological_uses_of_fossils",
+    tag_skill: "L2",
+    tag_misconception: "fossils_can_determine_economic_value_directly",
+    title: "ข้อที่ 11. การศึกษาซากดึกดำบรรพ์ให้ประโยชน์หลายประการแก่นักธรณีวิทยา ยกเว้นข้อใดที่ไม่ใช่ประโยชน์โดยตรงจากการศึกษาซากดึกดำบรรพ์",
+    image: "",
+    options: [
+      "1. การลำดับอายุเปรียบเทียบของชั้นหินตะกอน",
+      "2. การแปลความหมายสภาพแวดล้อมและบรรพภูมิศาสตร์ในอดีต",
+      "3. การประเมินและกำหนดราคาประมูลซื้อขายคุณค่าทางการตลาดของชั้นหิน",
+      "4. การศึกษาแนวโน้มวิวัฒนาการของสิ่งมีชีวิตในแต่ละมหายุค"
+    ],
+    answer: 3,
+    hint: "คิดถึงวัตถุประสงค์ทางวิทยาศาสตร์ธรรมชาติเทียบกับวัตถุประสงค์เชิงพาณิชย์"
+  },
+  {
+    id: 12,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "relative_dating_methods",
+    tag_skill: "L3",
+    tag_misconception: "relative_dating_gives_exact_number_of_years",
+    title: "ข้อที่ 12. การกระทำในข้อใดต่อไปนี้จัดเป็นการบอกอายุทางธรณีวิทยาแบบ 'อายุเปรียบเทียบ (Relative Age)'",
+    image: "",
+    options: [
+      "1. การคำนวณอายุจากอัตราการย่อยสลายของไอโซโทปกัมมันตรังสี คาร์บอน-14",
+      "2. การระบุว่าชั้นหินทราย A มีอายุแก่กว่าชั้นหินหินปูน B โดยพิจารณาจากลำดับชั้นและการพบซากดึกดำบรรพ์ดัชนี",
+      "3. การวัดครึ่งชีวิตของแร่ยูเรเนียมในหินอัคนีเพื่อระบุว่าหินมีอายุ 450 ล้านปี",
+      "4. การใช้นาฬิกาอะตอมวัดความหนาแน่นของธาตุในอุกกาบาต"
+    ],
+    answer: 2,
+    hint: "อายุเปรียบเทียบเป็นการบอกว่าแก่กว่าหรืออ่อนกว่า โดยไม่ออกมาเป็นตัวเลขจำนวนปีที่แน่นอน"
+  },
+  {
+    id: 13,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "fossilization_sequence",
+    tag_skill: "L3",
+    tag_misconception: "fossilization_happens_after_erosion",
+    title: "ข้อที่ 13. เรียงลำดับขั้นตอนการเกิดและการพบซากดึกดำบรรพ์ให้ถูกต้อง\n1. ตะกอนทับถมกลบซากและสารละลายแร่ธาตุตกผลึกแทรกซึมทำให้เกิดซากดึกดำบรรพ์\n2. สิ่งมีชีวิตตายลงและส่วนนุ่มถูกย่อยสลายเหลือโครงร่างแข็ง\n3. ชั้นหินถูกกระบวนการทางธรณีแปรสัณฐานดันยกตัวขึ้นและถูกกัดเซาะจนซากปรากฏที่ผิวโลก",
+    image: "",
+    options: [
+      "1. 1 -> 2 -> 3",
+      "2. 2 -> 1 -> 3",
+      "3. 3 -> 2 -> 1",
+      "4. 2 -> 3 -> 1"
+    ],
+    answer: 2,
+    hint: "สิ่งมีชีวิตต้องตายและถูกฝังกลบก่อนจะแข็งตัวเป็นหิน แล้วจึงเกิดการยกตัวและการกัดเซาะในภายหลัง"
+  },
+  {
+    id: 14,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "molds_and_casts_differentiation",
+    tag_skill: "L4",
+    tag_misconception: "mold_is_the_filled_3d_structure",
+    title: "ข้อที่ 14. เมื่อเปลือกหอยถูกฝังในตะกอน ต่อมาเปลือกหอยละลายหายไปทิ้งรอยบุ๋มโค้งที่เป็นช่องว่างไว้ในเนื้อหิน ต่อมามีตะกอนใหม่เข้ามาเติมเต็มในช่องว่างนั้นจนแข็งตัว ข้อใดระบุ 'รอยพิมพ์ (Mold)' และ 'รูปพิมพ์ (Cast)' ได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. รอยบุ๋มช่องว่างคือรูปพิมพ์ / ตะกอนใหม่ที่เข้าไปเติมเต็มคือรอยพิมพ์",
+      "2. รอยบุ๋มช่องว่างคือรอยพิมพ์ / ตะกอนใหม่ที่เข้าไปเติมเต็มคือรูปพิมพ์",
+      "3. ทั้งสองลักษณะจัดเป็นซากดึกดำบรรพ์ประเภทคงสภาพ",
+      "4. ทั้งสองลักษณะจัดเป็นร่องรอยกลายเป็นหินประเภทมูลสัตว์"
+    ],
+    answer: 2,
+    hint: "Mold คือแม่พิมพ์หรือรอยประทับที่เป็นช่องว่าง ส่วน Cast คือรูปหล่อทรงสามมิติที่หล่อขึ้นจากแม่พิมพ์นั้น"
+  },
+  {
+    id: 15,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "marine_preservation_advantage",
+    tag_skill: "L3",
+    tag_misconception: "ocean_water_prevents_all_decay_due_to_salt",
+    title: "ข้อที่ 15. เหตุใดซากดึกดำบรรพ์ที่สมบูรณ์จึงมักถูกค้นพบในหินที่สะสมตัวในสภาพแวดล้อมทะเลมากกว่าสภาพแวดล้อมบนบก",
+    image: "",
+    options: [
+      "1. เพราะน้ำทะเลมีสารเคมีเร่งให้โครงร่างเปลี่ยนเป็นทองคำอย่างรวดเร็ว",
+      "2. เพราะสภาพแวดล้อมในทะเลมีอัตราการตกทับถมของตะกอนเม็ดละเอียดอย่างต่อเนื่อง ช่วยฝังกลบซากอย่างรวดเร็วและลดการสัมผัสออกซิเจน",
+      "3. เพราะสัตว์ทะเลทุกชนิดมีโครงร่างแข็งแกร่งกว่าสัตว์บกหลายเท่า",
+      "4. เพราะบนบกไม่มีการตกทับถมของตะกอนเลย"
+    ],
+    answer: 2,
+    hint: "ตะกอนเม็ดละเอียดในแอ่งสะสมตัวในทะเลช่วยปกป้องซากจากการกัดเซาะและกระแสน้ำ"
+  },
+  {
+    id: 16,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "biostratigraphy_coral_index",
+    tag_skill: "L4",
+    tag_misconception: "deeper_rock_layers_contain_younger_fossils",
+    title: "ข้อที่ 16. หน้าตัดชั้นหินตะกอนที่ไม่เคยถูกพลิกกลับ พบชั้นหินเรียงจากล่างขึ้นบนเป็น ชั้น ก, ชั้น ข, และชั้น ค โดยพบซากดึกดำบรรพ์ดัชนี Y ในชั้น ก, ซากดึกดำบรรพ์ X ในชั้น ข, และซากดึกดำบรรพ์ Z ในชั้น ค ข้อใดเรียงลำดับอายุของซากดึกดำบรรพ์จาก 'มากไปน้อย' ได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. Z -> X -> Y",
+      "2. Y -> X -> Z",
+      "3. X -> Y -> Z",
+      "4. Y -> Z -> X"
+    ],
+    answer: 2,
+    hint: "ตามกฎการซ้อนทับ (Law of Superposition) ชั้นหินที่อยู่ล่างสุดย่อมเกิดก่อนและมีอายุมากกว่าชั้นบน"
+  },
+  {
+    id: 17,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "cooccurring_fossils_interpretation",
+    tag_skill: "L4",
+    tag_misconception: "freshwater_fish_fossils_mean_deep_ocean",
+    title: "ข้อที่ 17. นักวิจัยพบ 'เกล็ดปลาน้ำจืด' และ 'รอยเท้าไดโนเสาร์' ปรากฏอยู่ในชั้นหินดินดานชั้นเดียวกัน ข้อสรุปใดมีความน่าเชื่อถือทางธรณีวิทยามากที่สุด",
+    image: "",
+    options: [
+      "1. บริเวณนี้เคยเป็นทะเลลึกมาก่อนที่เกล็ดปลาจะถูกคลื่นกัดเซาะมา",
+      "2. ซากทั้งสองถูกสะสมตัวในยุคเวลาเดียวกัน ในสภาพแวดล้อมที่เป็นแหล่งน้ำจืดหรือแม่น้ำโบราณ",
+      "3. ไดโนเสาร์ตัวนั้นอาศัยและว่ายน้ำอยู่ในมหาสมุทรน้ำลึก",
+      "4. เกล็ดปลาและรอยเท้ามีอายุแตกต่างกันอย่างน้อย 300 ล้านปี"
+    ],
+    answer: 2,
+    hint: "เมื่อพบในชั้นหินเดียวกัน แสดงว่าเกิดในช่วงเวลาใกล้เคียงกัน และสิ่งมีชีวิตน้ำจืดสะท้อนสภาพแวดล้อมแบบใกล้น้ำจืด"
+  },
+  {
+    id: 18,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "strata_correlation_index_fossils",
+    tag_skill: "L4",
+    tag_misconception: "same_fossil_in_different_layers_means_different_ages",
+    title: "ข้อที่ 18. สำรวจชั้นหิน 2 พื้นที่: พื้นที่ 1 พบชั้นหิน B มีซากดึกดำบรรพ์แอมโมไนต์ อายุ 180 ล้านปี และชั้น C ใต้ชั้น B ไม่ทราบอายุ ต่อมาพื้นที่ 2 พบชั้น D มีแอมโมไนต์ชนิดเดียวกัน อายุ 180 ล้านปี อยู่บนชั้น E ซึ่งพบซากดึกดำบรรพ์ ก (อายุ 250 ล้านปี) หากชั้น C พบซากดึกดำบรรพ์ ก เช่นกัน ชั้น C น่าจะมีอายุประมาณเท่าใด",
+    image: "",
+    options: [
+      "1. ประมาณ 50 ล้านปี",
+      "2. ประมาณ 180 ล้านปี",
+      "3. ประมาณ 250 ล้านปี",
+      "4. มากกว่า 500 ล้านปี"
+    ],
+    answer: 3,
+    hint: "เทียบสัมพันธ์ชั้นหินโดยใช้ซากดึกดำบรรพ์ดัชนี ก ซึ่งระบุอายุอยู่ในพื้นที่ที่สอง"
+  },
+  {
+    id: 19,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "rock_correlation_principles",
+    tag_skill: "L2",
+    tag_misconception: "layer_thickness_defines_age",
+    title: "ข้อที่ 19. การเทียบสัมพันธ์ชั้นหิน (Strata Correlation) ระหว่างภูเขา 2 ลูกที่อยู่ห่างไกลกัน หลักฐานใดมีความน่าเชื่อถือสูงสุดในการยืนยันว่าชั้นหินทั้งสองเกิดในช่วงเวลาเดียวกัน",
+    image: "",
+    options: [
+      "1. ความหนาของชั้นหินที่เท่ากันเป๊ะ",
+      "2. สีของเนื้อหินที่เหมือนกัน",
+      "3. การพบกลุ่มซากดึกดำบรรพ์ดัชนีชนิดเดียวกันในชั้นหิน",
+      "4. ระดับความสูงจากระดับน้ำทะเลในปัจจุบัน"
+    ],
+    answer: 3,
+    hint: "ความหนาหรือสีของหินอาจแปรผันตามอัตราการสะสมตะกอน แต่ชนิดซากดึกดำบรรพ์ดัชนีระบุช่วงเวลาทางธรณีวิทยาได้ดีที่สุด"
+  },
+  {
+    id: 20,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "geological_column_order",
+    tag_skill: "L4",
+    tag_misconception: "top_layer_is_always_oldest",
+    title: "ข้อที่ 20. ขุดพบชั้นดิน/ชั้นหิน 3 บริเวณ (A, B, C) หากลำดับชั้นหินไม่พลิกกลับ และชั้นล่างสุดของ A มีกลุ่มฟอสซิลชนิดเดียวกับชั้นบนสุดของ B ข้อใดสรุปเกี่ยวกับอายุความเก่าแก่ของชั้นหินได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. ชั้นหิน A เกิดก่อนชั้นหิน B ทั้งหมด",
+      "2. ชั้นหิน B มีส่วนที่เกิดก่อน (เก่าแก่กว่า) ชั้นหิน A",
+      "3. ชั้นหิน A และ B มีอายุเท่ากันทุกชั้น",
+      "4. ไม่สามารถสรุปได้เนื่องจากอยู่คนละพื้นที่"
+    ],
+    answer: 2,
+    hint: "ถ้าชั้นบนสุดของ B มีฟอสซิลเท่ากับชั้นล่างสุดของ A แสดงว่า B อยู่ใต้หรือสะสมตัวก่อน A"
+  },
+  {
+    id: 21,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "sediment_accumulation_rate",
+    tag_skill: "L4",
+    tag_misconception: "thicker_layer_means_older_age",
+    title: "ข้อที่ 21. ภูเขา ก มีชั้นหินดินดานหนา 50 เมตร พบฟอสซิล Trilobite A ส่วนภูเขา ข มีชั้นหินทรายหนา 20 เมตร พบฟอสซิล Trilobite A เช่นกัน ข้อใดอธิบายเกี่ยวกับอายุและลักษณะการเกิดได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. ภูเขา ก แก่กว่า ภูเขา ข เพราะชั้นหินมีความหนามากกว่า",
+      "2. ภูเขา ข แก่กว่า ภูเขา ก เพราะหินทรายเกิดก่อนหินดินดานเสมอ",
+      "3. ชั้นหินทั้งสองมีอายุใกล้เคียงกัน ความหนาที่ต่างกันเกิดจากอัตราการสะสมตัวของตะกอนต่างกัน",
+      "4. ไม่สามารถเปรียบเทียบกันได้เพราะชนิดหินต่างกัน"
+    ],
+    answer: 3,
+    hint: "ซากดึกดำบรรพ์ดัชนีตัวเดียวกันบ่งบอกช่วงเวลาเดียวกัน ส่วนความหนาขึ้นอยู่กับปริมาณตะกอนที่ตกลงมาสะสม"
+  },
+  {
+    id: 22,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "absolute_age_fossil_range",
+    tag_skill: "L3",
+    tag_misconception: "fossil_age_is_single_point_in_time",
+    title: "ข้อที่ 22. หากพบฟอสซิลชนิด X (มีชีวิตช่วง 488-400 ล้านปีก่อน) และฟอสซิลชนิด Y (มีชีวิตช่วง 420-350 ล้านปีก่อน) ปรากฏร่วมกันในชั้นหินดินดานหนึ่ง ชั้นหินดินดานนี้ควรมีอายุอยู่ในช่วงใด",
+    image: "",
+    options: [
+      "1. 488 - 420 ล้านปีก่อน",
+      "2. 420 - 400 ล้านปีก่อน",
+      "3. 400 - 350 ล้านปีก่อน",
+      "4. มากกว่า 488 ล้านปีก่อน"
+    ],
+    answer: 2,
+    hint: "หาช่วงเวลาที่มีการซ้อนทับกัน (Overlap) ของการดำรงชีวิตของสิ่งมีชีวิตทั้งสองชนิด"
+  },
+  {
+    id: 23,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "cross_cutting_relationships_fossils",
+    tag_skill: "L4",
+    tag_misconception: "faults_are_always_older_than_rock_layers",
+    title: "ข้อที่ 23. ในหน้าตัดธรณีวิทยา พบชั้นหินปูน ก, หินทราย ข, และหินดินดาน ค วางตัวตามลำดับจากล่างขึ้นบน โดยมี 'รอยเลื่อน AB' ตัดผ่านชั้นหิน ก และ ข แต่ไม่ตัดผ่านชั้นหิน ค ข้อใดสรุปการเกิดได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. รอยเลื่อน AB เกิดขึ้นก่อนการเกิดชั้นหิน ก",
+      "2. รอยเลื่อน AB เกิดขึ้นหลังการสะสมตัวของชั้นหิน ข แต่เกิดก่อนชั้นหิน ค",
+      "3. ชั้นหิน ค มีอายุแก่ที่สุดในบรรดาทุกโครงสร้าง",
+      "4. รอยเลื่อน AB เกิดขึ้นหลังสุดหลังจากชั้นหิน ค สะสมตัวแล้ว"
+    ],
+    answer: 2,
+    hint: "กฎความสัมพันธ์ตัดผ่าน (Law of Cross-Cutting Relationships): สิ่งที่ถูกตัดต้องมีอยู่ก่อนสิ่งที่มาตัด"
+  },
+  {
+    id: 24,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "faunal_succession_and_extinction",
+    tag_skill: "L4",
+    tag_misconception: "extinct_species_can_reappear_in_younger_strata",
+    title: "ข้อที่ 24. ตามกฎการสืบลำดับบรรพชีวิน (Law of Faunal Succession) ข้อความใดต่อไปนี้ถูกต้องที่สุดเกี่ยวกับการปรากฏของซากดึกดำบรรพ์ในชั้นหิน",
+    image: "",
+    options: [
+      "1. สิ่งมีชีวิตที่สูญพันธุ์ไปแล้วสามารถกลับมาเกิดใหม่และพบในชั้นหินที่อายน้อยกว่าได้",
+      "2. ซากดึกดำบรรพ์จะปรากฏในชั้นหินตามลำดับวิวัฒนาการที่แน่นอน ไม่สลับกลับไปกลับมา",
+      "3. ชั้นหินทุกชั้นทั่วโลกจะต้องพบซากดึกดำบรรพ์ชนิดเดียวกันเสมอ",
+      "4. ไทโรโลไบต์พบในชั้นหินยุคใหม่กว่าซากแมมมอธเสมอ"
+    ],
+    answer: 2,
+    hint: "วิวัฒนาการดำเนินไปในทางเดียว สิ่งมีชีวิตที่สูญพันธุ์ไปแล้วจะไม่ปรากฏขึ้นใหม่ในธรณีกาล"
+  },
+  {
+    id: 25,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "trace_fossil_coprolite",
+    tag_skill: "L2",
+    tag_misconception: "fossilized_feces_are_body_fossils",
+    title: "ข้อที่ 25. 'โคโปรไลต์ (Coprolite)' คือซากดึกดำบรรพ์มูลสัตว์ จัดเป็นซากดึกดำบรรพ์ประเภทใด และมีประโยชน์หลักในการศึกษาเรื่องใด",
+    image: "",
+    options: [
+      "1. Body Fossil - ใช้บอกน้ำหนักของสิ่งมีชีวิต",
+      "2. Trace Fossil - ใช้ศึกษาพฤติกรรมการกินอาหารและห่วงโซ่อาหารในอดีต",
+      "3. Unaltered Remains - ใช้สกัดสารพันธุกรรมสร้างสิ่งมีชีวิตใหม่",
+      "4. Index Fossil - ใช้ระบุอายุหินได้อย่างแม่นยำทุกกรณี"
+    ],
+    answer: 2,
+    hint: "มูลสัตว์เป็นสิ่งที่สิ่งมีชีวิตสร้างไว้และขับถ่ายออกมา จึงจัดเป็นร่องรอยการทำกิจกรรม"
+  },
+  {
+    id: 26,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "amber_preservation",
+    tag_skill: "L3",
+    tag_misconception: "amber_dissolves_soft_tissues",
+    title: "ข้อที่ 26. แมลงที่ติดอยู่ใน 'อำพัน (Amber)' จัดเป็นซากดึกดำบรรพ์ประเภทใด และเหตุใดจึงคงสภาพส่วนนุ่มได้ดีมาก",
+    image: "",
+    options: [
+      "1. การกลายเป็นหิน - เพราะยางไม้เปลี่ยนเป็นแคลไซต์อย่างรวดเร็ว",
+      "2. การคงสภาพ (Unaltered Remains) - เพราะยางไม้ช่วยป้องกันอากาศ ความชื้น และจุลินทรีย์เข้ามาย่อยสลาย",
+      "3. รอยพิมพ์และรูปหล่อ - เพราะแมลงสลายตัวทิ้งช่องว่างไว้ในอำพัน",
+      "4. ร่องรอยกลายเป็นหิน - เพราะเป็นเพียงรอยประทับบนยางไม้"
+    ],
+    answer: 2,
+    hint: "ยางไม้ผนึกซากแบบสุญญากาศ ป้องกันไม่ให้แบคทีเรียย่อยสลายโครงร่าง"
+  },
+  {
+    id: 27,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "dinosaur_era_geological_timescale",
+    tag_skill: "L2",
+    tag_misconception: "dinosaurs_lived_in_paleozoic_era",
+    title: "ข้อที่ 27. หากพบฟอสซิลกระดูกไดโนเสาร์ในชั้นหิน หินชั้นนั้นควรจัดอยู่ในมหายุค (Era) ใดทางธรณีกาล",
+    image: "",
+    options: [
+      "1. พรีแคมเบรีย น (Precambrian)",
+      "2. พาเลโอโซอิก (Paleozoic)",
+      "3. มีโซโซอิก (Mesozoic)",
+      "4. ซีโนโซอิก (Cenozoic)"
+    ],
+    answer: 3,
+    hint: "มหายุคนี้ประกอบด้วยยุคไทรแอสซิก จูแรสซิก และครีเทเชียส"
+  },
+  {
+    id: 28,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "carbonization_process",
+    tag_skill: "L3",
+    tag_misconception: "carbonization_leaves_thick_3d_bones",
+    title: "ข้อที่ 28. ซากดึกดำบรรพ์ใบไม้ที่มีลักษณะเป็นฟิล์มคาร์บอนสีดำบางๆ ทับทาบอยู่บนเนื้อหิน เกิดจากกระบวนการทางเคมีและธรณีวิทยาแบบใด",
+    image: "",
+    options: [
+      "1. คาร์บอนิเซชัน (Carbonization) - ความดันและการทับถมไล่องค์ประกอบระเหยง่ายออกไปเหลือเพียงแผ่นคาร์บอน",
+      "2. ไพไรไทเซชัน (Pyritization) - การตกผลึกของแร่เหล็กซัลไฟด์ทับทามใบไม้",
+      "3. การแปรสภาพเป็นแกรนิต (Granitization) - ใบไม้เปลี่ยนเป็นหินอัคนี",
+      "4. การแข็งตัวด้วยความเย็น (Freezing) - เกิดขึ้นเฉพาะในธารน้ำแข็ง"
+    ],
+    answer: 1,
+    hint: "สารไฮโดรเจน ออกซิเจน ไนโตรเจน ถูกอัดไล่ออกไป คงเหลือไว้เฉพาะธาตุคาร์บอน"
+  },
+  {
+    id: 29,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "trilobite_era_index",
+    tag_skill: "L2",
+    tag_misconception: "trilobites_lived_with_mammoths",
+    title: "ข้อที่ 29. ไทรโลไบต์ (Trilobite) เป็นซากดึกดำบรรพ์ดัชนีที่สำคัญของมหายุคใด",
+    image: "",
+    options: [
+      "1. พาเลโอโซอิก (Paleozoic)",
+      "2. มีโซโซอิก (Mesozoic)",
+      "3. ซีโนโซอิก (Cenozoic)",
+      "4. ปัจจุบัน"
+    ],
+    answer: 1,
+    hint: "เป็นสัตว์ทะเลโบราณที่เจริญมากในยุคแคมเบรียนถึงเพอร์เมียน ก่อนจะสูญพันธุ์ไปสิ้นเมื่อจบมหายุคนี้"
+  },
+  {
+    id: 30,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "geological_env_change_deduction",
+    tag_skill: "L4",
+    tag_misconception: "environmental_conditions_never_change",
+    title: "ข้อที่ 30. การพบชั้นหินหินปูนที่มีฟอสซิลพลับพลึงทะเล (Crinoid) อยู่ด้านล่าง แล้วมีชั้นหินทรายที่มีรอยเท้าสัตว์เลื้อยคลานบกทับอยู่ด้านบน อธิบายการเปลี่ยนแปลงสภาพแวดล้อมได้อย่างไร",
+    image: "",
+    options: [
+      "1. พื้นที่เปลี่ยนจากแผ่นดินบกกลายเป็นทะเลลึก",
+      "2. พื้นที่เปลี่ยนจากทะเลกลายเป็นแผ่นดินตื้นหรือชายฝั่งยกตัวขึ้น",
+      "3. ไม่มีการเปลี่ยนแปลงสภาพแวดล้อม เป็นทะเลตลอดเวลา",
+      "4. เกิดจากภูเขาไฟระเบิดพ่นลาวาทับซ้อนทะเล"
+    ],
+    answer: 2,
+    hint: "พิจารณาสภาพแวดล้อมที่ฟอสซิลด้านล่างอาศัยอยู่ (ทะเล) เทียบกับฟอสซิลด้านบน (บก)"
+  }
+
+];
+
+    const extraQuestions = [
+{
+    id: 1,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "misconception_fossil_in_metamorphic_rock",
+    tag_skill: "L4",
+    tag_misconception: "metamorphism_preserves_fossils_perfectly",
+    title: "ข้อท้าทายที่ 1. นักเรียนพบหินชนวน (Slate) ที่แปรสภาพมาจากหินดินดาน และพบรอยบิดเบี้ยวของฟอสซิลหอยเชลล์ นักเรียนสรุปว่า 'หินแปรสามารถรักษาซากดึกดำบรรพ์ได้สมบูรณ์เท่ากับหินตะกอน' ข้อสรุปนี้ถูกหรือผิดเพราะเหตุใด",
+    image: "",
+    options: [
+      "1. ถูก เพราะหินแปรมีความแข็งแกร่งกว่าจึงปกป้องซากได้ดีกว่า",
+      "2. ผิด เพราะกระบวนการแปรสภาพจากความดันและความร้อนทำให้ฟอสซิลถูกบิดเบี้ยวหรือทำลายไปส่วนใหญ่",
+      "3. ถูก เพราะหอยเชลล์เป็นสัตว์ที่ทนความร้อนสูงได้ดี",
+      "4. ผิด เพราะหินชนวนเกิดจากลาวาภูเขาไฟระเบิด"
+    ],
+    answer: 2,
+    hint: "ความดันและแรงเค้นในการแปรสภาพส่งผลต่อรูปร่างดั้งเดิมของโครงร่างแข็งอย่างไร"
+  },
+  {
+    id: 2,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "facies_fossil_vs_index_fossil",
+    tag_skill: "L4",
+    tag_misconception: "facies_fossils_are_same_as_index_fossils",
+    title: "ข้อท้าทายที่ 2. ข้อใดอธิบายความแตกต่างระหว่าง 'ซากดึกดำบรรพ์บอกสภาพแวดล้อม (Facies Fossil)' และ 'ซากดึกดำบรรพ์ดัชนี (Index Fossil)' ได้ถูกต้องแม่นยำที่สุด",
+    image: "",
+    options: [
+      "1. Facies fossil มีช่วงอายุสั้นมาก แต่ Index fossil อยู่มาหลายพันล้านปี",
+      "2. Facies fossil บ่งบอกสภาพแวดล้อมเจาะจงแต่มีช่วงอายุยาวนาน ส่วน Index fossil มีช่วงอายุสั้นและแพร่กระจายกว้าง",
+      "3. ทั้งสองชนิดคือสิ่งเดียวกันทุกประการ",
+      "4. Index fossil พบเฉพาะในหินอัคนี ส่วน Facies fossil พบในหินแปร"
+    ],
+    answer: 2,
+    hint: "ปะการังเป็นตัวอย่างที่ดีของ Facies Fossil (บอกทะเลน้ำตื้น) แต่เพราะมีช่วงอายุยาวนานจึงไม่ใช่ Index Fossil ที่ดี"
+  },
+  {
+    id: 3,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "unconformity_and_fossil_gap",
+    tag_skill: "L4",
+    tag_misconception: "missing_layers_mean_fossils_were_stolen",
+    title: "ข้อท้าทายที่ 3. หากพบว่าในลำดับชั้นหิน ชั้นหินที่มีฟอสซิลยุคออร์โดวิเชียน ถูกทับซ้อนด้วยชั้นหินที่มีฟอสซิลยุคคาร์บอนิเฟอรัสโดยตรง โดยไม่มีชั้นหินยุคไซลูเรียนและดีโวเนียน ปรากฏการณ์นี้ทางธรณีวิทยาเรียกว่าอะไรและเกิดจากสาเหตุใด",
+    image: "",
+    options: [
+      "1. รอยชั้นไม่ต่อเนื่อง (Unconformity) เกิดจากการกัดเซาะหรือการหยุดพักการสะสมตัวของตะกอน",
+      "2. การพลิกกลับของชั้นหิน เกิดจากแผ่นดินไหวรุนแรง",
+      "3. กฎการซ้อนทับแบบย้อนกลับ เกิดจากการแทรกดันของหินอัคนี",
+      "4. การเกิดซากดึกดำบรรพ์แบบสุ่ม"
+    ],
+    answer: 1,
+    hint: "ช่วงเวลาที่ขาดหายไปในลำดับชั้นหินสะท้อนถึงช่วงที่มีการกัดเซาะหรือไม่มีการสะสมตัวของตะกอน"
+  },
+  {
+    id: 4,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "rework_fossil_misconception",
+    tag_skill: "L4",
+    tag_misconception: "fossils_in_layer_always_same_age_as_sediment",
+    title: "ข้อท้าทายที่ 4. ในบางครั้ง ตะกอนหินทรายยุคใหม่ถูกกัดเซาะ นำพาฟอสซิลฟันปลาฉลามยุคเก่าหลุดออกมา แล้วตกสะสมตัวใหม่พร้อมกับตะกอนยุคปัจจุบัน ฟอสซิลลักษณะนี้เรียกว่า 'Reworked Fossil' ปรากฏการณ์นี้อาจทำให้เกิดข้อผิดพลาดในการวิเคราะห์อย่างไร",
+    image: "",
+    options: [
+      "1. ทำให้อ่านอายุของชั้นตะกอนใหม่ผิดพลาดว่ามีความเก่าแก่กว่าความเป็นจริง",
+      "2. ทำให้อ่านอายุของชั้นตะกอนใหม่ผิดพลาดว่ามีความอ่อนกว่าความเป็นจริง",
+      "3. ทำให้นักธรณีวิทยาสรุปว่าปลาฉลามกลายเป็นสัตว์บก",
+      "4. ไม่มีผลกระทบใดๆ ต่อการระบุอายุ"
+    ],
+    answer: 1,
+    hint: "ฟอสซิลโบราณที่หลุดมาปะปนจะทำให้ชั้นตะกอนดูเหมือนถูกสร้างขึ้นในยุคของฟอสซิลนั้น"
+  },
+  {
+    id: 5,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "pyritization_conditions",
+    tag_skill: "L4",
+    tag_misconception: "fossils_are_made_of_pure_calcium_only",
+    title: "ข้อท้าทายที่ 5. ซากดึกดำบรรพ์แอมโมไนต์ที่มีประกายแวววาวเหมือนทองคำ เกิดจากกระบวนการ Pyritization (แทนที่ด้วยแร่ไพไรต์ - FeS2) สภาพแวดล้อมแบบใดที่เอื้อต่อการเกิดฟอสซิลประเภทนี้",
+    image: "",
+    options: [
+      "1. สภาพแวดล้อมที่มีออกซิเจนสูงมากและมีแดดจัด",
+      "2. สภาพแวดล้อมที่ขาดแคลนออกซิเจน (Anoxic) และอุดมด้วยสารอินทรีย์รวมถึงซัลเฟต",
+      "3. บริเวณยอดเขาสูงที่มีธารน้ำแข็งไหลผ่าน",
+      "4. ในทะเลทรายแห้งแล้งที่มีอุณหภูมิสูงตลอดปี"
+    ],
+    answer: 2,
+    hint: "แร่ไพไรต์ (FeS2) เกิดขึ้นได้ดีในภาวะไร้ออกซิเจนโดยมีแบคทีเรียช่วยรีดิวซ์ซัลเฟต"
+  },
+  {
+    id: 6,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "steinkern_internal_mold",
+    tag_skill: "L3",
+    tag_misconception: "internal_mold_shows_external_shell_patterns",
+    title: "ข้อท้าทายที่ 6. 'Steinkern' หรือรอยพิมพ์ภายใน (Internal Mold) เกิดจากตะกอนเข้าไปอัดแน่นภายในช่องกะโหลกหรือหอยสองฝาแล้วเปลือกนอกละลายหายไป ข้อใดกล่าวถูกต้องเกี่ยวกับลักษณะของ Steinkern",
+    image: "",
+    options: [
+      "1. แสดงลายเส้นและลวดลายผิวด้านนอกของเปลือกหอยอย่างชัดเจน",
+      "2. แสดงรูปร่างของช่องว่างภายในหรือรอยประทับของกล้ามเนื้อภายในเปลือก",
+      "3. เป็นซากดึกดำบรรพ์ร่องรอยประเภทมูลสัตว์",
+      "4. เป็นซากที่มีดีเอ็นเอสมบูรณ์"
+    ],
+    answer: 2,
+    hint: "เนื่องจากเกิดจากตะกอนที่เข้าไปอัดในช่องว่างด้านใน มันจึงสะท้อนพื้นผิวด้านในไม่ใช่ผิวนอก"
+  },
+  {
+    id: 7,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "index_fossil_overlap_zone",
+    tag_skill: "L4",
+    tag_misconception: "single_fossil_is_always_enough_for_exact_age",
+    title: "ข้อท้าทายที่ 7. วิธีการ Biostratigraphy มักใช้ 'Concurrent Range Zone' หรือเขตอายุร่วมของฟอสซิลหลายชนิดร่วมกัน เหตุใดวิธีนี้จึงมีความแม่นยำสูงกว่าการใช้ฟอสซิลชนิดเดียว",
+    image: "",
+    options: [
+      "1. เพราะฟอสซิลชนิดเดียวไม่เคยมีจริงในธรรมชาติ",
+      "2. เพราะช่วงเวลาที่มีการดำรงชีวิตร่วมกันของสิ่งมีชีวิตหลายชนิดจะมีความแคบและเจาะจงมากกว่า",
+      "3. เพราะช่วยลดน้ำหนักของชั้นหินลง",
+      "4. เพราะหินปูนปะปนกับหินทรายเสมอ"
+    ],
+    answer: 2,
+    hint: "การหาจุดตัด (Intersection) ของช่วงอายุสิ่งมีชีวิต 3-4 ชนิด ย่อมได้ช่วงเวลาที่แคบและเที่ยงตรงขึ้น"
+  },
+  {
+    id: 8,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "law_of_superposition_exception",
+    tag_skill: "L4",
+    tag_misconception: "older_is_always_below_even_after_folding",
+    title: "ข้อท้าทายที่ 8. หากชั้นหินตะกอนเกิดการคดโค้งงอจนพลิกกลับ (Overturned Fold) กฎการซ้อนทับ (Law of Superposition) จะยังมีผลอย่างไรในการลำดับอายุชั้นหิน",
+    image: "",
+    options: [
+      "1. ชั้นหินด้านบนสุดจะกลายเป็นชั้นหินที่มีอายุแก่ที่สุด",
+      "2. ชั้นหินด้านล่างสุดจะยังคงแก่ที่สุดเสมอโดยไม่สนใจการพลิกกลับ",
+      "3. กฎใช้ไม่ได้ผลอีกต่อไปและไม่สามารถหาอายุหินได้",
+      "4. หินทุกชั้นจะเปลี่ยนอายุเป็นยุคปัจจุบันทันที"
+    ],
+    answer: 1,
+    hint: "เมื่อชั้นหินถูกพลิกกลับ 180 องศา ลำดับดั้งเดิมจะถูกสลับ ทำให้ชั้นที่เคยอยู่ล่างสุดย้ายไปอยู่ด้านบน"
+  },
+  {
+    id: 9,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "preservation_potential_factors",
+    tag_skill: "L4",
+    tag_misconception: "soft_bodied_animals_fossilize_easily",
+    title: "ข้อท้าทายที่ 9. โอกาสในการกลายเป็นซากดึกดำบรรพ์ (Preservation Potential) ของสิ่งมีชีวิตชนิดใดสูงที่สุดตามหลักการทางธรณีวิทยา",
+    image: "",
+    options: [
+      "1. แมงกะพรุนที่ลอยอยู่ในทะเล open ocean",
+      "2. หอยสองฝาที่มีเปลือกหนาซึ่งอาศัยและถูกฝังในตะกอนดินเลนชายฝั่ง",
+      "3. นกที่บินและตายบนยอดเขาสูง",
+      "4. หนอนดินที่ชอนไชในดินชั้นบน"
+    ],
+    answer: 2,
+    hint: "พิจารณา 2 ปัจจัยหลัก: การมีโครงร่างแข็ง (Hard parts) และการถูกฝังกลบอย่างรวดเร็ว (Quick burial)"
+  },
+  {
+    id: 10,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "microfossils_importance",
+    tag_skill: "L3",
+    tag_misconception: "microfossils_are_useless_due_to_small_size",
+    title: "ข้อท้าทายที่ 10. เหตุใดซากดึกดำบรรพ์ขนาดเล็กระดับจุลทรรศน์ (Microfossils) เช่น ฟอรามิ นิเฟอรา (Foraminifera) จึงมีประโยชน์อย่างยิ่งในอุตสาหกรรมขุดเจาะน้ำมันดิบ",
+    image: "",
+    options: [
+      "1. เพราะช่วยเปลี่ยนน้ำมันดิบให้เป็นเบนซิน",
+      "2. เพราะพบได้จำนวนมากในแท่งตัวอย่างดิน/หินขนาดเล็ก (Cuttings) จากการเจาะ และบอกอายุ/สภาพแวดล้อมชั้นหินได้แม่นยำ",
+      "3. เพราะเป็นตัวสร้างแรงดันให้น้ำมันพุ่งขึ้นมา",
+      "4. เพราะสะท้อนแสงในมืดทำให้เจาะง่ายขึ้น"
+    ],
+    answer: 2,
+    hint: "การเจาะน้ำมันได้เศษหินขนาดเล็ก ซึ่งฟอสซิลขนาดใหญ่มักแตกหักเสียหาย แต่ไมโครฟอสซิลยังคงสมบูรณ์อยู่"
+  },
+  {
+    id: 11,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "igneous_intrusion_dating",
+    tag_skill: "L4",
+    tag_misconception: "magma_intrusion_does_not_affect_fossil_age",
+    title: "ข้อท้าทายที่ 11. หากพนังหินอัคนี (Igneous Dike) ตัดผ่านชั้นหินปูนที่มีฟอสซิล Fusulinid การคำนวณอายุสัมบูรณ์ของพนังหินอัคนีได้ 270 ล้านปี บอกอะไรเกี่ยวกับชั้นหินปูนนั้น",
+    image: "",
+    options: [
+      "1. ชั้นหินปูนมีอายุอ่อนกว่า 270 ล้านปี",
+      "2. ชั้นหินปูนมีอายุแก่กว่า 270 ล้านปี",
+      "3. ชั้นหินปูนมีอายุเท่ากับ 270 ล้านปีพอดี",
+      "4. ไม่สามารถบอกความสัมพันธ์ทางอายุได้"
+    ],
+    answer: 2,
+    hint: "พนังหินอัคนีต้องดันแทรกผ่านชั้นหินปูนที่มีอยู่ก่อนแล้ว ดังนั้นหินปูนย่อมเกิดก่อน"
+  },
+  {
+    id: 12,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "graptolites_planktonic_index",
+    tag_skill: "L3",
+    tag_misconception: "graptolites_are_plant_leaves",
+    title: "ข้อท้าทายที่ 12. กราปโตไลต์ (Graptolite) มีลักษณะคล้ายรอยเขียนบนหินดินดาน ดำรงชีวิตเป็นแพลงก์ตอนลอยในทะเลยุคพาเลโอโซอิกตอนต้น เหตุใดจึงเป็นซากดึกดำบรรพ์ดัชนีที่ดีเยี่ยม",
+    image: "",
+    options: [
+      "1. แพร่กระจายได้กว้างขวางตามกระแสน้ำทั่วโลก และมีวิวัฒนาการเปลี่ยนแปลงรูปแบบรวดเร็ว",
+      "2. อาศัยอยู่เฉพาะในบึงน้ำจืดแคบๆ",
+      "3. เป็นพืชที่ทนทานต่อความร้อนสูง",
+      "4. สูญพันธุ์ไปเมื่อ 1,000 ปีที่แล้ว"
+    ],
+    answer: 1,
+    hint: "สิ่งมีชีวิตที่ลอยตามกระแสน้ำในมหาสมุทรจะกระจายไปได้ทั่วโลกในช่วงเวลาสั้นๆ"
+  },
+  {
+    id: 13,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "stromatolites_atmosphere_evolution",
+    tag_skill: "L4",
+    tag_misconception: "stromatolites_are_simple_coral_reefs",
+    title: "ข้อท้าทายที่ 13. ซากดึกดำบรรพ์สโตรมาโทไลต์ (Stromatolite) เกิดจากการสะสมตัวของไซยาโนแบคทีเรีย มีความสำคัญอย่างยิ่งต่อประวัติศาสตร์โลกอย่างไร",
+    image: "",
+    options: [
+      "1. เป็นหลักฐานของการสังเคราะห์ด้วยแสงแรกๆ ที่เพิ่มแก๊สออกซิเจนให้แก่บรรยากาศโลกโบราณ",
+      "2. เป็นซากไดโนเสาร์ชนิดแรกของโลก",
+      "3. เป็นหลักฐานว่าโลกเคยเป็นไอความร้อนสูงโดยไม่มีน้ำ",
+      "4. ช่วยดูดซับรังสีจากต่างดาว"
+    ],
+    answer: 1,
+    hint: "ไซยาโนแบคทีเรีย หรือสาหร่ายสีเขียวแกมน้ำเงิน ปล่อยแก๊สชนิดใดออกสู่บรรยากาศขณะสังเคราะห์ด้วยแสง"
+  },
+  {
+    id: 14,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "trace_fossil_gastrolith",
+    tag_skill: "L3",
+    tag_misconception: "gastroliths_are_normal_river_pebbles",
+    title: "ข้อท้าทายที่ 14. 'แกสโทรลิท (Gastrolith)' หรือหินในกระเพาะอาหารของไดโนเสาร์ จัดเป็นซากดึกดำบรรพ์ประเภทใด และมีลักษณะเด่นอย่างไร",
+    image: "",
+    options: [
+      "1. Body Fossil - เป็นส่วนหนึ่งของกระดูกซี่โครง",
+      "2. Trace Fossil - เป็นก้อนหินที่มีผิวเรียบมันจากการขัดสีภายในกระเพาะอาหารเพื่อช่วยย่อยอาหาร",
+      "3. Unaltered Remains - เป็นก้อนเนื้อเยื่ออ่อนที่กลายสภาพเป็นน้ำแข็ง",
+      "4. Mold - เป็นรอยประทับของลำไส้"
+    ],
+    answer: 2,
+    hint: "เป็นหินที่สัตว์กลืนเข้าไปช่วยบดอาหารในกระเพาะ จึงนับเป็นร่องรอยการดำรงชีวิต"
+  },
+  {
+    id: 15,
+    domain: "EARTH",
+    content: "ซากดึกดำบรรพ์และบรรพ์ดัชนี",
+    tag_content: "geological_time_scale_mass_extinction",
+    tag_skill: "L4",
+    tag_misconception: "mesozoic_ended_without_fossil_changes",
+    title: "ข้อท้าทายที่ 15. รอยต่อระหว่างมหายุคมีโซโซอิกและซีโนโซอิก (K-Pg Boundary) มีลักษณะเด่นชัดในร่องรอยซากดึกดำบรรพ์อย่างไร",
+    image: "",
+    options: [
+      "1. การปรากฏขึ้นของไทรโลไบต์จำนวนมาก",
+      "2. การสูญพันธุ์ครั้งใหญ่ของไดโนเสาร์และแอมโมไนต์อย่างฉับพลันในชั้นหิน",
+      "3. การหายไปของพืชมีดอกทั้งหมดบนโลก",
+      "4. การเริ่มต้นของชีวิตชนิดแรกบนโลก"
+    ],
+    answer: 2,
+    hint: "เหตุการณ์อุกกาบาตชนโลกเมื่อ 66 ล้านปีก่อน นำไปสู่การสูญพันธุ์ครั้งใหญ่ของกลุ่มสิ่งมีชีวิตครองโลกในยุคนั้น"
+  }
+    ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        const name = document.getElementById('student-name').value.trim();
+        const email = document.getElementById('student-email').value.trim();
+        const studentClass = document.getElementById('student-class').value;
+        
+        if (!name || !studentClass) {
+          errorBox.innerText = "⚠️ กรุณากรอกชื่อ-นามสกุล และเลือกระดับชั้นให้ครบถ้วน";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = `${name} [${studentClass}]`;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+      document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3>
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      const name = document.getElementById('student-name').value.trim();
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = document.getElementById('student-class').value;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email" class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+ 
+    const quizTitle = "BIO-มัธยม-APP0005-Class-Nervous System/Spinal Cord & Reflex-2569-08-18";
+    const quizDomain = "BIO";
+    const quizContent = "สมองและระบบประสาท-ระบบไขสันหลัง และกลไก Reflex";
+
+
+    const questions = [
+   {
+    id: 1,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "reflex_arc_timing",
+    tag_skill: "L2",
+    tag_misconception: "brain_controls_reflex_directly",
+    title: "ข้อที่ 1. พ่อครัวคนหนึ่งเผลอสัมผัสกะทะที่ร้อนจัด เขาดึงมือออกทันทีแต่กลับรู้สึกปวดแสบปวดร้อนในภายหลัง ข้อความใดอธิบายปรากฏการณ์นี้ได้ถูกต้อง?",
+    image: "",
+    options: [
+      "1. สมองประมวลผลสัญญาณความปวดก่อน จึงสั่งการให้กล้ามเนื้อดึงมือออก",
+      "2. สัญญาณถึงไขสันหลังซึ่งสั่งการให้กล้ามเนื้อดึงมือออกทันที ขณะที่สัญญาณความปวดยังคงส่งต่อขึ้นไปสมอง",
+      "3. ความร้อนถูกตรวจจับโดยเซลล์ประสาทสั่งการในผิวหนังซึ่งข้ามไขสันหลัง",
+      "4. ระบบประสาทอัตโนมัติกระตุ้นให้เกิดการดึงมือออกเพื่อประหยัดพลังงาน"
+    ],
+    answer: 2,
+    hint: "สังเกตว่าการกระตุกมือเกิดก่อนความรู้สึกเจ็บ แสดงว่าศูนย์กลางการสั่งการทันทีทันใดไม่ใช่สมอง"
+  },
+  {
+    id: 2,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "stretch_reflex",
+    tag_skill: "L3",
+    tag_misconception: "all_reflexes_are_polysynaptic",
+    title: "ข้อที่ 2. แพทย์เคาะเอ็นร้องหวายใต้กระดูกสะบ้า ทำให้ขาแขย่มไปข้างหน้า รีเฟล็กซ์สะท้อนข้อเข่านี้เกิดไซแนปส์โดยตรงระหว่างเซลล์ประสาทใดสองชนิด?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทรับความรู้สึกและเซลล์ประสาทประสานงาน",
+      "2. เซลล์ประสาทสั่งการและเซลล์ประสาทประสานงาน",
+      "3. เซลล์ประสาทรับความรู้สึกและเซลล์ประสาทสั่งการ",
+      "4. เซลล์ประสาทอัตโนมัติและเซลล์ประสาทสั่งการ"
+    ],
+    answer: 3,
+    hint: "รีเฟล็กซ์สะท้อนข้อเข่าเป็นแบบ monosynaptic พิจารณาว่าใครนำกระแสประสาทมาจากต้นทางและไปทำงานที่ปลายทาง"
+  },
+  {
+    id: 3,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "crossed_extensor_reflex",
+    tag_skill: "L4",
+    tag_misconception: "reflex_affects_only_stimulated_side",
+    title: "ข้อที่ 3. ขณะเดินเท้าเปลือย บุคคลหนึ่งเหยียบตะปูของมีคม เขาดึงเท้าที่บาดเจ็บออกทันที และพร้อมกันนั้นก็ถ่ายน้ำหนักไปยังขาอีกข้างเพื่อทรงตัว รีเฟล็กซ์สะท้อนกากบาท (Crossed extensor reflex) นี้ต้องอาศัยอะไร?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทประสานงานที่ทอดข้ามไปยังอีกข้างของไขสันหลัง",
+      "2. สมองที่ประสานงานการทรงตัวและการเคลื่อนไหว",
+      "3. เซลล์ประสาทรับความรู้สึกและสั่งการเพียงข้างเดียวที่บาดเจ็บ",
+      "4. ระบบประสาทอัตโนมัติเพื่อเพิ่มอัตราการเต้นของหัวใจ"
+    ],
+    answer: 1,
+    hint: "เพื่อถ่ายน้ำหนักไปอีกข้าง ต้องมีการเชื่อมโยงกระแสประสาทข้ามไปยังร่างกายอีกข้างที่ไขสันหลัง"
+  },
+  {
+    id: 4,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "spinal_cord_injury_reflex",
+    tag_skill: "L4",
+    tag_misconception: "spinal_cord_lesion_abolishes_all_reflexes",
+    title: "ข้อที่ 4. ผู้ป่วยบาดเจ็บไขสันหลังระดับ T8 ทำให้ไม่สามารถเคลื่อนไหวรู้สึกที่ขาได้ แต่เมื่อแพทย์เกาฝ่าเท้า ขาก็ยังกระตุก ข้อใดอธิบายเหตุการณ์นี้ได้ถูกต้องที่สุด?",
+    image: "",
+    options: [
+      "1. ไขสันหลังส่วนล่างของบาดแผลไม่สามารถทำงานได้เลย",
+      "2. สมองยังสามารถส่งสัญญาณรีเฟล็กซ์ไปยังขาได้",
+      "3. วงจรรีเฟล็กซ์บริเวณใต้ระดับบาดแผลยังคงทำงานได้ แต่ขาดการเชื่อมต่อกับสมอง",
+      "4. ระบบประสาทอัตโนมัติเข้ามารับหน้าที่แทนระบบประสาทโซมาติก"
+    ],
+    answer: 3,
+    hint: "รีเฟล็กซ์ทำงานได้ที่ไขสันหลังโดยไม่ต้องผ่านสมอง แม้ระบบประสาทส่วนบนจะถูกตัดขาดจากส่วนล่าง"
+  },
+  {
+    id: 5,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "neuron_structure",
+    tag_skill: "L2",
+    tag_misconception: "impulse_direction_random",
+    title: "ข้อที่ 5. ในวงจรรีเฟล็กซ์ กระแสประสาทเคลื่อนที่ไปตามเซลล์ประสาทรับความรู้สึกเข้าสู่ไขสันหลัง ลำดับโครงสร้างใดที่กระแสประสาทเคลื่อนที่ผ่านก่อนถึงไซแนปส์?",
+    image: "",
+    options: [
+      "1. เดนไดรต์ -> เซลล์บอดี -> แอกซอน -> ไซแนปส์",
+      "2. เซลล์บอดี -> เดนไดรต์ -> แอกซอน -> ไซแนปส์",
+      "3. แอกซอน -> เดนไดรต์ -> เซลล์บอดี -> ไซแนปส์",
+      "4. ไซแนปส์ -> แอกซอน -> เซลล์บอดี -> เดนไดรต์"
+    ],
+    answer: 1,
+    hint: "ทิศทางการรับสัญญาณเริ่มจากส่วนรับสัญญาณ (dendrite) ผ่านตัวเซลล์ (cell body) แล้วส่งออกทางแกน (axon)"
+  },
+  {
+    id: 6,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "autonomic_cranial_reflex",
+    tag_skill: "L3",
+    tag_misconception: "all_reflexes_go_through_spinal_cord",
+    title: "ข้อที่ 6. เมื่อฉายแสงไฟเข้าตาข้างเดียว รูม่านตาทั้งสองข้างจะหดเล็กลง รีเฟล็กซ์แสงรูม่านตา (Pupillary light reflex) นี้ถูกควบคุมโดยส่วนใดเป็นหลัก?",
+    image: "",
+    options: [
+      "1. ระบบประสาทโซมาติกและไขสันหลัง",
+      "2. ระบบประสาทอัตโนมัติและไขสันหลัง",
+      "3. ระบบประสาทโซมาติกและสมองน้อย (Cerebellum)",
+      "4. ระบบประสาทอัตโนมัติและสมองส่วนกลาง (Brainstem)"
+    ],
+    answer: 4,
+    hint: "รีเฟล็กซ์นี้ควบคุมกล้ามเนื้อเรียบในตา และไม่ได้ควบคุมโดยไขสันหลัง พิจารณาสมองส่วนใดที่อยู่ใกล้สายตา"
+  },
+  {
+    id: 7,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "cranial_reflex",
+    tag_skill: "L3",
+    tag_misconception: "blink_is_voluntary",
+    title: "ข้อที่ 7. นักเรียนคนหนึ่งทำหนังสือตกพื้นดังปั๊ก นักเรียนอีกคนที่นั่งอยู่ข้างๆ กระพริบตาทันที รีเฟล็กซ์การกระพริบตานี้จัดเป็นอะไร?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์ที่ตอบสนองโดยตั้งใจ",
+      "2. รีเฟล็กซ์ของระบบประสาทอัตโนมัติที่ไขสันหลัง",
+      "3. รีเฟล็กซ์ผ่านเส้นประสาทสมอง (Cranial reflex)",
+      "4. รีเฟล็กซ์ที่ไม่เกี่ยวข้องกับระบบประสาท"
+    ],
+    answer: 3,
+    hint: "การกระพริบตาตอบสนองเสียงควบคุมโดยเส้นประสาทสมอง (cranial nerves) ไม่ใช่ไขสันหลัง"
+  },
+  {
+    id: 8,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "reciprocal_inhibition",
+    tag_skill: "L4",
+    tag_misconception: "antagonist_muscle_contracts_together",
+    title: "ข้อที่ 8. ในรีเฟล็กซ์การถอนตัว กล้ามเนื้องอ (Flexor) ที่ถูกกระตุ้นบาดเจ็บจะหดตัว ขณะที่กล้ามเนื้อเหยียด (Extensor) ข้างเดียวกันคลายตัว ปรากฏการณ์ Reciprocal inhibition นี้เกิดจากกลไกใด?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทประสานงานชนิดกระตุ้นทำให้กล้ามเนื้องอทำงาน และเซลล์ประสาทประสานงานชนิดลดการทำงานยับยั้งกล้ามเนื้อเหยียด",
+      "2. สมองส่งสัญญาณกระตุ้นและยับยั้งพร้อมกัน",
+      "3. การเชื่อมต่อไซแนปส์โดยตรงระหว่างเซลล์รับความรู้สึกกับกล้ามเนื้อทั้งสองชนิด",
+      "4. การหลั่งสารสื่อประสาทชนิดต่างกันจากเซลล์รับความรู้สึกเซลล์เดียวกัน"
+    ],
+    answer: 1,
+    hint: "ที่ไขสันหลังมีเซลล์ประสาทประสานงาน (interneuron) ทั้งชนิดกระตุ้นและชนิดลดการทำงาน เพื่อให้กล้ามเนื้อทำงานประสานกัน"
+  },
+  {
+    id: 9,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "nerve_conduction_block",
+    tag_skill: "L4",
+    tag_misconception: "local_anesthetic_blocks_only_pain",
+    title: "ข้อที่ 9. ในการทดลอง นักวิจัยใช้ยาชาเฉพาะที่ที่บล็อกช่องโซเดียมที่ใช้แรงดันไฟฟ้า (Voltage-gated sodium channels) ที่บริเวณไซแนปส์ก่อนถึงไขสันหลัง หากนำสิ่งเร้ามากระตุ้นผิวหนัง จะเกิดผลอะไร?",
+    image: "",
+    options: [
+      "1. คนไข้รู้สึกปวดแต่ขยับมือไม่ได้",
+      "2. คนไข้ขยับมือได้แต่ไม่รู้สึกปวด",
+      "3. คนไข้ไม่รู้สึกปวดและไม่ขยับมือ",
+      "4. คนไข้รู้สึกปวดและขยับมือ แต่ช้ากว่าปกติ"
+    ],
+    answer: 3,
+    hint: "ถ้าช่องโซเดียมถูกบล็อก กระแสประสาท (action potential) จะไม่สามารถส่งต่อได้เลย ทั้งทางรู้สึกและสั่งการ"
+  },
+  {
+    id: 10,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "balance_coordination",
+    tag_skill: "L3",
+    tag_misconception: "balance_is_conscious",
+    title: "ข้อที่ 10. นักกายกรรมคนหนึ่งเสียหลักจากคานไม้ อากรของเธอกางออกทั้งสองข้างทันทีเพื่อรักษาสมดุล การกระทำนี้ถูกประสานงานโดยส่วนใดเป็นหลัก?",
+    image: "",
+    options: [
+      "1. ไขสันหลังผ่านรีเฟล็กซ์สะท้อนกล้ามเนื้อ",
+      "2. สมองส่วนคิด (Cerebrum) ผ่านการคิดตรรกะ",
+      "3. สมองน้อย (Cerebellum) ผ่านการประสานงานกล้ามเนื้ออัตโนมัติ",
+      "4. ก้านสมอง (Medulla oblongata) ผ่านระบบประสาทอัตโนมัติ"
+    ],
+    answer: 3,
+    hint: "การประสานงานของกล้ามเนื้อเพื่อทรงตัวและสมดุลเป็นหน้าที่ของสมองส่วนใด?"
+  },
+  {
+    id: 11,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "sympathetic_nervous_system",
+    tag_skill: "L3",
+    tag_misconception: "fight_or_flight_is_voluntary",
+    title: "ข้อที่ 11. ชายคนหนึ่งถูกเสียงดังตกใจ ทำให้หัวใจเต้นแรงและหายใจเร็วขึ้น การตอบสนองแบบสู้หรือหน (Fight or flight) นี้จัดเป็นอะไร?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์โซมาติกควบคุมโดยไขสันหลัง",
+      "2. รีเฟล็กซ์อัตโนมัติควบคุมโดยระบบประสาทซิมพาเทติก",
+      "3. รีเฟล็กซ์อัตโนมัติควบคุมโดยระบบประสาทพาราซิมพาเทติก",
+      "4. การกระทำโดยตั้งใจควบคุมโดยสมองส่วนซีริเบรัม"
+    ],
+    answer: 2,
+    hint: "การเพิ่มอัตราการเต้นของหัวใจและหายใจเรื่อยเป็นการทำงานของระบบประสาทอัตโนมัติสาขาใด?"
+  },
+  {
+    id: 12,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "autonomic_effector",
+    tag_skill: "L3",
+    tag_misconception: "somatic_controls_glands",
+    title: "ข้อที่ 12. วงจรรีเฟล็กซ์ประกอบด้วย ตัวรับสัญญาณ เซลล์รับความรู้สึก ศูนย์ประสานงาน เซลล์สั่งการ และหน่วยปฏิบัติงาน หากหน่วยปฏิบัติงานเป็นต่อมเหงื่อแทนที่จะเป็นกล้ามเนื้อ จะใช้เซลล์ประสาทสั่งการชนิดใด?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทสั่งการโซมาติก (Somatic motor neuron)",
+      "2. เซลล์ประสาทสั่งการอัตโนมัติ (Autonomic motor neuron)",
+      "3. เซลล์ประสาทรับความรู้สึกประสานงาน",
+      "4. เซลล์ประสาทสั่งการยับยั้ง"
+    ],
+    answer: 2,
+    hint: "ต่อมเป็นอวัยวะที่ไม่ใช่กล้ามเนื้อลาย จึงต้องได้รับการสั่งการจากระบบประสาทอัตโนมัติ (Autonomic)"
+  },
+  {
+    id: 13,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "muscle_spindle",
+    tag_skill: "L2",
+    tag_misconception: "tendon_is_the_receptor",
+    title: "ข้อที่ 13. แพทย์ใช้ค้อนเคาะเอ็นร้องหวายเพื่อทดสอบรีเฟล็กซ์ เอ็นถูกดึงทำให้เท้ากระตุก 'ตัวรับสัญญาณ' (Receptor) ในวงจรรีเฟล็กซ์นี้คืออะไร?",
+    image: "",
+    options: [
+      "1. ผิวหนังบริเวณข้อเท้า",
+      "2. ตัวเอ็นเอชิลลิสเอง",
+      "3. กล้ามเนื้อสามีศีรษะ (Gastrocnemius muscle)",
+      "4. รากบนของไขสันหลัง"
+    ],
+    answer: 3,
+    hint: "การเคาะเอ็นทำให้กล้ามเนื้อยืดตัว และตัวรับการยืด (stretch receptor) ที่อยู่ในกล้ามเนื้อจะถูกกระตุ้น"
+  },
+  {
+    id: 14,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "reflex_vs_voluntary",
+    tag_skill: "L2",
+    tag_misconception: "voluntary_skips_spinal_cord",
+    title: "ข้อที่ 14. ข้อความใดแยกความแตกต่างระหว่างการกระทำแบบรีเฟล็กซ์และการกระทำโดยตั้งใจได้ถูกต้อง?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์ไม่เกี่ยวข้องกับสมอง ส่วนการกระทำโดยตั้งใจไม่เกี่ยวข้องกับไขสันหลัง",
+      "2. รีเฟล็กซ์เกิดขึ้นได้เร็วกว่าเพราะศูนย์ประสานงานมักอยู่ที่ไขสันหลังหรือก้านสมอง โดยไม่ผ่านซีริเบรัม",
+      "3. รีเฟล็กซ์ใช้เซลล์ประสาทประสานงานเท่านั้น ส่วนการกระทำโดยตั้งใจใช้เซลล์ประสาทสั่งการเท่านั้น",
+      "4. รีเฟล็กซ์ตอบสนองสิ่งเร้าภายนอก ส่วนการกระทำโดยตั้งใจเกิดจากภายใน"
+    ],
+    answer: 2,
+    hint: "ความเร็วของรีเฟล็กซ์เกิดจากวงจรสั้นๆ ที่ไม่ต้องรอขึ้นไปประมวลผลที่สมองส่วนคิด (Cerebrum)"
+  },
+  {
+    id: 15,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "dorsal_root_lesion",
+    tag_skill: "L4",
+    tag_misconception: "ventral_root_is_sensory",
+    title: "ข้อที่ 15. หากเส้นประสาทรากบน (Dorsal root) ของไขสันหลังระดับหนึ่งถูกทำลาย จะเกิดผลอะไรกับรีเฟล็กซ์สะท้อนข้อเข่าบริเวณนั้น?",
+    image: "",
+    options: [
+      "1. ขาจะเหยียดออกตามปกติ",
+      "2. ขาจะไม่เหยียดเพราะเซลล์ประสาทสั่งการถูกทำลาย",
+      "3. ขาจะไม่เหยียดเพราะเซลล์ประสาทรับความรู้สึกถูกทำลาย",
+      "4. ขาจะไม่เหยียดเพราะเซลล์ประสาทประสานงานถูกทำลาย"
+    ],
+    answer: 3,
+    hint: "รากบน (Dorsal root) ทำหน้าที่นำกระแสประสาทรับความรู้สึก ถ้ามันพัง ไขสันหลังจะรับรู้สัญญาณได้ไหม?"
+  },
+  {
+    id: 16,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "neuromuscular_junction",
+    tag_skill: "L4",
+    tag_misconception: "acetylcholine_transmits_sensory_signal",
+    title: "ข้อที่ 16. ในการผ่าตัดตา แพทย์ใช้ยาที่บล็อกสารสื่อประสาท Acetylcholine ที่บริเวณ neuromuscular junction หากปลายประสาทสั่งการถูกกระตุ้น กล้ามเนื้อจะไม่ทำงาน เพราะเหตุใด?",
+    image: "",
+    options: [
+      "1. หน่วยปฏิบัติงานไม่สามารถรับสัญญาณได้",
+      "2. เซลล์ประสาทรับความรู้สึกไม่สามารถส่งสัญญาณได้",
+      "3. ศูนย์ประสานงานถูกบล็อก",
+      "4. เซลล์ประสาทสั่งการไม่สามารถสร้างกระแสประสาทได้"
+    ],
+    answer: 1,
+    hint: "Acetylcholine เป็นสารสื่อประสาทที่ใช้ส่งสัญญาณจากเซลล์ประสาทสั่งการไปยังกล้ามเนื้อที่เป็นหน่วยปฏิบัติงาน (Effector)"
+  },
+  {
+    id: 17,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "vasoconstriction_reflex",
+    tag_skill: "L3",
+    tag_misconception: "vessel_constriction_is_somatic",
+    title: "ข้อที่ 17. คนคนหนึ่งจุมมือลงในน้ำแข็ง ในตอนแรกเขาดึงมือออกทันที (รีเฟล็กซ์โซมาติก) อย่างไรก็ตาม หลอดเลือดที่มือของเขาหดตัวเพื่อรักษาความร้อน การหดตัวของหลอดเลือดนี้จัดเป็นรีเฟล็กซ์แบบใด?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์ของเส้นประสาทสมอง",
+      "2. รีเฟล็กซ์ของระบบประสาทอัตโนมัติ (Autonomic)",
+      "3. รีเฟล็กซ์ของระบบประสาทโซมาติก (Somatic)",
+      "4. การกระทำโดยตั้งใจ (Voluntary)"
+    ],
+    answer: 2,
+    hint: "การหดตัวของหลอดเลือดเป็นการทำงานของกล้ามเนื้อเรียบ ซึ่งควบคุมโดยระบบประสาทอัตโนมัติ"
+  },
+  {
+    id: 18,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "habituation",
+    tag_skill: "L4",
+    tag_misconception: "reflexes_cannot_be_modified",
+    title: "ข้อที่ 18. เด็กคนหนึ่งกำลังเล่นกับลูกหมา ครั้งแรกที่หมาเลียหน้า เด็กดึงหน้าหนีด้วยความตกใจ หลังจากหลายวัน เด็กไม่ดึงหน้าหนีและหัวเราะแทน การเปลี่ยนแปลงนี้เกิดจากอะไร?",
+    image: "",
+    options: [
+      "1. วงจรรีเฟล็กซ์ปรับตัวให้ชินกับสิ่งเร้า",
+      "2. เซลล์ประสาทรับความรู้สึกลดความไวลง",
+      "3. สมองล้มล้างรีเฟล็กซ์ที่ไขสันหลังผ่านการเรียนรู้ (Habituation)",
+      "4. เซลล์ประสาทสั่งการไม่ตอบสนองต่อสัญญาณ"
+    ],
+    answer: 3,
+    hint: "รีเฟล็กซ์แรกเริ่มสามารถถูกปรับเปลี่ยนและควบคุมโดยการเรียนรู้ของสมองได้ (เรียนรู้ที่จะไม่กลัว)"
+  },
+  {
+    id: 19,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "voluntary_movement",
+    tag_skill: "L2",
+    tag_misconception: "all_muscle_movement_is_reflex",
+    title: "ข้อที่ 19. คนคนหนึ่งกำลังพิมพ์บนคีย์บอร์ด เมื่อกดปุ่มหนึ่ง นิ้วเคลื่อนลง แล้วนิ้วยกขึ้นมาเอง การยกนิ้วขึ้นมาเองนั้นเป็นลักษณะใด?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์สะท้อนกล้ามเนื้อ (Stretch reflex)",
+      "2. รีเฟล็กซ์การถอนตัว (Withdrawal reflex)",
+      "3. รีเฟล็กซ์สะท้อนกากบาท (Crossed extensor reflex)",
+      "4. การกระทำโดยตั้งใจ (Voluntary action)"
+    ],
+    answer: 4,
+    hint: "การพิมพ์เป็นการควบคุมกล้ามเนื้อลายอย่างตั้งใจ ไม่ใช่ปฏิกิริยาสะท้อนกลับอัตโนมัติ"
+  },
+  {
+    id: 20,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "nerve_conduction_velocity",
+    tag_skill: "L3",
+    tag_misconception: "myelin_does_not_affect_speed",
+    title: "ข้อที่ 20. กระแสประสาทเคลื่อนที่ผ่านเส้นประสาทรับความรู้สึกที่มีปลอกไมอีลินด้วยความเร็ว 120 m/s ส่วนความเจ็บปวดเคลื่อนที่ผ่านเส้นประสาทไม่มีปลอกไมอีลินที่ 0.5 m/s ถ้าระยะจากมือถึงไขสันหลังคือ 1 เมตร สัญญาณใดถึงไขสันหลังก่อนและเร็วกว่ากี่วินาที?",
+    image: "",
+    options: [
+      "1. เร็วกว่า 0.008 วินาที",
+      "2. เร็วกว่า 1.992 วินาที",
+      "3. เร็วกว่า 2.000 วินาที",
+      "4. เร็วกว่า 0.500 วินาที"
+    ],
+    answer: 2,
+    hint: "คำนวณเวลา = ระยะทาง / ความเร็ว: เวลาของ myelinated = 1 / 120 ≈ 0.008 วินาที, เวลาของ unmyelinated = 1 / 0.5 = 2 วินาที: ผลต่างคือ 1.992 วินาที"
+  },
+  {
+    id: 21,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "hyperreflexia",
+    tag_skill: "L4",
+    tag_misconception: "overactive_muscle_causes_hyperreflexia",
+    title: "ข้อที่ 21. ผู้ป่วยคนหนึ่งมีอาการรีเฟล็กซ์ไวผิดปกติ (Hyperreflexia) ที่ขาทั้งสองข้าง อาการนี้บ่งชี้ว่าอาจเกิดความเสียหายที่ส่วนใดของระบบประสาท?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทรับความรู้สึกที่ขา",
+      "2. เซลล์ประสาทสั่งการที่ขา",
+      "3. หน่วยปฏิบัติงานกล้ามเนื้อที่ขา",
+      "4. ทางเดินประสาทยับยั้งจากสมองลงมา (Descending inhibitory pathways)"
+    ],
+    answer: 4,
+    hint: "ถ้าไขสันหลังทำงานคนเดียวโดยไม่มีสมองมาควบคุม รีเฟล็กซ์จะแรงกว่าปกติ (เพราะขาดการยับยั้งจากสมอง)"
+  },
+  {
+    id: 22,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "parasympathetic_system",
+    tag_skill: "L2",
+    tag_misconception: "digestion_is_sympathetic",
+    title: "ข้อที่ 22. นักเรียนคนหนึ่งนั่งเรียนหน้าห้อง ทันใดนั้นท้องร้องดัง พยายามสะกดไว้แต่ไม่ได้ การย่อยอาหารและการเคลื่อนไหวของลำไส้ถูกควบคุมโดยระบบใด?",
+    image: "",
+    options: [
+      "1. ระบบประสาทโซมาติก",
+      "2. ระบบประสาทซิมพาเทติก",
+      "3. ระบบประสาทพาราซิมพาเทติก",
+      "4. รีเฟล็กซ์ของไขสันหลัง"
+    ],
+    answer: 3,
+    hint: "ระบบประสาทอัตโนมัติสาขาใดที่ทำงานส่งเสริมการย่อยและการขับถ่าย (Rest and digest)"
+  },
+  {
+    id: 23,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "muscle_tone_reflex",
+    tag_skill: "L3",
+    tag_misconception: "brain_senses_weight_change_first",
+    title: "ข้อที่ 23. คนคนหนึ่งกำลังถือกล่องของหนัก กล้ามเนื้อของเขาปรับตัวเพื่อรักษาการจับอยู่ตลอดเวลา หากกล่องมีน้ำหนักเพิ่มขึ้นทันที จะเกิดอะไรขึ้นก่อนเป็นอย่างแรก?",
+    image: "",
+    options: [
+      "1. สมองรู้สึกถึงน้ำหนักที่เปลี่ยนแปลงและส่งสัญญาณให้กล้ามเนื้อเกร็งแรงขึ้น",
+      "2. กล้ามเนื้อถูกยืดตัว กระตุ้น muscle spindle ซึ่งทำให้เกิดรีเฟล็กซ์ที่ไขสันหลังสั่งให้กล้ามเนื้อหดตัวมากขึ้น",
+      "3. Golgi tendon organ ทำงานยับยั้งการหดตัวของกล้ามเนื้อ",
+      "4. คนวางกล่องลงเพราะเหนื่อย"
+    ],
+    answer: 2,
+    hint: "ถ้ากล่องหนักขึ้น กล้ามเนื้อจะถูกยืดตัวมากขึ้น ซึ่งจะไปกระตุ้นตัวรับการยืด (Muscle spindle) ที่ไขสันหลัง"
+  },
+  {
+    id: 24,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "babinski_sign",
+    tag_skill: "L4",
+    tag_misconception: "babinski_is_normal_in_adults",
+    title: "ข้อที่ 24. ผู้ป่วยที่เป็นผู้ใหญ่แสดงอาการ Babinski sign (นิ้วเท้ากางออก) เมื่อเกาฝ่าเท้า ในผู้ใหญ่ปกตินิ้วเท้าควรงอลง การเกิด Babinski sign ในผู้ใหญ่บ่งชี้ว่าเกิดความเสียหายที่ส่วนใด?",
+    image: "",
+    options: [
+      "1. ไขสันหลังส่วนเอว",
+      "2. โครงสร้าง Lower motor neurons",
+      "3. ทางเดินประสาท Corticospinal tract จากสมองลงมา",
+      "4. สมองน้อย (Cerebellum)"
+    ],
+    answer: 3,
+    hint: "การที่นิ้วเท้ากางออกในผู้ใหญ่แสดงว่าสมองไม่สามารถยับยั้งรีเฟล็กซ์ของทารก (ที่ปกติมีอยู่แต่ถูกควบคุมเมื่อโตขึ้น) ได้ แสดงว่าทางเดินประสาทจากสมองลงมาไขสันหลังอาจชำรุด"
+  },
+  {
+    id: 25,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "neuron_anatomy",
+    tag_skill: "L3",
+    tag_misconception: "cell_body_location_random",
+    title: "ข้อที่ 25. เซลล์ประสาท Afferent (รับความรู้สึก) และ Efferent (สั่งการ) มีความสำคัญต่อรีเฟล็กซ์ ข้อความใดกล่าวถึงตำแหน่งของเซลล์บอดี (Cell body) ได้ถูกต้อง?",
+    image: "",
+    options: [
+      "1. Afferent มี cell body ที่ dorsal root ganglion และ Efferent มี cell body ที่ ventral horn ของไขสันหลัง",
+      "2. Afferent มี cell body ที่ ventral horn และ Efferent มี cell body ที่ dorsal root ganglion",
+      "3. ทั้งสองมี cell body ที่ dorsal root ganglion",
+      "4. ทั้งสองมี cell body ที่ ventral horn"
+    ],
+    answer: 1,
+    hint: "รากบน (Dorsal) รับความรู้สึก (Afferent) และรากล่าง (Ventral) สั่งการ (Efferent) ลองสัมพันธ์ตำแหน่ง cell body กับรากประสาท"
+  },
+  {
+    id: 26,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "polysynaptic_reflex",
+    tag_skill: "L2",
+    tag_misconception: "all_reflexes_are_monosynaptic",
+    title: "ข้อที่ 26. รีเฟล็กซ์การถอนมือออกจากเตาร้อนทำให้มือดึงกลับ รีเฟล็กซ์นี้เป็นแบบ Polysynaptic ซึ่งแปลว่าอะไร?",
+    image: "",
+    options: [
+      "1. มีไซแนปส์เดียวระหว่างเซลล์รับความรู้สึกและสั่งการ",
+      "2. มีหลายไซแนปส์ รวมถึงเซลล์ประสาทประสานงาน (Interneuron) ที่ไขสันหลัง",
+      "3. ข้ามไขสันหลังไปสมองโดยตรง",
+      "4. ใช้เซลล์ประสาทอัตโนมัติเท่านั้น"
+    ],
+    answer: 2,
+    hint: "poly แปลว่าหลาย การถอนมือต้องมีการประสานงานของเซลล์ประสาทหลายตัวที่ไขสันหลัง (Interneuron)"
+  },
+  {
+    id: 27,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "reflex_arc_pathway",
+    tag_skill: "L2",
+    tag_misconception: "effector_comes_first",
+    title: "ข้อที่ 27. ข้อใดแสดงลำดับทางกายภาพที่ถูกต้องของกระแสประสาทในวงจรรีเฟล็กซ์?",
+    image: "",
+    options: [
+      "1. ตัวรับสัญญาณ -> เซลล์ประสาทรับความรู้สึก -> ศูนย์ประสานงาน -> เซลล์ประสาทสั่งการ -> หน่วยปฏิบัติงาน",
+      "2. หน่วยปฏิบัติงาน -> เซลล์ประสาทรับความรู้สึก -> ศูนย์ประสานงาน -> เซลล์ประสาทสั่งการ -> ตัวรับสัญญาณ",
+      "3. ตัวรับสัญญาณ -> เซลล์ประสาทสั่งการ -> ศูนย์ประสานงาน -> เซลล์ประสาทรับความรู้สึก -> หน่วยปฏิบัติงาน",
+      "4. ศูนย์ประสานงาน -> ตัวรับสัญญาณ -> เซลล์ประสาทรับความรู้สึก -> เซลล์ประสาทสั่งการ -> หน่วยปฏิบัติงาน"
+    ],
+    answer: 1,
+    hint: "เริ่มจากตัวรับสัญญาณ ส่งไปศูนย์ประสานงาน แล้วจึงสั่งการไปยังหน่วยปฏิบัติงานตามลำดับ"
+  },
+  {
+    id: 28,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "h_reflex",
+    tag_skill: "L4",
+    tag_misconception: "h_reflex_tests_cranial_nerves",
+    title: "ข้อที่ 28. ในทางประสาทสรีรวิทยา H-reflex ถูกใช้เพื่อประเมินสุขภาพของไขสันหลังและเส้นประสาท มันคือการทดสอบทางไฟฟ้าที่เทียบเท่ากับรีเฟล็กซ์ใด?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์แสงรูม่านตา",
+      "2. รีเฟล็กซ์สะท้อนเอ็นร้องหวาย (Achilles tendon reflex)",
+      "3. อาการบาบินสกี",
+      "4. รีเฟล็กซ์การถอนตัว"
+    ],
+    answer: 2,
+    hint: "H-reflex จะวัดการนำกระแสประสาทรับความรู้สึกที่ไปกลับที่ไขสันหลังระดับเดียวกับการเคาะเอ็นร้องหวาย ซึ่งทดสอบวงจร monosynaptic ของขา"
+  },
+  {
+    id: 29,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "golgi_tendon_organ",
+    tag_skill: "L3",
+    tag_misconception: "gto_increases_contraction",
+    title: "ข้อที่ 29. นักวิ่งมาราธอนเริ่มรู้สึากล้ามเนื้อล้า ความยาวก้าวของเขาลดลง ส่วนหนึ่งเกิดจากรีเฟล็กซ์ของ Golgi tendon organ (GTO) หน้าที่หลักของรีเฟล็กซ์ GTO คืออะไร?",
+    image: "",
+    options: [
+      "1. เพิ่มแรงหดตัวของกล้ามเนื้อเมื่อถูกยืด",
+      "2. ประสานงานการเคลื่อนไหวของอวัยวะข้างตรงข้าม",
+      "3. ป้องกันกล้ามเนื้อฉีกขาดโดยสั่งให้คลายตัวเมื่อแรงตึงมากเกินไป",
+      "4. เพิ่มอัตราการเต้นของหัวใจและการไหลเวียนเลือดที่กล้ามเนื้อ"
+    ],
+    answer: 3,
+    hint: "เมื่อเอ็นถูกดึงมากเกินไป (ตึงเกินไป) GTO จะทำงานเพื่อป้องกันกล้ามเนื้อฉีกขาด โดยสั่งให้กล้ามเนื้อคลายตัว"
+  },
+  {
+    id: 30,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "action_potential_threshold",
+    tag_skill: "L2",
+    tag_misconception: "weak_stimulus_causes_small_ap",
+    title: "ข้อที่ 30. ในการตั้งค่าการทดลองวงจรรีเฟล็กซ์ มีการกระตุ้นเซลล์ประสาทรับความรู้สึกด้วยสิ่งเร้าหลายระดับความเข้มข้น หากสิ่งเร้ามีความเข้มข้นต่ำเกิน threshold จะสังเกตเห็นอะไร?",
+    image: "",
+    options: [
+      "1. เกิด action potential ขนาดเล็กตามขนาดของสิ่งเร้า",
+      "2. ไม่เกิด action potential เลย",
+      "3. เกิด action potential เต็มที่แต่ช้ากว่าปกติ",
+      "4. เกิด action potential เล็กๆ ต่อเนื่องกัน"
+    ],
+    answer: 2,
+    hint: "หลักการ All-or-None กล่าวว่าถ้าสิ่งเร้าไม่ถึง threshold จะไม่เกิด action potential เลย"
+  }
+
+
+];
+
+    const extraQuestions = [
+{
+    id: 1,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "upper_motor_neuron_lesion",
+    tag_skill: "L4",
+    tag_misconception: "reflex_loss_equals_motor_neuron_damage",
+    title: "ข้อท้าทายที่ 1. แพทย์ตรวจพบว่ารีเฟล็กซ์สะท้อนข้อเข่าของผู้ป่วยปกติ แต่ผู้ป่วยไม่สามารถขยับขาโดยตั้งใจได้ บริเวณที่น่าจะเกิดความเสียหายมากที่สุดคือที่ใด?",
+    image: "",
+    options: [
+      "1. เซลล์ประสาทรับความรู้สึก",
+      "2. เซลล์ประสาทสั่งการ",
+      "3. ทางเดิน Upper motor neuron จากสมอง",
+      "4. เซลล์ประสาทประสานงาน"
+    ],
+    answer: 3,
+    hint: "ถ้าไขสันหลังทำงานได้ (รีเฟล็กซ์ปกติ) แต่สมองควบคุมไม่ได้ แสดงว่าทางเดินจากสมองลงมาสั่งการพัง"
+  },
+  {
+    id: 2,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "hypnic_jerk",
+    tag_skill: "L2",
+    tag_misconception: "hypnic_jerk_is_autonomic",
+    title: "ข้อท้าทายที่ 2. ขณะกำลังจะหลับ ศีรษะของคนคนหนึ่งก้มลงทันทีทำให้ร่างกายสะดุ้ง อาการ Hypnic jerk นี้เป็นตัวอย่างของอะไร?",
+    image: "",
+    options: [
+      "1. การกระทำโดยตั้งใจ",
+      "2. รีเฟล็กซ์โซมาติก (Somatic reflex)",
+      "3. รีเฟล็กซ์อัตโนมัติ (Autonomic reflex)",
+      "4. รีเฟล็กซ์ของเส้นประสาทสมอง (Cranial reflex)"
+    ],
+    answer: 2,
+    hint: "เป็นการกระตุกของกล้ามเนื้อลายทั้งตัว เกิดจากระบบประสาทสั่งการ (Somatic)"
+  },
+  {
+    id: 3,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "sensory_neuron_function",
+    tag_skill: "L4",
+    tag_misconception: "motor_neuron_triggers_reflex",
+    title: "ข้อท้าทายที่ 3. นักเรียนคนหนึ่งตั้งสมมุติฐานว่า ถ้าเซลล์ประสาทรับความรู้สึกเสีย สมองจะไม่รู้สึกปวด แต่รีเฟล็กซ์ยังคงเกิดขึ้น สมมุติฐานนี้ถูกต้องหรือไม่?",
+    image: "",
+    options: [
+      "1. ถูกต้อง เพราะรีเฟล็กซ์ข้ามเซลล์ประสาทรับความรู้สึก",
+      "2. ถูกต้อง เพราะสมองควบคุมรีเฟล็กซ์อย่างอิสระ",
+      "3. ไม่ถูกต้อง เพราะหากเซลล์ประสาทรับความรู้สึกเสีย ทั้งไขสันหลังและสมองจะไม่ได้รับสัญญาณ",
+      "4. ไม่ถูกต้อง เพราะเซลล์ประสาทสั่งการสามารถกระตุ้นรีเฟล็กซ์โดยตรง"
+    ],
+    answer: 3,
+    hint: "เซลล์ประสาทรับความรู้สึกเป็นตัวนำกระแสประสาทเข้าไขสันหลังและสมอง ถ้ามันพัง ทั้งสองที่จะไม่ได้รับสัญญาณเลย"
+  },
+  {
+    id: 4,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "synapse_block",
+    tag_skill: "L4",
+    tag_misconception: "sensory_bypasses_spinal_cord",
+    title: "ข้อท้าทายที่ 4. หากมียาที่บล็อกการหลั่ยสารสื่อประสาทของเซลล์ประสาทรับความรู้สึกที่ไขสันหลัง จะเกิดผลอะไร?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์จะไม่เกิด แต่สมองยังรู้สึกปวดได้หากสัญญาณข้ามไป",
+      "2. รีเฟล็กซ์จะเกิดขึ้นตามปกติ",
+      "3. สมองจะส่งสัญญาณที่แรงขึ้นมาชดเชย",
+      "4. รีเฟล็กซ์จะไม่เกิด และไม่รู้สึกปวด"
+    ],
+    answer: 4,
+    hint: "ไซแนปส์ที่ไขสันหลังเป็นจุดส่งต่อสัญญาณ ถ้าถูกบล็อก สัญญาณจะไม่ถึงเซลล์สั่งการและไม่ถึงสมอง"
+  },
+  {
+    id: 5,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "central_pattern_generator",
+    tag_skill: "L4",
+    tag_misconception: "walking_is_purely_voluntary",
+    title: "ข้อท้าทายที่ 5. หากผู้ป่วยมีบาดแผลที่ไขสันหลังทำลาย Central Pattern Generator (CPG) ในบริเวณเอว ฟังก์ชันใดจะถูกทำลายมากที่สุด?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์แสงรูม่านตา",
+      "2. รีเฟล็กซ์สะท้อนข้อเข่า",
+      "3. การเคลื่อนไหวแบบสลับจังหวะเช่นการเดิน",
+      "4. การเคลื่อนไหวแขนโดยตั้งใจ"
+    ],
+    answer: 3,
+    hint: "CPG เป็นเครือข่ายเซลล์ประสาทที่ไขสันหลังที่สร้างจังหวะการเคลื่อนไหวแบบเป็นวงจร เช่น การเดิน"
+  },
+  {
+    id: 6,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "vagus_nerve_reflex",
+    tag_skill: "L3",
+    tag_misconception: "vagus_is_somatic",
+    title: "ข้อท้าทายที่ 6. เด็กชายเป่าลูกโป่งจนเริ่มรู้สึกตัวลอยและตามัว การตอบสนองนี้เกิดจากเส้นประสาทเวกัส (Cranial Nerve X) ที่ลดอัตราการเต้นของหัวใจ จัดเป็นรีเฟล็กซ์ประเภทใด?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์โซมาติกของไขสันหลัง",
+      "2. รีเฟล็กซ์อัตโนมัติของสมอง (Autonomic cranial reflex)",
+      "3. การกระทำโดยตั้งใจ",
+      "4. พฤติกรรมที่เรียนรู้มา"
+    ],
+    answer: 2,
+    hint: "ไวกัสเส้นประสาท (Vagus nerve) เป็นเส้นประสาทสมองที่ควบคุมระบบอัตโนมัติ (Parasympathetic)"
+  },
+  {
+    id: 7,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "phantom_limb_pain",
+    tag_skill: "L4",
+    tag_misconception: "pain_requires_intact_limb",
+    title: "ข้อท้าทายที่ 7. คนที่ถูกตัดแขนขา มักรายงานว่ายังคงรู้สึกปวดที่แขนขาที่ถูกตัดไปแล้ว (Phantom limb pain) เกิดจากสาเหตุใด?",
+    image: "",
+    options: [
+      "1. การกระตุ้นตัวรับสัญญาณที่ยังเหลืออยู่ในแขนขาที่ขาด",
+      "2. การวนลูปของรีเฟล็กซ์ที่ไขสันหลัง",
+      "3. การทำงานของเส้นประสาทรับความรู้สึกส่วนปลายที่ยังเหลืออยู่ที่ไขสันหลังและสมอง",
+      "4. เซลล์ประสาทสั่งการพยายามขยับแขนขาที่หายไป"
+    ],
+    answer: 3,
+    hint: "แม้แขนขาจะถูกตัดออก แต่เส้นประสาทที่ตัดก็ยังปลายเปิดอยู่ที่ไขสันหลัง สามารถส่งสัญญาณรบกวนขึ้นไปสมองได้"
+  },
+  {
+    id: 8,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "motor_unit_recruitment",
+    tag_skill: "L4",
+    tag_misconception: "stronger_stimulus_means_larger_ap",
+    title: "ข้อท้าทายที่ 8. แพทย์ทดสอบรีเฟล็กซ์โดยการเพิ่มความเข้มข้นของสิ่งเร้า ในระดับต่ำไม่เกิดรีเฟล็กซ์ แต่เมื่อถึงจุดหนึ่งเกิดรีเฟล็กซ์เต็มที่ และเมื่อเพิ่มความเข้มข้นขึ้นไปอีก รีเฟล็กซ์ที่เกิดขึ้นแรงกว่าเดิมเพราะอะไร?",
+    image: "",
+    options: [
+      "1. เกิด Action potential ที่ใหญ่ขึ้นในเซลล์สั่งการ",
+      "2. สมองส่งสัญญาณที่แรงขึ้นมาช่วย",
+      "3. ความถี่ของ Action potential เพิ่มขึ้นและเรียก Motor unit มาทำงานมากขึ้น",
+      "4. เซลล์ประสาทประสานงานทำงานร่วมกัน"
+    ],
+    answer: 3,
+    hint: "ขนาดของสิ่งเร้าที่เพิ่มขึ้นไม่ทำให้ action potential ใหญ่ขึ้น แต่ทำให้ความถี่เพิ่มขึ้นและเรียกกล้ามเนื้อ (motor unit) มาทำงานมากขึ้น"
+  },
+  {
+    id: 9,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "corneal_reflex",
+    tag_skill: "L4",
+    tag_misconception: "trigeminal_is_motor_only",
+    title: "ข้อท้าทายที่ 9. แพทย์ทดสอบ Corneal reflex โดยการแตะกระจกตาเบาๆ ผู้ป่วยไม่กะพริบตา แต่ผู้ป่วยบอกว่ารู้สึกถึงการสัมผัส แสดงว่าเส้นประสาทสมองเส้นใดน่าจะถูกทำลาย?",
+    image: "",
+    options: [
+      "1. เส้นประสาทเฟเชียล (Facial nerve, CN VII)",
+      "2. เส้นประสาทตา (Optic nerve, CN II)",
+      "3. เส้นประสาทควบคุมการเคลื่อนไหวตา (Oculomotor nerve, CN III)",
+      "4. เส้นประสาทตรีเจมินัล (Trigeminal nerve, CN V)"
+    ],
+    answer: 1,
+    hint: "ถ้ารู้สึกได้ แปลว่าเส้นประสาท Trigeminal (CN V) ปกติ แต่การกระพริบตาเกิดจากเส้นประสาทสั่งการกล้ามเนื้อใบหน้า (Facial nerve)"
+  },
+  {
+    id: 10,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "monosynaptic_block",
+    tag_skill: "L4",
+    tag_misconception: "motor_neuron_fires_without_neurotransmitter",
+    title: "ข้อท้าทายที่ 10. ในรีเฟล็กซ์สะท้อนข้อเข่าแบบ Monosynaptic เซลล์ประสาทรับความรู้สึกเชื่อมต่อกับเซลล์ประสาทสั่งการโดยตรงที่ไขสันหลัง หากมียาที่บล็อกตัวรับสารสื่อประสาท Glutamate บนเซลล์ประสาทสั่งการ จะเกิดผลอะไร?",
+    image: "",
+    options: [
+      "1. กล้ามเนื้อจะหดตัวต่อเนื่อง",
+      "2. รีเฟล็กซ์จะถูกยกเลิก (ไม่เกิดการหดตัว)",
+      "3. สมองรู้สึกถึงการยืดตัว แต่ไม่เกิดการเคลื่อนไหว",
+      "4. เซลล์ประสาทรับความรู้สึกหยุดทำงาน"
+    ],
+    answer: 2,
+    hint: "ถ้าตัวรับสาร Glutamate บนเซลล์สั่งการถูกบล็อก เซลล์สั่งการจะไม่รับสัญญาณ จึงไม่ส่งกระแสไปกล้ามเนื้อ"
+  },
+  {
+    id: 11,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "crossed_extensor_mechanism",
+    tag_skill: "L4",
+    tag_misconception: "opposite_limb_always_withdraws",
+    title: "ข้อท้าทายที่ 11. รีเฟล็กซ์สะท้อนกากบาท (Crossed extensor reflex) มักถูกเรียกว่ารีเฟล็กซ์แนวทแยง ถ้าแขนขวากำลังดึงออกจากพื้นผิวที่ร้อน แขนซ้ายจะทำหน้าที่อะไร?",
+    image: "",
+    options: [
+      "1. แขนซ้ายดึงออกด้วย",
+      "2. แขนซ้ายเหยียดเพื่อผลักร่างกายออกไกล",
+      "3. กล้ามเนื้อแขนซ้ายคลายตัว",
+      "4. กล้ามเนื้อเหยียดของแขนซ้ายหดตัวเพื่อรักษาท่าทางและทรงตัว"
+    ],
+    answer: 4,
+    hint: "การถอนแขนข้างเดียว อีกข้างต้องเหยียดเพื่อถ่ายน้ำหนักและทรงตัว"
+  },
+  {
+    id: 12,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "brainstem_function_reflex",
+    tag_skill: "L4",
+    tag_misconception: "spinal_reflexes_indicate_brainstem_alive",
+    title: "ข้อท้าทายที่ 12. ผู้ป่วยอยู่ในภาวะโคม่า รีเฟล็กซ์ใดข้อใดที่ยังคงทำงานอยู่แสดงว่า Brainstem ยังคงทำหน้าที่อยู่?",
+    image: "",
+    options: [
+      "1. รีเฟล็กซ์สะท้อนข้อเข่า",
+      "2. รีเฟล็กซ์การถอนตัว",
+      "3. รีเฟล็กซ์แสงรูม่านตา (Pupillary light reflex)",
+      "4. อาการบาบินสกี"
+    ],
+    answer: 3,
+    hint: "รีเฟล็กซ์ในข้อ 1 และ 2 ทำได้โดยไขสันหลังเพียงอย่างเดียว การตอบสนองของรูม่านตาต้องอาศัย Brainstem ในการประมวลผล"
+  },
+  {
+    id: 13,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "thermoregulation_reflex",
+    tag_skill: "L3",
+    tag_misconception: "shivering_is_smooth_muscle",
+    title: "ข้อท้าทายที่ 13. เมื่ออุณหภูมิลดลง ร่างกายคนเราจะสั่น (Shivering) เพื่อสร้างความร้อน การสั่นนี้เป็นกลไกการทำงานแบบใด?",
+    image: "",
+    options: [
+      "1. การหดตัวของกล้ามเนื้อเรียบในหลอดเลือด",
+      "2. การหลั่งเหงื่อของต่อมเหงื่อ",
+      "3. การเคลื่อนไหวเพื่อสร้างความร้อนโดยตั้งใจ",
+      "4. การหดตัวและคลายตัวสลับกันของกล้ามเนื้อลายที่ควบคุมโดยไฮโปทาลามัส"
+    ],
+    answer: 4,
+    hint: "การสั่น (Shivering) เกิดจากกล้ามเนื้อลายหดตัวและคลายตัวสลับกันอย่างรวดเร็ว โดยการควบคุมของไฮโปทาลามัส"
+  },
+  {
+    id: 14,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "basal_ganglia_reflex",
+    tag_skill: "L4",
+    tag_misconception: "glabellar_persistence_is_cerebellar",
+    title: "ข้อท้าทายที่ 14. ผู้ป่วยคนหนึ่งมีอาการเดินก้มหน้าและก้าวเท้าแบบสั้น เมื่อแพทย์เคาะที่หน้าผากซ้ำๆ ผู้ป่วยจะกระพริบตาทุกครั้งโดยไม่ลดลง (Glabellar tap sign) อาการยืดยาวของรีเฟล็กซ์นี้บ่งชี้ถึงความเสียหายที่ส่วนใด?",
+    image: "",
+    options: [
+      "1. ไขสันหลังทำงานปกติ",
+      "2. ความเสียหายที่ Basal ganglia",
+      "3. เส้นเลือดในสมองน้อย (Cerebellum) ตีบ",
+      "4. ภาวะต่อมไทรอยด์ทำงานเกิน"
+    ],
+    answer: 2,
+    hint: "การที่รีเฟล็กซ์ตา (Myerson's sign) ยังคงเกิดขึ้นเรื่อยๆ โดยไม่หายไป (Habituation ล้มเหลว) บ่งชี้ถึงโรคที่เกี่ยวข้องกับการเคลื่อนไหวและการควบคุมอัตโนมัติ เช่น Parkinsonism ที่เกี่ยวข้องกับ Basal ganglia"
+  },
+  {
+    id: 15,
+    domain: "BIO",
+    content: "ระบบไขสันหลัง และกลไก Reflex",
+    tag_content: "jendrassik_maneuver",
+    tag_skill: "L4",
+    tag_misconception: "distraction_decreases_reflex",
+    title: "ข้อท้าทายที่ 15. ขณะที่แพทย์ทดสอบรีเฟล็กซ์ข้อเข่า แพทย์สั่งให้ผู้ป่วยกำมือแน่นและดึงแขนทั้งสองข้างเข้าหากัน น่าแปลกที่รีเฟล็กซ์ข้อเข่าแรงกว่าปกติ การเพิ่มขึ้นของรีเฟล็กซ์นี้เกิดจากอะไร?",
+    image: "",
+    options: [
+      "1. สัญญาณยับยั้งจากก้านสมองลดลง",
+      "2. สมองส่งสัญญาณกระตุ้นโดยตรงไปยังเซลล์ประสาทสั่งการที่ขา",
+      "3. การกระตุ้น Gamma motor neuron ทำให้ Muscle spindle ไวต่อการยืดตัวมากขึ้น",
+      "4. การไหลเวียนของเลือดที่ขาเพิ่มขึ้น"
+    ],
+    answer: 3,
+    hint: "การเกร็งกล้ามเนื้อส่วนบน (Jendrassik maneuver) ส่งผลให้ gamma motor neuron ถูกกระตุ้น ทำให้ muscle spindle ในขาไวต่อการยืดตัวมากขึ้น"
+  }
+     ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)-เอาออก
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+    //}
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+         // localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+      document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3>
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

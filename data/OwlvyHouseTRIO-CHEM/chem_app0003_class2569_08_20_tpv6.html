@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+        <p class="text-amber-700/70 text-[10px] sm:text-xs text-center italic mt-1.5 mb-0">* App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ</p>
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email" class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+        const quizTitle = "CHEM-APP0003-Class-SeparationTechniques-2569-08-20";
+        const quizDomain = "CHEM";
+        const quizContent = "การแยกสาร-สารเนื้อผสม ชุดที่ 3";
+
+    const questions = [
+   {
+    id: 1,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "magnetic_separation",
+    tag_skill: "L2",
+    tag_misconception: "all_metals_are_magnetic",
+    title: "ข้อที่ 1. กลุ่มนักเรียนนำเศษอะลูมิเนียมฟอยล์ เศษเหล็กกล้า และผงถ่านไม้มาผสมกัน หากต้องการแยกเศษเหล็กกล้าออกจากสารผสมนี้โดยใช้วิธีที่เรียบง่ายที่สุด ควรใช้เหตุผลใดประกอบการตัดสินใจ",
+    image: "",
+    options: ["1. อะลูมิเนียมและเหล็กกล้ามีความหนาแน่นแตกต่างกัน จึงใช้วิธีลอยตัวในน้ำ", "2. เหล็กกล้ามีคุณสมบัติดูดแม่เหล็ก ในขณะที่อะลูมิเนียมและถ่านไม้ไม่ดูดแม่เหล็ก", "3. ถ่านไม้ละลายน้ำได้แต่เหล็กกล้าไม่ละลาย จึงใช้วิธีการละลายแล้วกรอง", "4. อะลูมิเนียมมีจุดหลอมเหลวต่ำกว่าเหล็กกล้ามาก จึงใช้วิธีการหลอมให้เหลวแยก"],
+    answer: 2,
+    hint: "พิจารณาคุณสมบัติทางกายภาพเฉพาะของธาตุเหล็กที่แตกต่างจากโลหะชนิดอื่นในสารผสม"
+  },
+  {
+    id: 2,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "distillation_limit",
+    tag_skill: "L4",
+    tag_misconception: "simple_distillation_purifies_all_liquids",
+    title: "ข้อที่ 2. ในอุตสาหกรรมการผลิตเอทานอลเพื่อใช้เป็นเชื้อเพลิงชีวภาพ พบว่าการใช้วิธีกลั่นธรรมดาไม่สามารถได้เอทานอลบริสุทธิ์ 100% ได้ จึงต้องใช้สารเคมีบางชนิดผสมลงไปก่อนกลั่นอีกครั้ง ปรากฏการณ์นี้เกิดจากสาเหตุใด",
+    image: "",
+    options: ["1. เอทานอลและน้ำเป็นสารผสมเนื้อเดียวกันทุกสัดส่วน จึงไม่มีจุดเดือดที่แน่นอน", "2. เอทานอลและน้ำมีจุดเดือดใกล้เคียงกันมากจนวิธีกลั่นธรรมดาแยกไม่ออก", "3. เอทานอลและน้ำก่อตัวเป็นสารผสมอะซีโอทรอป ซึ่งเดือดที่อุณหภูมิคงที่เหมือนสารบริสุทธิ์", "4. เอทานอลระเหยง่ายเกินไป ทำให้ระหว่างกลั่นเอทานอลระเหยหายไปก่อนจะถึงจุดเดือด"],
+    answer: 3,
+    hint: "ค้นหาความสัมพันธ์พิเศษระหว่างน้ำและแอลกอฮอล์บางชนิดที่ทำให้เกิดจุดเดือดคงที่ตนเอง"
+  },
+  {
+    id: 3,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "multi_step_separation",
+    tag_skill: "L4",
+    tag_misconception: "ignoring_multiple_properties_in_sequencing",
+    title: "ข้อที่ 3. ของแข็ง 5 ชนิด มีสมบัติดังตาราง\nของแข็ง: ก, ข, ค, ง, จ\n- ก: ขนาด 2.0 มม., ละลายน้ำ, ไม่ดูดแม่เหล็ก\n- ข: ขนาด 0.5 มม., ไม่ละลายน้ำ, ดูดแม่เหล็ก\n- ค: ขนาด 1.5 มม., ละลายน้ำ, ดูดแม่เหล็ก\n- ง: ขนาด 0.2 มม., ไม่ละลายน้ำ, ไม่ดูดแม่เหล็ก\n- จ: ขนาด 1.0 มม., ละลายน้ำ, ไม่ดูดแม่เหล็ก\nหากนำสารผสมทั้ง 5 ชนิดไปร่อนผ่านตะแกรงขนาด 0.8 มม. แล้วนำส่วนที่ค้างบนตะแกรงไปละลายน้ำแล้วกรอง ตะกอนที่ได้คือของแข็งใด",
+    image: "",
+    options: ["1. ของแข็ง ก", "2. ของแข็ง ค", "3. ของแข็ง ก และ ค", "4. ของแข็ง ก, ค และ จ"],
+    answer: 2,
+    hint: "กรองสิ่งที่ค้างบนตะแกรงด้วยขนาด 0.8 มม. ก่อน จากนั้นจึงพิจารณาว่าในกลุ่มนั้นอะไรละลายน้ำได้บ้าง"
+  },
+  {
+    id: 4,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "solubility_separation",
+    tag_skill: "L3",
+    tag_misconception: "solubility_depends_on_chemical_formula_only",
+    title: "ข้อที่ 4. ชาวสวนผลไม้พบว่าฝนตกหนักทำให้แป้งที่ใช้หุ้มผลไม้ (ซึ่งไม่ละลายน้ำ) ผสมกับปุ๋ยเคมีละลายน้ำ (โพแทสเซียมไนเตรต) หากต้องการเก็บปุ๋ยเคมีกลับคืนมาใช้งาน ควรดำเนินการอย่างไร",
+    image: "",
+    options: ["1. ใช้ตะแกรงร่อนเพื่อแยกแป้งออก จากนั้นนำน้ำปุ๋ยไประเหยแห้ง", "2. ใช้แม่เหล็กดูดแป้งออก จากนั้นนำน้ำปุ๋ยไประเหยแห้ง", "3. ตั้งให้สงบแล้วเทของเหลวออก นำของเหลวไปตกผลึก", "4. นำสารผสมไปต้มจนน้ำระเหยหมด เก็บก้อนที่เหลือไว้เป็นปุ๋ย"],
+    answer: 1,
+    hint: "พิจารณาขนาดของอนุภาคแป้งเทียบกับความละลายได้ของปุ๋ยเคมี"
+  },
+  {
+    id: 5,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sublimation_vs_evaporation",
+    tag_skill: "L4",
+    tag_misconception: "sublimation_is_just_fast_evaporation",
+    title: "ข้อที่ 5. การแยกสารผสมระหว่างเกล็ดไอโอดีนกับผงชูรส นิยมใช้วิธีการระเหิด ในขณะที่การแยกเกลือแกงออกจากน้ำทะเลใช้วิธีระเหยแห้ง ทั้งสองวิธีมีข้อแตกต่างพื้นฐานอย่างไร",
+    image: "",
+    options: ["1. วิธีระเหิดใช้ความร้อนสูงกว่าวิธีระเหยแห้งเสมอ", "2. วิธีระเหยแห้งสารจะเปลี่ยนสถานะจากของเหลวเป็นก๊าซ แต่วิธีระเหิดสารเปลี่ยนจากของแข็งเป็นก๊าซโดยตรง", "3. วิธีระเหิดต้องใช้แรงดันอากาศต่ำ แต่วิธีระเหยแห้งทำได้ที่แรงดันอากาศปกติ", "4. วิธีระเหยแห้งทำให้ได้สารบริสุทธิ์ทันที แต่วิธีระเหิดต้องผ่านการกรองอีกครั้ง"],
+    answer: 2,
+    hint: "เปรียบเทียบการเปลี่ยนสถานะของสารในแต่ละกระบวนการว่าผ่านขั้นตอนกลางหรือไม่"
+  },
+  {
+    id: 6,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sieving_logic",
+    tag_skill: "L3",
+    tag_misconception: "sieve_traps_larger_particles",
+    title: "ข้อที่ 6. โรงงานผลิตทรายทำเครื่องสำอางต้องการทรายขนาดเส้นผ่านศูนย์กลาง 0.1 มิลลิเมตร แต่เครื่องบดให้ทรายออกมามีขนาดปนกันตั้งแต่ 0.05 ถึง 0.5 มิลลิเมตร หากใช้ตะแกรงขนาดรู 0.1 มิลลิเมตรร่อนเพียงครั้งเดียว ทรายที่ได้จะมีลักษณะอย่างไร",
+    image: "",
+    options: ["1. ได้ทรายที่มีขนาดใหญ่กว่า 0.1 มิลลิเมตรทั้งหมด", "2. ได้ทรายที่มีขนาดเล็กกว่า 0.1 มิลลิเมตรทั้งหมด", "3. ได้ทรายที่มีขนาดตั้งแต่ 0.05 ถึง 0.1 มิลลิเมตร", "4. ได้ทรายที่มีขนาดตั้งแต่ 0.1 ถึง 0.5 มิลลิเมตร"],
+    answer: 3,
+    hint: "สิ่งที่ผ่านรูตะแกรงต้องมีขนาดเล็กกว่าหรือเท่ากับรูตะแกรงเสมอ"
+  },
+  {
+    id: 7,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "immiscibility_separation",
+    tag_skill: "L3",
+    tag_misconception: "oil_and_water_form_homogeneous_mixture",
+    title: "ข้อที่ 7. หลังฉากบ้านค้าน้ำมันรถยนต์เก่ามีน้ำมันเครื่องหกและน้ำฝนผสมกันเป็นก้อน นักเคมีใช้กระบอกสูบฉีดพิเศษดูดของเหลวส่วนล่างออกไปบรรจุขวด ของเหลวส่วนล่างที่ถูกดูดออกมานี้คืออะไร และใช้หลักการใด",
+    image: "",
+    options: ["1. น้ำมันเครื่อง เนื่องจากมีความหนาแน่นมากกว่าน้ำ", "2. น้ำฝน เนื่องจากมีความหนาแน่นมากกว่าน้ำมันเครื่อง", "3. สารผสมระหว่างน้ำและน้ำมัน เนื่องจากทั้งสองสารละลายกัน", "4. น้ำมันเครื่อง เนื่องจากเป็นของเหลวที่ไม่ละลายน้ำจึงจมลง"],
+    answer: 2,
+    hint: "เปรียบเทียบความหนาแน่นระหว่างน้ำกับน้ำมัน และพิจารณาว่าของเหลวที่หนาแน่นกว่าจะอยู่ตำแหน่งใด"
+  },
+  {
+    id: 8,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "crystallization",
+    tag_skill: "L4",
+    tag_misconception: "crystallization_requires_freezing_temperature",
+    title: "ข้อที่ 8. ในการผลิตน้ำตาลทรายแดงจากน้ำอ้อย โรงงานจะนำน้ำอ้อยที่หวานมาต้มให้เดือดจนน้ำระเหยไปบางส่วน แล้วจึงเทใส่พานให้เย็นตัวลง การทำเช่นนี้มีวัตถุประสงค์หลักเพื่ออะไร",
+    image: "",
+    options: ["1. ทำให้น้ำตาลเกิดปฏิกิริยาการสลายตัวด้วยความร้อนให้น้อยที่สุด", "2. ทำให้ตัวทำละลายระเหยออกไปจนเกินจุดอิ่มตัว ทำให้น้ำตาลแยกตัวเป็นผลึก", "3. ใช้ความร้อนสูงทำลายสิ่งเจือปนสีน้ำตาลออกจากน้ำตาลทราย", "4. ทำให้น้ำตาลเปลี่ยนสถานะจากของเหลวเป็นของแข็งทันทีเพื่อง่ายต่อการบด"],
+    answer: 2,
+    hint: "พิจารณาความสัมพันธ์ระหว่างปริมาณตัวทำละลาย อุณหภูมิ และจุดอิ่มตัวของสารละลาย"
+  },
+  {
+    id: 9,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "decantation_vs_filtration",
+    tag_skill: "L3",
+    tag_misconception: "decantation_removes_all_insoluble_solids",
+    title: "ข้อที่ 9. แม่บ้านคนหนึ่งลืมปิดฝาหม้อต้มน้ำตาล จนน้ำเดือดเลอะเทอะไปทั่วเตา น้ำตาลที่เหลืออยู่ในหม้อจึงถูกไฟอบจนไหม้เกรียมติดก้นหม้อแข็ง การทำความสะอาดหม้อในขั้นตอนแรกเพื่อเอาก้อนคราบเกรียมออก ควรใช้วิธีการใด",
+    image: "",
+    options: ["1. ใส่น้ำแล้วใช้วิธีกรองทันทีเพื่อให้ได้ก้อนเกรียมที่สะอาด", "2. ใส่น้ำแล้วคนให้เข้ากัน รอให้ก้อนเกรียมจมตกก้นแล้วเทน้ำออก (Decantation)", "3. ใส่น้ำร้อนลงไปแล้วใช้แม่เหล็กดูดก้อนคราบออก", "4. นำหม้อไปตั้งไฟอีกครั้งเพื่อให้ก้อนเกรียมเลื่อยออกมา"],
+    answer: 2,
+    hint: "ก้อนคราบเกรียมมีขนาดใหญ่และหนัก การกรองอาจทำให้ตะแกรงอุดตัน ควรใช้หลักการของความหนาแน่นและการตกตะกอน"
+  },
+  {
+    id: 10,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sublimation_application",
+    tag_skill: "L3",
+    tag_misconception: "sublimation_only_works_for_iodine",
+    title: "ข้อที่ 10. ห้องปฏิบัติการตำรวจพบผงสีขาวบนเสื้อผ้าของผู้ต้องสงสัย ซึ่งสงสัยว่าเป็นสารเบนโซอิกแอซิดหรือแป้งที่ใช้ทำยาเสพติด หากทราบว่าเบนโซออกแอซิดระเหิดได้โดยตรง (Sublime) แต่แป้งไม่สามารถระเหิดได้ ตำรวจควรใช้วิธีใดในการตรวจสอบ",
+    image: "",
+    options: ["1. นำผงไปละลายน้ำแล้วตรวจดูความเป็นกรด-เบส", "2. นำผงไปใส่หม้อปิดผนึกแล้วให้ความร้อน สังเกตว่ามีผงเกาะฝาหม้อหรือไม่", "3. นำผงไปใส่ในน้ำมันแล้วสังเกตว่าละลายหรือไม่", "4. ใช้เข็มทิศเหล็กนำมาชี้เพื่อดูสมบัติทางแม่เหล็กของผง"],
+    answer: 2,
+    hint: "วิธีระเหิดจะทำให้สารเปลี่ยนจากของแข็งเป็นก๊าซแล้วกลับมาเกาะตามผิวเย็น โดยไม่ผ่านสถานะของเหลว"
+  },
+  {
+    id: 11,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "fractional_distillation_apparatus",
+    tag_skill: "L4",
+    tag_misconception: "fractional_column_is_just_for_cooling",
+    title: "ข้อที่ 11. ในห้องปฏิบัติการมีสารผสมของเหลว 2 ชนิด จุดเดือดของสาร A คือ 80 องศาเซลเซียส และสาร B คือ 85 องศาเซลเซียส หากต้องการแยกสารทั้งสองออกจากกันให้ได้มากที่สุด นักเรียนควรปรับเปลี่ยนอุปกรณ์ใดจากการกลั่นธรรมดา",
+    image: "",
+    options: ["1. เปลี่ยนหม้อต้มให้มีขนาดใหญ่ขึ้นเพื่อใส่สารผสมให้มาก", "2. ติดตั้งหอคอยกลั่น (Fractionating column) ระหว่างหม้อต้มและคอนเดนเซอร์", "3. ใช้ไฟแก๊สที่มีความร้อนสูงกว่าปกติเพื่อให้เดือดเร็วขึ้น", "4. เปลี่ยนน้ำในคอนเดนเซอร์เป็นน้ำแข็งเพื่อให้เกิดการควบแน่นเร็วขึ้น"],
+    answer: 2,
+    hint: "เมื่อจุดเดือดใกล้เคียงกัน ไอระเหยที่ได้จะเป็นสารผสม ต้องใช้ส่วนที่ช่วยให้เกิดการแยกตัวของไอระเหยหลายๆ รอบ"
+  },
+  {
+    id: 12,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "centrifugation_concept",
+    tag_skill: "L3",
+    tag_misconception: "centrifugation_separates_by_magnetism",
+    title: "ข้อที่ 12. โรงพยาบาลแยกเซลล์เม็ดเลือดแดงออกจากพลาสมา (น้ำเลือด) ของผู้ป่วยเพื่อนำไปบริจาค โดยใส่ขวดเลือดในเครื่องหมุนความเร็วสูง หลักการของการแยกสารในกระบวนการนี้อาศัยอะไร",
+    image: "",
+    options: ["1. ความแตกต่างของคุณสมบัติแม่เหล็กระหว่างเซลล์เม็ดเลือดแดงกับน้ำเลือด", "2. ความแตกต่างของความหนาแน่นและมวลระหว่างส่วนประกอบ ทำให้ตกตะกอนด้วยแรงเหวี่ยง", "3. ความแตกต่างของขนาดโมเลกุลจนสามารถกรองด้วยเยื่อหุ้มเซลล์ได้", "4. ความแตกต่างของจุดหลอมเหลวระหว่างเซลล์เลือดแดงและพลาสมา"],
+    answer: 2,
+    hint: "แรงเหวี่ยงหรือแรงเคนทริฟูกัล จะทำหน้าที่คล้ายกับแรงโน้มถ่วงที่รุนแรงมาก ทำให้สิ่งที่มีมวลมากกว่าถูกยิงออกไปด้านนอก"
+  },
+  {
+    id: 13,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "selective_solvent_extraction",
+    tag_skill: "L4",
+    tag_misconception: "water_is_the_only_solvent_for_extraction",
+    title: "ข้อที่ 13. มีสารผสมของแข็ง 3 ชนิด ได้แก่ แป้ง (ไม่ละลายน้ำและเอทานอล), น้ำตาล (ละลายน้ำ ไม่ละลายเอทานอล) และสารกันบูด (ละลายน้ำและเอทานอล) หากต้องการแยกสารกันบูดออกมาอย่างเดียว ควรใช้ลำดับวิธีการอย่างไร",
+    image: "",
+    options: ["1. ละลายด้วยน้ำ กรอง เก็บตะกอน", "2. ละลายด้วยเอทานอล กรอง เก็บน้ำกรอง", "3. ละลายด้วยน้ำ กรอง นำน้ำกรองไปตกผลึก", "4. ละลายด้วยเอทานอล กรอง นำน้ำกรองไประเหยแห้ง"],
+    answer: 2,
+    hint: "ต้องการเฉพาะสารกันบูด จึงต้องเลือกตัวทำละลายที่สารกันบูดละลาย แต่สารอีก 2 ชนิดไม่ละลาย เพื่อที่จะกรองทิ้งได้เลย"
+  },
+  {
+    id: 14,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "dry_distillation_products",
+    tag_skill: "L4",
+    tag_misconception: "dry_distillation_is_same_as_burning",
+    title: "ข้อที่ 14. การถ่านอบไม้ (Dry Distillation) ทำโดยการนำไม้ไปอบในหม้อปิดผนึกโดยไม่มีอากาศ ผลิตภัณฑ์ที่ได้แบ่งออกเป็น 3 ส่วน คือ แก๊สที่เก็บได้ ของเหลวที่ควบแน่น และของแข็งที่เหลืออยู่ ข้อใดอธิบายถึงหลักการของการแยกสารในกระบวนการนี้ได้ถูกต้อง",
+    image: "",
+    options: ["1. ใช้ความร้อนทำลายพันธะของสารประกอบในไม้ให้แตกตัวเป็นสารต่างชนิดกัน แล้วแยกตามสถานะ", "2. ใช้ความร้อนเพื่อทำให้น้ำในไม้ระเหยออกมาเท่านั้น เหลือของแข็งไว้เป็นถ่าน", "3. ใช้ความร้อนเพื่อหลอมไม้ให้เป็นของเหลวแล้วแยกด้วยวิธีกลั่น", "4. ใช้ปฏิกิริยาการเผาไหม้กับออกซิเจนในอากาศเพื่อสร้างแก๊สและควัน"],
+    answer: 1,
+    hint: "สังเกตคำว่า 'ปิดผนึกโดยไม่มีอากาศ' และผลิตภัณฑ์ที่ได้หลายสถานะ ซึ่งต่างจากการเผาไหม้ปกติ"
+  },
+  {
+    id: 15,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "chromatography_principle",
+    tag_skill: "L3",
+    tag_misconception: "chromatography_separates_by_color_only",
+    title: "ข้อที่ 15. นักเรียนนำปากกามาร์กเกอร์สีดำไปจุดบนกระดาษกรอง แล้วแตะปลายกระดาษให้ลุยลงในน้ำเล็กน้อย พบว่าน้ำซึมขึ้นไปและทำให้สีดำแตกออกเป็นลายสีฟ้าและสีเหลือง หลักการแยกสารในกระบวนการนี้ขึ้นอยู่กับอะไร",
+    image: "",
+    options: ["1. ความแตกต่างของจุดเดือดของสีย้อมแต่ละสี", "2. ความแตกต่างของความเร็วในการละลายน้ำและการดูดซึมติดกับกระดาษของสีย้อมแต่ละสี", "3. ความแตกต่างของความหนาแน่นของโมเลกุลสีย้อมที่ทำให้จมน้ำ", "4. ความแตกต่างของขนาดอนุภาคสีย้อมที่ถูกกรองโดยรูพรุนของกระดาษ"],
+    answer: 2,
+    hint: "การซึมของตัวทำละลาย (น้ำ) จะพาสารที่ละลายไปด้วย แต่สารแต่ละชนิดถูกดึงดูดโดยกระดาษไม่เท่ากัน"
+  },
+  {
+    id: 16,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "magnetic_separation_sequence",
+    tag_skill: "L2",
+    tag_misconception: "magnetic_force_passes_through_all_materials_equally",
+    title: "ข้อที่ 16. มีสารผสมระหว่างเหล็กกล้าและกำมะถัน หากต้องการแยกเหล็กกล้าออกมาโดยไม่ให้เหล็กกล้าเกี่ยวพันกับกำมะถันเลย ควรดำเนินการอย่างไร",
+    image: "",
+    options: ["1. นำแม่เหล็กไปวางบนฝาภาชนะที่บรรจุสารผสมไว้", "2. นำแม่เหล็กจุ่มลงไปในกองสารผสมโดยตรง", "3. ใส่น้ำแล้วใช้แม่เหล็กดูดจากผิวน้ำ", "4. นำสารผสมไปต้มจนละลายแล้วใช้แม่เหล็กดูด"],
+    answer: 1,
+    hint: "ต้องการแยกโดยไม่ให้สัมผัสกันโดยตรง พิจารณาว่าแรงแม่เหล็กสามารถทำงานผ่านวัสดุใดได้บ้าง"
+  },
+  {
+    id: 17,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "azeotrope_misunderstanding",
+    tag_skill: "L4",
+    tag_misconception: "continuous_heating_yields_pure_solvent",
+    title: "ข้อที่ 17. นักเรียนคนหนึ่งพยายามกลั่นสารละลายเอทานอล 95% เพื่อให้ได้เอทานอล 100% โดยการต้มนานๆ และเก็บน้ำที่ควบแน่นได้ไว้เรื่อยๆ ผลการทดลองของนักเรียนคนนี้จะเป็นอย่างไร",
+    image: "",
+    options: ["1. ได้เอทานอล 100% ในท้ายที่สุดเพราะน้ำระเหยหมดก่อน", "2. ได้น้ำบริสุทธิ์ในช่วงแรก แล้วตามด้วยเอทานอล 100%", "3. ไม่สามารถได้เอทานอล 100% เพราะไอระเหยที่เดือดออกมามีสัดส่วนเอทานอล-น้ำคงที่ตลอด", "4. หม้อจะระเบิดเนื่องจากความดันไอน้ำสูงเกินไป"],
+    answer: 3,
+    hint: "ลองนึกถึงคำว่า 'อะซีโอทรอป' ว่ามันส่งผลต่อจุดเดือดและองค์ประกอบของไอระเหยอย่างไร"
+  },
+  {
+    id: 18,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "density_separation_floatation",
+    tag_skill: "L3",
+    tag_misconception: "heavier_objects_always_sink_regardless_of_medium",
+    title: "ข้อที่ 18. โรงงานรีไซเคิลพลาสติกต้องการแยกเศษพลาสติกชนิด HDPE (ความหนาแน่น 0.95 กรัม/ลูกบาศก์เซนติเมตร) ออกจากเศษพลาสติกชนิด PET (ความหนาแน่น 1.38 กรัม/ลูกบาศก์เซนติเมตร) โดยใช้ของเหลวชนิดหนึ่ง ควรใช้ของเหลวใด",
+    image: "",
+    options: ["1. น้ำมันพืช (ความหนาแน่น 0.92 กรัม/ลูกบาศก์เซนติเมตร)", "2. น้ำเปล่า (ความหนาแน่น 1.00 กรัม/ลูกบาศก์เซนติเมตร)", "3. น้ำเกลือเข้มข้น (ความหนาแน่น 1.20 กรัม/ลูกบาศก์เซนติเมตร)", "4. สารละลายน้ำตาลเข้มข้น (ความหนาแน่น 1.40 กรัม/ลูกบาศก์เซนติเมตร)"],
+    answer: 2,
+    hint: "เพื่อให้พลาสติกชนิดหนึ่งลอยและอีกชนิดจม ความหนาแน่นของของเหลวต้องอยู่ระหว่างความหนาแน่นของพลาสติกทั้งสองชนิด"
+  },
+  {
+    id: 19,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "three_component_separation",
+    tag_skill: "L4",
+    tag_misconception: "wrong_order_of_separation_steps",
+    title: "ข้อที่ 19. มีสารผสม 3 ชนิด ได้แก่ เกลือแกง ทราย และผงเหล็ก หากต้องการแยกสารทั้ง 3 ชนิดนี้ออกจากกันอย่างสมบูรณ์ ลำดับของการทำงานที่เหมาะสมที่สุดคือข้อใด",
+    image: "",
+    options: ["1. ละลายน้ำ กรอง นำตะกอนไปใช้แม่เหล็ก นำน้ำกรองไประเหยแห้ง", "2. ใช้แม่เหล็กดูดผงเหล็กออก ละลายที่เหลือด้วยน้ำ กรอง นำน้ำกรองไประเหยแห้ง", "3. ร่อนด้วยตะแกรงเพื่อแยกทราย ละลายที่เหลือด้วยน้ำ ใช้แม่เหล็กดูด ระเหยน้ำ", "4. ใช้แม่เหล็กดูดทรายออก ละลายที่เหลือด้วยน้ำ กรอง ระเหยน้ำ"],
+    answer: 2,
+    hint: "ควรเริ่มจากการแยกสารที่มีคุณสมบัติพิเศษเฉพาะตัวออกก่อน โดยไม่ต้องเปลี่ยนสถานะของสารอื่น"
+  },
+  {
+    id: 20,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "air_separation",
+    tag_skill: "L3",
+    tag_misconception: "air_is_single_substance",
+    title: "ข้อที่ 20. ในโรงงานอุตสาหกรรมที่ผลิตไนโตรเจนและออกซิเจนเหลวจากอากาศ วิธีการที่ใช้คือการบีบอัดอากาศให้เป็นของเหลวแล้วค่อยๆ ให้ความร้อนเพื่อให้ส่วนประกอบระเหยกลับเป็นก๊าซ หลักการของการแยกสารนี้คืออะไร",
+    image: "",
+    options: ["1. การแยกโดยใช้ความแตกต่างของความหนาแน่นของแก๊ส", "2. การแยกโดยใช้ความแตกต่างของจุดเดือดของส่วนประกอบในอากาศ", "3. การแยกโดยใช้คุณสมบัติการละลายน้ำของแก๊สในอากาศ", "4. การแยกโดยใช้ปฏิกิริยาเคมีกับตัวเร่งปฏิกิริยา"],
+    answer: 2,
+    hint: "เมื่ออากาศเป็นของเหลว การให้ความร้อนจะทำให้ธาตุที่มีจุดเดือดต่ำกว่าเปลี่ยนเป็นก๊าซก่อน"
+  },
+  {
+    id: 21,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sieving_error_analysis",
+    tag_skill: "L2",
+    tag_misconception: "sieve_pore_size_matches_particle_size_exactly",
+    title: "ข้อที่ 21. นักเรียนต้องการแยกเมล็ดพันธุ์ข้าวโพดออกจากก้อนดินเล็กๆ จึงใช้ตะแกรงที่มีขนาดรูเท่ากับขนาดเมล็ดข้าวโพดพอดี ผลการร่อนจะเป็นอย่างไร",
+    image: "",
+    options: ["1. ข้าวโพดและดินทั้งหมดตกลงไปด้านล่าง", "2. ดินบางส่วนผ่านลงไป แต่ข้าวโพดและดินขนาดใหญ่ค้างอยู่บนตะแกรง", "3. ข้าวโพดทั้งหมดผ่านลงไป ดินค้างอยู่บนตะแกรง", "4. ข้าวโพดค้างอยู่บนตะแกรง ดินทั้งหมดผ่านลงไปด้านล่าง"],
+    answer: 2,
+    hint: "ขนาดของเมล็ดข้าวโพดในธรรมชาติไม่สม่ำเสมอ และก้อนดินก็มีหลายขนาดเช่นกัน"
+  },
+  {
+    id: 22,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "distillation_of_alcoholic_beverage",
+    tag_skill: "L3",
+    tag_misconception: "boiling_removes_alcohol_but_leaves_water_intact",
+    title: "ข้อที่ 22. การต้มเหล้าองุ่นจนเดือดแล้วนำไอน้ำที่เกิดขึ้นมาควบแน่น จะทำให้ได้ของเหลวที่มีรสชาติและส่วนประกอบแตกต่างจากเหล้าองุ่นเดิมอย่างไร",
+    image: "",
+    options: ["1. ได้น้ำบริสุทธิ์เพราะแอลกอฮอล์ระเหยหายหมดเมื่อเดือด", "2. ได้ของเหลวที่มีปริมาณแอลกอฮอล์สูงขึ้นเพราะแอลกอฮอล์ระเหยก่อนน้ำ", "3. ได้น้ำองุ่นบริสุทธิ์เพราะน้ำระเหยก่อนแอลกอฮอล์", "4. ได้ของเหลวที่มีสารแขวนลอยและสีจากองุ่นทั้งหมด"],
+    answer: 2,
+    hint: "เปรียบเทียบจุดเดือดของเอทานอลและน้ำ สารที่มีจุดเดือดต่ำกว่าจะกลายเป็นไอระเหยเป็นส่วนใหญ่ในช่วงแรก"
+  },
+  {
+    id: 23,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "filtration_residue_vs_filtrate",
+    tag_skill: "L2",
+    tag_misconception: "filtrate_is_the_solid_left_on_paper",
+    title: "ข้อที่ 23. นักเรียนผสมปูนขาวกับน้ำเข้าด้วยกัน พบว่าปูนขาวบางส่วนจมตกก้นและบางส่วนลอยน้ำ เมื่อนำสารผสมนี้ไปกรองด้วยกระดาษกรอง สารที่อยู่บนกระดาษกรองเรียกว่าอะไร",
+    image: "",
+    options: ["1. น้ำกรอง (Filtrate)", "2. ตะกอน (Residue)", "3. สารละลายอิ่มตัว", "4. สารผสมเนื้อเดียว"],
+    answer: 2,
+    hint: "สิ่งที่ถูกกั้นไว้โดยกระดาษกรองซึ่งมีขนาดใหญ่เกินกว่าจะผ่านรูพรุน คือส่วนประกอบใด"
+  },
+  {
+    id: 24,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "seawater_desalination",
+    tag_skill: "L3",
+    tag_misconception: "boiling_seawater_makes_salt_disappear",
+    title: "ข้อที่ 24. ในเกาะแห่งหนึ่งขาดแคลนน้ำจืด แต่มีน้ำทะเลล้อมรอบ หากต้องการใช้หลักการทางวิทยาศาสตร์เพื่อแปลงน้ำทะเลให้เป็นน้ำจืดบริโภคได้ ควรใช้วิธีการใด",
+    image: "",
+    options: ["1. กรองน้ำทะเลด้วยกระดาษกรองหลายชั้น", "2. ต้มน้ำทะเลให้เดือดแล้วนำไอน้ำไปควบแน่น", "3. ใช้แม่เหล็กดึงเกลือออกจากน้ำทะเล", "4. ร่อนน้ำทะเลผ่านตะแกรงขนาดเล็กมากๆ"],
+    answer: 2,
+    hint: "เกลือในน้ำทะเลละลายอยู่ในระดับโมเลกุล วิธีไหนที่สามารถแยกตัวทำละลายออกมาได้โดยไม่มีเกลือตามมา"
+  },
+  {
+    id: 25,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sublimation_precaution",
+    tag_skill: "L4",
+    tag_misconception: "more_heat_always_improves_purity",
+    title: "ข้อที่ 25. ในการแยกเกล็ดแนฟทาลีนออกจากทรายโดยวิธีระเหิด นักเรียนคนหนึ่งใช้ความร้อนจัดจนก้นหม้อไหม้ร้อนเกินไป ทำให้เกล็ดแนฟทาลีนที่เกาะฝาหม้อมีสิ่งเจือปนมากขึ้น สาเหตุเกิดจากอะไร",
+    image: "",
+    options: ["1. ทรายมีจุดหลอมเหลวต่ำกว่าที่คาดไว้ ทำให้ทรายระเหยไปด้วย", "2. ความร้อนสูงเกินไปทำให้แนฟทาลีนเกิดการสลายตัวเป็นก๊าซอื่นและไม่ควบแน่นกลับ", "3. ความร้อนสูงทำให้แนฟทาลีนหลอมเหลวก่อนจะระเหิด ทำให้เลอะเทอะกับทราย", "4. ฝาหม้อร้อนเกินไปทำให้แนฟทาลีนที่ควบแน่นระเหยกลับไปหม้อทันที"],
+    answer: 3,
+    hint: "แนฟทาลีนหากได้รับความร้อนสูงมากๆ อาจเปลี่ยนสถานะเป็นของเหลวก่อนที่จะระเหย ซึ่งจะทำให้เกิดปัญหาในการแยกกับของแข็งอีกชนิด"
+  },
+  {
+    id: 26,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "fractional_column_mechanism",
+    tag_skill: "L4",
+    tag_misconception: "fractional_column_cools_vapors_to_liquid_immediately",
+    title: "ข้อที่ 26. ภายในหอคอยกลั่น (Fractionating column) มีลูกแก้วหรือแผ่นที่ทำให้ไอระเหยต้องสัมผัสผิวมากขึ้น ไอระเหยที่มีจุดเดือดสูงกว่ามีพฤติกรรมอย่างไรภายในหอคอยนี้",
+    image: "",
+    options: ["1. จะลอยขึ้นสู่ส่วนบนสุดของหอคอยทันทีเพื่อออกไปควบแน่น", "2. จะควบแน่นกลับเป็นของเหลวแล้วไหลลงมาหม้อต้มก่อนที่จะไปถึงส่วนบน", "3. จะทำปฏิกิริยากับลูกแก้วแล้วเปลี่ยนเป็นสารชนิดใหม่", "4. จะถูกกักเก็บไว้ที่ก้นหอคอยจนกว่าสารจุดเดือดต่ำจะหมดไป"],
+    answer: 2,
+    hint: "จุดเดือดสูงหมายถึงต้องการความร้อนมากกว่าในการเป็นก๊าซ พิจารณาว่าอุณหภูมิในหอคอยจะลดลงเรื่อยๆ ตามระดับความสูงอย่างไร"
+  },
+  {
+    id: 27,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "steam_distillation_concept",
+    tag_skill: "L3",
+    tag_misconception: "steam_distillation_is_same_as_simple_distillation",
+    title: "ข้อที่ 27. ในการสกัดน้ำมันหอมระเหยจากดอกกุหลาบ โดยทั่วไปจะใช้วิธีกลั่นด้วยไอน้ำ (Steam Distillation) คือพ่นไอน้ำผ่านกลีบกุหลาบ ทำไมจึงต้องใช้ไอน้ำแทนการต้มกลีบกุหลาบโดยตรง",
+    image: "",
+    options: ["1. เพื่อให้กลีบกุหลาบสลายตัวเร็วขึ้นด้วยความดันของไอน้ำ", "2. เพื่อลดอุณหภูมิการเดือดของน้ำมันหอมระเหยลงมา ป้องกันการสลายตัวจากความร้อนสูง", "3. เพื่อทำให้น้ำมันหอมระเหยละลายน้ำได้ดีขึ้นกว่าการต้มธรรมดา", "4. เพื่อเพิ่มแรงดันในหม้อทำให้น้ำมันหอมระเหยผ่านกระดาษกรองได้"],
+    answer: 2,
+    hint: "น้ำมันหอมระเหยมักมีโมเลกุลใหญ่และอาจเสียสมบัติถ้าต้มด้วยความร้อนสูงตรงๆ ไอน้ำช่วยลดอุณหภูมิที่ต้องใช้ในการระเหยได้อย่างไร"
+  },
+  {
+    id: 28,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "property_identification_for_separation",
+    tag_skill: "L2",
+    tag_misconception: "color_is_a_reliable_property_for_all_separations",
+    title: "ข้อที่ 28. การแยกสารผสมระหว่างทรายและเกลือ โดยใช้วิธีละลายน้ำแล้วกรอง นักเรียนใช้คุณสมบัติทางเคมีใดของทั้งสองสารเป็นหลักในการแยก",
+    image: "",
+    options: ["1. ความแตกต่างของสี", "2. ความแตกต่างของความสามารถในการละลายน้ำ", "3. ความแตกต่างของความหนาแน่น", "4. ความแตกต่างของจุดหลอมเหลว"],
+    answer: 2,
+    hint: "กระบวนการ 'ละลายน้ำแล้วกรอง' จะประสบความสำเร็จได้อย่างไร ถ้าทั้งสองสารมีพฤติกรรมต่อน้ำเหมือนกัน"
+  },
+  {
+    id: 29,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sublimation_application_calamine",
+    tag_skill: "L3",
+    tag_misconception: "heat_always_destroys_organic_compounds",
+    title: "ข้อที่ 29. ยาประเภทหนึ่งมีส่วนผสมของแคลามีน (สังกะสีออกไซด์) และแป้ง หากต้องการตรวจวัดปริมาณแคลามีนที่แท้จริงในยาเม็ดนี้ สามารถใช้วิธีการทางเคมีทางกายภาพอย่างไรได้",
+    image: "",
+    options: ["1. ละลายด้วยน้ำแล้วกรอง เพราะแป้งไม่ละลายน้ำ", "2. ใช้แม่เหล็กดูดแคลามีนออก เพราะสังกะสีมีสมบัติเป็นโลหะ", "3. นำยาไประเหยแห้ง เพราะแป้งจะระเหยหายไปหมดเหลือแค่แคลามีน", "4. นำยาไประเหิด เพราะแคลามีนเปลี่ยนจากของแข็งเป็นก๊าซโดยตรงได้"],
+    answer: 3,
+    hint: "แคลามีน (สังกะสีออกไซด์) เป็นสารที่มีคุณสมบัติพิเศษเกี่ยวกับความร้อนที่เรียกว่า Sublimation เช่นเดียวกับไอโอดีน"
+  },
+  {
+    id: 30,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "complex_flowchart_analysis",
+    tag_skill: "L4",
+    tag_misconception: "misinterpreting_flowchart_arrows",
+    title: "ข้อที่ 30. กำหนดแผนภาพการแยกสารผสม 4 ชนิด (ก, ข, ค, ง) ดังนี้\n- ขั้นที่ 1: นำสารผสมไปร่อนด้วยตะแกรง ได้ สาร ก และ ข อยู่บนตะแกรง, สาร ค และ ง อยู่ใต้ตะแกรง\n- ขั้นที่ 2: นำ ก และ ข ไปใส่น้ำ คนให้เข้ากัน กรอง ได้ตะกอนคือ ก น้ำกรองมี ข\n- ขั้นที่ 3: นำ ค และ ง ไปใช้แม่เหล็ก ได้สารที่ดูดติดแม่เหล็กคือ ค\nหากทราบว่า ง คือทราย สมบัติที่เป็นไปได้ของสาร ก และ ข คือข้อใด",
+    image: "",
+    options: ["1. ก ละลายน้ำและมีขนาดใหญ่, ข ไม่ละลายน้ำและมีขนาดใหญ่", "2. ก ไม่ละลายน้ำและมีขนาดใหญ่, ข ละลายน้ำและมีขนาดใหญ่", "3. ก ละลายน้ำและมีขนาดเล็ก, ข ไม่ละลายน้ำและมีขนาดเล็ก", "4. ก ดูดแม่เหล็กและละลายน้ำ, ข ไม่ดูดแม่เหล็กและไม่ละลายน้ำ"],
+    answer: 2,
+    hint: "จับคู่สมบัติจากแผนภาพทีละขั้นตอน: ขั้น 1 บอกขนาด, ขั้น 2 บอกความสามารถในการละลายน้ำของกลุ่มบนตะแกรง"
+  }
+
+
+];
+
+    const extraQuestions = [
+{
+    id: 1,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "dissolving_misconception",
+    tag_skill: "L2",
+    tag_misconception: "dissolving_means_vanishing",
+    title: "ข้อท้าทายที่ 1. นักเรียนคนหนึ่งนำน้ำตาลทรายไปละลายในน้ำแล้วกล่าวว่า 'น้ำตาลทรายหายไปหมดแล้วเพราะกลายเป็นน้ำ' ข้อใดเป็นการชี้แจงความเข้าใจผิดที่ถูกต้องที่สุด",
+    image: "",
+    options: ["1. น้ำตาลทรายหายไปจริงๆ เพราะเกิดปฏิกิริยาเคมีกับน้ำกลายเป็นสารใหม่", "2. น้ำตาลทรายยังคงอยู่ แต่แตกตัวเป็นอนุภาคเล็กๆ กระจายอยู่ในช่องว่างระหว่างโมเลกุลน้ำ", "3. น้ำตาลทรายซ่อนตัวอยู่ในน้ำในรูปของก้อนเล็กๆ ที่ตาเปล่ามองไม่เห็น", "4. น้ำตาลทรายถูกน้ำกลืนหายไปทาง物理 เหมือนหลุมดำกลืนกาลักษณ์"],
+    answer: 2,
+    hint: "พิจารณานิยามของการละลายว่าเกิดขึ้นที่ระดับอนุภาคอย่างไร"
+  },
+  {
+    id: 2,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "filtration_terminology_error",
+    tag_skill: "L3",
+    tag_misconception: "filtrate_is_the_solid_residue",
+    title: "ข้อท้าทายที่ 2. ในรายงานวิทยาศาสตร์ นักเรียนเขียนว่า 'หลังกรองสารละลายโพแทสเซียมไนเตรตที่มีผงดินปนอยู่ ได้ Filtrate คือผงดินสีน้ำตาล' ประโยคนี้ผิดพลาดอย่างไร",
+    image: "",
+    options: ["1. ผิดตรงที่ Filtrate คือสารละลายโพแทสเซียมไนเตรตที่ผ่านกระดาษกรอง ไม่ใช่ผงดิน", "2. ผิดตรงที่คำว่า Filtrate ใช้ได้กับของแข็งเท่านั้น ไม่ใช่สารละลาย", "3. ผิดตรงที่โพแทสเซียมไนเตรตไม่สามารถละลายน้ำได้ จึงไม่มีสารละลายเกิดขึ้น", "4. ผิดตรงที่ผงดินไม่สามารถถูกกรองออกมาจากสารละลายได้"],
+    answer: 1,
+    hint: "ทบทวนคำศัพท์ภาษาอังกฤษที่ใช้เรียกของเหลวที่ไหลผ่านกระดาษกรอง"
+  },
+  {
+    id: 3,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "distillation_limitation",
+    tag_skill: "L4",
+    tag_misconception: "all_liquid_mixtures_can_be_distilled",
+    title: "ข้อท้าทายที่ 3. ข้อใดเป็นคู่ของสารผสมเหลวที่ไม่สามารถแยกได้ด้วยวิธีการกลั่น (Distillation) ไม่ว่าจะใช้หอคอยกลั่นหรือไม่ก็ตาม",
+    image: "",
+    options: ["1. น้ำและเอทานอล", "2. น้ำมันหอมระเหยและน้ำ", "3. น้ำมันพืชและน้ำ", "4. น้ำและกรดเกลือ (HCl) เข้มข้น"],
+    answer: 4,
+    hint: "คิดดูว่ากรดเกลือในน้ำจะมีพฤติกรรมเป็นก๊าซหรือของเหลวเมื่อถูกต้ม และมันจะกลับมาเป็นของเหลวเดิมได้หรือไม่เมื่อควบแน่น"
+  },
+  {
+    id: 4,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sublimation_limitation",
+    tag_skill: "L3",
+    tag_misconception: "sublimation_can_extract_dissolved_salts",
+    title: "ข้อท้าทายที่ 4. นักเรียนต้องการแยกเกลือแกงออกจากน้ำทะเลจึงนำน้ำทะเลไปผ่านกระบวนการระเหิด (Sublimation) ผลการทดลองจะเป็นอย่างไร",
+    image: "",
+    options: ["1. ได้เกลือแกงบริสุทธิ์เกาะบนฝาภาชนะเย็น", "2. ไม่ได้เกลือแกง เพราะเกลือแกงไม่มีคุณสมบัติระเหิดได้โดยตรง", "3. ได้น้ำบริสุทธิ์เกาะบนฝาภาชนะเย็น", "4. ได้ทั้งน้ำบริสุทธิ์และเกลือแกงแยกกันอยู่คนละจุด"],
+    answer: 2,
+    hint: "ตรวจสอบว่าคุณสมบัติทางกายภาพของเกลือโซเดียมคลอไรด์ตรงกับเงื่อนไขของการเปลี่ยนสถานะจากของแข็งเป็นก๊าซโดยตรงหรือไม่"
+  },
+  {
+    id: 5,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "magnetic_property_limitation",
+    tag_skill: "L2",
+    tag_misconception: "all_metals_are_magnetic",
+    title: "ข้อท้าทายที่ 5. โรงงานรีไซเคิลต้องการแยกเศษกระป๋องอะลูมิเนียมออกจากเศษกระป๋องเหล็ก แต่พนักงานใช้แม่เหล็กดูดแล้วพบว่าเศษกระป๋องทั้งสองชนิดยังคงผสมกันอยู่ สาเหตุที่แท้จริงคืออะไร",
+    image: "",
+    options: ["1. แม่เหล็กที่ใช้มีกำลังอ่อนเกินไป", "2. อะลูมิเนียมไม่มีคุณสมบัติดูดแม่เหล็ก แต่เหล็กดูดแม่เหล็ก ดังนั้นต้องใช้วิธีอื่นแยกอะลูมิเนียม", "3. ทั้งอะลูมิเนียมและเหล็กต่างก็ดูดแม่เหล็กเหมือนกัน", "4. กระป๋องทั้งสองชนิดมีสนิมเกาะจนแม่เหล็กทำงานได้ไม่ดี"],
+    answer: 2,
+    hint: "โลหะทุกชนิดไม่ได้มีสมบัติทางแม่เหล็กเหมือนกัน ต้องพิจารณาตำแหน่งในตารางธาตุ"
+  },
+  {
+    id: 6,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "mass_calculation_separation",
+    tag_skill: "L4",
+    tag_misconception: "mass_is_not_conservative_in_separation",
+    title: "ข้อท้าทายที่ 6. นักเรียนนำสารผสมระหว่างเกลือแกง 20 กรัม และทราย 30 กรัม ไปแยกโดยใช้น้ำ 100 กรัม ละลายแล้วกรอง นำน้ำกรองไประเหยแห้งจนหมด นักเรียนควรได้เกลือแกงกลับคืนมากี่กรัม",
+    image: "",
+    options: ["1. 20 กรัม", "2. น้อยกว่า 20 กรัม เนื่องจากเกลือละลายน้ำหายไปบางส่วน", "3. มากกว่า 20 กรัม เนื่องจากมีน้ำติดมาด้วย", "4. 50 กรัม เนื่องจากทรายผสมอยู่ด้วย"],
+    answer: 1,
+    hint: "กฎอนุรักษ์มวล การแยกสารทางกายภาพไม่ได้สร้างหรือทำลายมวลของสารแท้จริง"
+  },
+  {
+    id: 7,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "evaporation_invisibility",
+    tag_skill: "L3",
+    tag_misconception: "evaporation_leaves_no_trace_if_colorless",
+    title: "ข้อท้าทายที่ 7. นักเรียนนำน้ำตาลไขม้า (ซึ่งเป็นของแข็งสีขาว) ไปละลายในน้ำจนได้สารละลายใส แล้วนำไประเหยแห้ง นักเรียนคนนี้อาจเข้าใจผิดว่าผลลัพธ์หลังระเหยเป็นอย่างไร",
+    image: "",
+    options: ["1. ภาชนะจะว่างเปล่าเพราะน้ำตาลไขม้าระเหยไปพร้อมน้ำ", "2. ภาชนะจะมีของแข็งสีขาวคือน้ำตาลไขม้าเหลืออยู่", "3. ภาชนะจะมีน้ำเหลืออยู่เล็กน้อยเพราะน้ำตาลไขม้าดูดความชื้น", "4. ภาชนะจะแตกเพราะน้ำตาลไขม้าขยายตัวเมื่อแห้ง"],
+    answer: 1,
+    hint: "เนื่องจากน้ำตาลไขม้าละลายน้ำได้ดีจนเป็นสารละลายใส นักเรียนอาจสับสนระหว่างตัวทำละลายกับตัวถูกละลายว่าอะไรระเหยไปบ้าง"
+  },
+  {
+    id: 8,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "sieving_dissolved_solids",
+    tag_skill: "L2",
+    tag_misconception: "sieve_can_filter_dissolved_molecules",
+    title: "ข้อท้าทายที่ 8. นักเรียนต้องการแยกน้ำตาลทรายออกจากน้ำเชื่อม จึงเทน้ำเชื่อมผ่านตะแกรงที่มีรูเล็กมากๆ ผลการทดลองจะเป็นอย่างไร",
+    image: "",
+    options: ["1. ได้น้ำตาลทรายค้างบนตะแกรงและน้ำบริสุทธิงผ่านลงไป", "2. น้ำเชื่อมผ่านตะแกรงไปทั้งหมด เพราะน้ำตาลละลายหมดแล้วไม่ใช่ของแข็ง", "3. ตะแกรงจะอุดตันเพราะน้ำตาลเกาะกันเป็นก้อน", "4. ได้น้ำตาลทรายบางส่วนและน้ำเชื่อมบางส่วนแยกกันอยู่"],
+    answer: 2,
+    hint: "สารที่ละลายหมดแล้วจะแยกตัวเป็นไอออนหรือโมเลกุลขนาดเล็กมากๆ ซึ่งตะแกรงไม่สามารถกั้นได้"
+  },
+  {
+    id: 9,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "decantation_efficiency",
+    tag_skill: "L4",
+    tag_misconception: "decantation_yields_perfectly_clear_liquid",
+    title: "ข้อท้าทายที่ 9. หลังจากเทของเหลวออกจากของแข็งตะกอนโดยวิธีการเท (Decantation) นักเรียนพบว่าของเหลวที่เทออกมายังมีสิ่งแขวนลอยปนอยู่เล็กน้อย ข้อใดอธิบายได้ดีที่สุดว่าทำไมการเทจึงไม่ให้ความบริสุทธิ์ 100%",
+    image: "",
+    options: ["1. เพราะการเททำให้เกิดคลื่นพื้นผิวดึงเอาของแข็งบางส่วนที่จมช้าลอยตามมา", "2. เพราะของแข็งเหล่านั้นมีความหนาแน่นน้อยกว่าของเหลว", "3. เพราะของเหลวระเหยเกิดแก๊สพุ่งขึ้นมาพร้อมกับการเท", "4. เพราะอุณหภูมิของของเหลวเปลี่ยนแปลงระหว่างการเท"],
+    answer: 1,
+    hint: "พิจารณาการเคลื่อนไหวของไหล (Fluid dynamics) ระหว่างการเทที่อาจทำให้ตะกอนละเอียดลอยขึ้นมา"
+  },
+  {
+    id: 10,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "hydrate_vs_evaporation",
+    tag_skill: "L4",
+    tag_misconception: "heating_hydrate_just_evaporates_water",
+    title: "ข้อท้าทายที่ 10. การต้มน้ำประเภท 'น้ำแข็งผง' (Blue vitriol - CuSO4·5H2O) จนน้ำระเหยหมด จะได้ผงสีขาว (CuSO4) ที่แตกต่างจากสารตั้งต้น กระบวนการนี้ต่างจากการระเหยแห้งของน้ำเกลืออย่างไร",
+    image: "",
+    options: ["1. การระเหยแห้งน้ำเกลือเปลี่ยนสถานะของน้ำ แต่การต้มน้ำประเภทนี้ทำลายโครงสร้างผลึกและเปลี่ยนสภาพเคมี", "2. ไม่แตกต่างกัน เพราะทั้งสองกระบวนการต่างก็ระเหยน้ำออกไปหมด", "3. การต้มน้ำประเภทนี้ทำให้น้ำระเหยไปพร้อมกับทองแดง", "4. การระเหยแห้งน้ำเกลือต้องใช้ความร้อนสูงกว่า"],
+    answer: 1,
+    hint: "น้ำใน 'น้ำแข็งผง' ไม่ใช่น้ำธรรมดาที่ละลายอยู่ แต่เป็นน้ำในโครงสร้างผลึก (Water of crystallization) ซึ่งการเอาออกจะเปลี่ยนสีและสมบัติ"
+  },
+  {
+    id: 11,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "boiling_point_mixture_misconception",
+    tag_skill: "L3",
+    tag_misconception: "boiling_point_of_mixture_is_average",
+    title: "ข้อท้าทายที่ 11. สารผสมระหว่างของเหลว A (จุดเดือด 50°C) และของเหลว B (จุดเดือด 100°C) อยู่ในหม้อต้ม หากต้มสารผสมนี้ อุณหภูมิของสารผสมที่เริ่มเดือดจะเท่ากับเท่าใด",
+    image: "",
+    options: ["1. 75°C (ค่าเฉลี่ยของ 50 และ 100)", "2. 50°C (ต่ำกว่าจุดเดือดของสารทั้งสอง)", "3. 100°C (สูงกว่าจุดเดือดของสารทั้งสอง)", "4. ใกล้เคียง 50°C แต่ไม่ถึง 100°C"],
+    answer: 4,
+    hint: "สารผสมจะเริ่มเดือดเมื่อความดันไอระเหยรวมเท่ากับความดันบรรยากาศ ซึ่งโดยทั่วไปจะเริ่มที่จุดเดือดของสารที่มีจุดเดือดต่ำสุด"
+  },
+  {
+    id: 12,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "homogeneous_mixture_filtration",
+    tag_skill: "L3",
+    tag_misconception: "filtration_can_separate_homogeneous_mixtures",
+    title: "ข้อท้าทายที่ 12. น้ำมันหอมระเหยและน้ำเป็นสารผสมเนื้อเดียวหรือสารผสมเนื้อต่าง และสามารถแยกออกจากกันด้วยวิธีกรองได้หรือไม่",
+    image: "",
+    options: ["1. เป็นสารผสมเนื้อเดียว แยกได้ด้วยวิธีกรอง", "2. เป็นสารผสมเนื้อต่าง แยกได้ด้วยวิธีกรอง", "3. เป็นสารผสมเนื้อต่าง แยกไม่ได้ด้วยวิธีกรอง", "4. เป็นสารผสมเนื้อเดียว แยกไม่ได้ด้วยวิธีกรอง"],
+    answer: 3,
+    hint: "จงสังเกตว่าน้ำมันและน้ำมองเห็นขอบเขตแยกกันได้หรือไม่ และขนาดของหยดน้ำมันเทียบกับรูพรุนกระดาษกรอง"
+  },
+ {
+    id: 13,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "four_component_flowchart",
+    tag_skill: "L4",
+    tag_misconception: "misinterpreting_multiple_separation_steps",
+    title: "ข้อท้าทายที่ 13. มีสารผสม 4 ชนิด ได้แก่ แป้ง ทราย เกลือ และผงเหล็ก หากนำไปผ่านกระบวนการ 3 ขั้นตอน ได้แก่ (1) ละลายน้ำ (2) กรอง (3) ใช้แม่เหล็ก หากต้องการแยกทรายออกมาเพียงอย่างเดียว ควรเก็บทรายจากขั้นตอนใด",
+    image: "",
+    options: ["1. ขั้นตอนที่ 1 ก่อนนำไปผสมน้ำ", "2. ขั้นตอนที่ 2 จากสิ่งที่ค้างบนกระดาษกรอง", "3. ขั้นตอนที่ 3 จากสิ่งที่ไม่ดูดแม่เหล็ก", "4. เก็บจากขั้นตอนที่ 2 แล้วนำไปผ่านขั้นตอนที่ 3 อีกที"],
+    answer: 2,
+    hint: "ลองจินตนาการว่าเมื่อผสมน้ำแล้ว อะไรละลาย อะไรไม่ละลาย แล้วสิ่งที่ไม่ละลายจะถูกจับโดยอะไร"
+  },
+{
+    id: 14,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "crystallization_vs_freezing",
+    tag_skill: "L2",
+    tag_misconception: "crystallization_is_just_freezing_liquid",
+    title: "ข้อท้าทายที่ 14. ข้อใดแยกความแตกต่างระหว่าง 'การตกผลึก' (Crystallization) และ 'การแข็งตัว' (Freezing) ได้ถูกต้องที่สุด",
+    image: "",
+    options: ["1. ทั้งสองวิธีเหมือนกันคือการทำให้ของเหลวเปลี่ยนเป็นของแข็งด้วยความเย็น", "2. การตกผลึกเกิดจากการระเหยตัวทำละลายออก แต่การแข็งตัวเกิดจากการลดอุณหภูมิของตัวถูกละลายเอง", "3. การตกผลึกใช้ได้กับสารอนินทรีย์เท่านั้น การแข็งตัวใช้ได้กับสารออร์แガนิกเท่านั้น", "4. การตกผลึกทำให้ได้ของแข็งผสมน้ำ แต่การแข็งตัวทำให้ได้ของแข็งแห้ง"],
+    answer: 2,
+    hint: "พิจารณาว่าในการตกผลึก อะไรคือสิ่งที่ลดลง (ตัวทำละลาย) เทียบกับในการแข็งตัว อะไรคือสิ่งที่สูญเสียความร้อน"
+  },
+  {
+    id: 15,
+    domain: "CHEM",
+    content: "การแยกสาร",
+    tag_content: "steam_distillation_mechanism",
+    tag_skill: "L4",
+    tag_misconception: "steam_carries_oil_by_dissolving_it",
+    title: "ข้อท้าทายที่ 15. ในการกลั่นด้วยไอน้ำ (Steam Distillation) น้ำมันหอมระเหยซึ่งไม่ละลายน้ำและมีจุดเดือดสูงมาก สามารถระเหยออกมากับไอน้ำได้ ผลลัพธ์ที่ได้คือน้ำมันหอมระเหยลอยน้ำอยู่ด้านบน น้ำอยู่ด้านล่าง ปรากฏการณ์นี้เกิดจากอะไร",
+    image: "",
+    options: ["1. น้ำมันหอมระเหยละลายในไอน้ำจนเป็นเนื้อเดียวกันแล้วแยกกันเมื่อเย็น", "2. ไอน้ำให้ความร้อนแก่น้ำมันจนถึงจุดเดือดของมันเอง", "3. ไอน้ำและไอน้ำมันรวมตัวกันทำให้ความดันไอรวมเท่าความดันบรรยากาศ ทำให้เดือดที่อุณหภูมิต่ำกว่าจุดเดือดจริง", "4. น้ำมันหอมระเหยมีความหนาแน่นต่วกว่าน้ำจึงลอยขึ้นด้านบน"],
+    answer: 3,
+    hint: "ทบทวนกฎของดาลตันเกี่ยวกับความดันไอรวม (Partial pressures) และนำมาใช้อธิบายการลดจุดเดือน"
+  }
+     ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)-เอาออก
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+//    }
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+          //localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)-เอาออก
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+      document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3>
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

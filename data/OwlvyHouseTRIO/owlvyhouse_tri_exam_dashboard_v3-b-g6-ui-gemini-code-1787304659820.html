@@ -234,7 +234,7 @@
     box-shadow: var(--shadow-soft);
   }
   table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-  thead th { 
+thead th { 
     text-align: center; 
     padding: 14px 10px; 
     font-weight: 800; 
@@ -244,11 +244,28 @@
     border-bottom: 2px solid var(--line); 
     white-space: nowrap; 
   }
-  thead th:first-child { text-align: left; padding-left: 18px; }
+  thead th:first-child { 
+    text-align: left; 
+    padding-left: 18px; 
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: #EEF2FF;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  }
   thead th .sub { display: block; font-weight: 500; font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
   tbody td { text-align: center; padding: 12px 10px; border-top: 1px solid var(--line); }
-  tbody td:first-child { text-align: left; font-weight: 700; padding-left: 18px; color: var(--ink); }
-  
+  tbody td:first-child { 
+    text-align: left; 
+    font-weight: 700; 
+    padding-left: 18px; 
+    color: var(--ink); 
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--paper);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  }  
   .badge { display: inline-block; border-radius: 8px; padding: 4px 10px; font-weight: 700; font-size: 12.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
   .badge.ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #A7F3D0; }
   .badge.warn { background: var(--warn-bg); color: #D97706; border: 1px solid #FDE68A; }

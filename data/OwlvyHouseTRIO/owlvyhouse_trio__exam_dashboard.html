@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผลทดสอบผ่าน OwlvyHouse Adaptive TRIO : AI Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF1F6;
+    --paper: #FFFFFF;
+    --line: #DCE1EB;
+    --ink: #1B2340;
+    --ink-soft: #5B6478;
+    --gold: #E3A62F;
+    --gold-soft: #FBEBC7;
+    --live: #2E9E5B;
+    --cached: #C1662F;
+    --danger: #C0392B;
+    --danger-bg: #FBEAE8;
+    --warn: #C1662F;
+    --warn-bg: #FDF1E6;
+    --ok: #2E9E5B;
+    --ok-bg: #E9F7EF;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 8% 4%, rgba(91,95,239,0.07), transparent 40%),
+      radial-gradient(circle at 92% 0%, rgba(227,166,47,0.10), transparent 38%);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Thai', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3 { font-family: 'Kanit', 'IBM Plex Sans Thai', sans-serif; margin: 0; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+
+  header.top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  header.top h1 { font-size: clamp(19px, 2.6vw, 25px); font-weight: 700; line-height: 1.25; }
+
+  .source-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 9px 14px; margin-bottom: 20px; font-size: 12.5px; color: var(--ink-soft); }
+  .source-bar .badge { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12px; }
+  .source-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cached); flex: none; }
+  .source-bar.live .dot { background: var(--live); animation: pulse 1.8s infinite; }
+  .source-bar.live .badge { color: var(--live); }
+  .source-bar.cached .badge { color: var(--cached); }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+  .refresh-btn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 5px 12px; font-family: 'IBM Plex Sans Thai'; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink); }
+  .refresh-btn:hover { border-color: var(--ink); }
+  .refresh-btn:disabled { opacity: .5; cursor: default; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 760px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi .label { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+  .kpi .value { font-family:'Kanit'; font-size: 24px; font-weight: 800; margin-top: 8px; }
+  .kpi .value small { font-size: 12.5px; font-weight: 500; color: var(--ink-soft); }
+  .kpi.danger { background: var(--danger-bg); } .kpi.danger .value { color: var(--danger); }
+  .kpi.ok { background: var(--ok-bg); } .kpi.ok .value { color: var(--ok); }
+
+  .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .filter-bar label { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  select { border: 1.5px solid var(--line); border-radius: 8px; padding: 7px 10px; font-family: 'IBM Plex Sans Thai'; font-size: 13.5px; color: var(--ink); background: #fff; min-width: 170px; }
+
+  .panel { background: var(--gold-soft); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 22px; }
+  .panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .panel-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: 'Kanit'; font-size: 14px; flex: none; }
+  .panel-name { font-family: 'Kanit'; font-weight: 700; font-size: 17px; }
+  .panel-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 12px; }
+  .set-card { background: #fff; border-radius: var(--radius-sm); padding: 12px 14px; }
+  .set-card .set-title { font-weight: 700; font-size: 13.5px; margin-bottom: 6px; }
+  .set-card .attempt-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 3px 0; color: var(--ink-soft); }
+  .set-card .attempt-row + .attempt-row { border-top: 1px dashed var(--line); }
+  .set-card .attempt-row b { color: var(--ink); font-weight: 600; }
+  .set-card .set-summary { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-soft); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .set-card.empty { color: var(--ink-soft); font-size: 12.5px; }
+
+  h2.section-title { font-size: 17px; font-weight: 700; margin: 26px 0 10px; }
+
+  .matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: center; padding: 10px 8px; font-weight: 700; color: var(--ink-soft); background: #F5F7FB; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  thead th:first-child { text-align: left; }
+  thead th .sub { display: block; font-weight: 400; font-size: 10.5px; }
+  tbody td { text-align: center; padding: 8px; border-top: 1px solid var(--line); }
+  tbody td:first-child { text-align: left; font-weight: 600; }
+  .badge { display: inline-block; border-radius: 5px; padding: 3px 8px; font-weight: 600; font-size: 12px; }
+  .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn); }
+  .badge.danger { background: var(--danger-bg); color: var(--danger); }
+  .badge.empty { background: #F1F2F6; color: var(--ink-soft); border: 1px dashed var(--line); }
+
+  .followup-list { display: flex; flex-direction: column; gap: 8px; }
+  .followup-row { display: flex; align-items: center; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; }
+  .followup-row .name { font-weight: 700; }
+  .followup-row .note { color: var(--ink-soft); }
+  .footer-note { font-size: 11.5px; color: var(--ink-soft); margin-top: 24px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <svg width="34" height="34" viewBox="0 0 30 30" aria-hidden="true">
+      <ellipse cx="15" cy="17" rx="11" ry="10" fill="#1B2340"/>
+      <path d="M6 10 L10 4 L12 9 Z" fill="#1B2340"/>
+      <path d="M24 10 L20 4 L18 9 Z" fill="#1B2340"/>
+      <circle cx="10.5" cy="16" r="4.6" fill="#fff"/>
+      <circle cx="19.5" cy="16" r="4.6" fill="#fff"/>
+      <circle cx="10.5" cy="16" r="2.1" fill="#1B2340"/>
+      <circle cx="19.5" cy="16" r="2.1" fill="#1B2340"/>
+      <path d="M15 18 L12.5 22 L17.5 22 Z" fill="#E3A62F"/>
+    </svg>
+    <h1>ผลทดสอบผ่าน OwlvyHouse Adaptive TRIO : AI Generator</h1>
+  </header>
+
+  <div id="sourceBar" class="source-bar">
+    <span class="badge"><span class="dot"></span><span id="sourceLabel">กำลังโหลดข้อมูลสด…</span></span>
+    <button class="refresh-btn" id="refreshBtn">รีเฟรชข้อมูล</button>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">นักเรียนทั้งหมด (ชั้นที่เลือก)</div><div class="value" id="kpiTotal">—</div></div>
+    <div class="kpi danger"><div class="label">ยังไม่เข้าสอบเลยสักชุด</div><div class="value" id="kpiNone">—</div></div>
+    <div class="kpi ok"><div class="label">ทำครบทุกชุดแล้ว</div><div class="value" id="kpiDone">—</div></div>
+    <div class="kpi"><div class="label">คะแนนเฉลี่ยล่าสุด (ทุกชุด)</div><div class="value" id="kpiAvg">—</div></div>
+  </div>
+
+  <div class="filter-bar">
+    <label>ชั้นเรียน
+      <select id="levelSelect"></select>
+    </label>
+    <label>นักเรียน
+      <select id="studentSelect"><option value="all">ทั้งหมด</option></select>
+    </label>
+    <label>สถานะ
+      <select id="statusSelect">
+        <option value="all">ทั้งหมด</option>
+        <option value="none">ยังไม่สอบเลย</option>
+        <option value="done">ทำครบแล้ว</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="detailPanel" class="panel" style="display:none;">
+    <div class="panel-head">
+      <div class="panel-avatar" id="detailAvatar"></div>
+      <div>
+        <div class="panel-name" id="detailName"></div>
+        <div class="panel-sub" id="detailSub"></div>
+      </div>
+    </div>
+    <div class="set-grid" id="detailSets"></div>
+  </div>
+
+  <h2 class="section-title">ตารางความครบถ้วนรายบุคคล (คะแนนล่าสุดของแต่ละชุด)</h2>
+  <div class="matrix-wrap">
+    <table id="matrixTable">
+      <thead><tr id="matrixHead"><th>นักเรียน</th></tr></thead>
+      <tbody id="matrixBody"><tr><td style="padding:16px; color:var(--ink-soft);">กำลังโหลด…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">รายชื่อที่ต้องติดตาม — ยังไม่เข้าสอบเลยสักชุด</h2>
+  <div class="followup-list" id="followupList"></div>
+
+  <p class="footer-note" id="footerNote"></p>
+</div>
+
+<script>
+const ROSTER_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSeiM7_a9Rk6zb2X3dAGQZh0yDPw6m5OvscB3lwRHg9A5Iy7v35lPREBYhEsO1AM4EglZ5v8FFN7BLH/pub?gid=1897880647&single=true&output=csv";
+const CHEM_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRLFDE4NHOuz0p_5YqzLSiBk8PfDvxRns5MxzpSS0fAxQUA8g-g4VZHKEwGX6Hp1iKZdRmgqLDzejwD/pub?gid=1879802753&single=true&output=csv";
+const EARTH_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTGBz2_tBRAkXiPSZSZi_4gPYIHv9qervCuRUrYckdsTzqf-Thsw4m5HYaEb8WOUEcllRAGUr2jdMqs/pub?gid=1988508528&single=true&output=csv";
+
+// ---------- CSV parsing ----------
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r') { /* skip */ }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+function rowsToObjects(rows) {
+  const header = rows[0].map(h => h.trim());
+  return rows.slice(1).map(r => {
+    const o = {};
+    header.forEach((h, i) => o[h] = (r[i] || '').trim());
+    return o;
+  });
+}
+
+function parseDateTimeKey(str) {
+  // format: d/m/yyyy H:mm:ss (Thai Buddhist year - relative order still correct)
+  const m = str.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})/);
+  if (!m) return { raw: str, key: 0 };
+  const [, d, mo, y, H, Mi, S] = m.map(Number);
+  return { raw: str, key: y*100000000 + mo*1000000 + d*10000 + H*100 + Mi, dateLabel: `${d}/${mo}` };
+}
+
+function parseTimeUsed(str) {
+  const parts = (str || '0:00:00').split(':').map(Number);
+  if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  if (parts.length === 2) return parts[0]*60 + parts[1];
+  return 0;
+}
+
+function fmtTime(sec) {
+  sec = Math.round(sec);
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return (h>0 ? h+':' : '') + String(m).padStart(h>0?2:1,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function parseSetName(subject, full) {
+  let rest = full.startsWith(subject + '-') ? full.slice(subject.length + 1) : full;
+  const codeMatch = rest.match(/^([A-Za-z]+\d+)/);
+  const code = codeMatch ? codeMatch[1] : rest.slice(0, 8);
+  let topic = rest.replace(/^[A-Za-z]+\d+-?/, '').replace(/-?\d{4}-\d{2}-\d{2}$/, '');
+  return { code, topic: topic || full, full };
+}
+
+// ---------- Data build ----------
+let ROSTER = [];   // [{email, name, mainLevel, level}]
+let LOG = [];       // [{name, level, subject, code, topic, full, pct, score, total, time, dtKey, dateLabel}]
+
+function buildFromCSV(rosterText, chemText, earthText) {
+  const rosterRows = rowsToObjects(parseCSV(rosterText));
+  ROSTER = rosterRows
+    .filter(r => (r['Role'] || '').trim().toLowerCase() === 'student')
+    .map(r => ({ email: r['Email'], name: r['ชื่อ'], mainLevel: r['MainLevel'], level: r['Level'] }));
+
+  const log = [];
+  [{ text: chemText, subj: 'CHEM' }, { text: earthText, subj: 'EARTH' }].forEach(src => {
+    const rows = rowsToObjects(parseCSV(src.text));
+    rows.forEach(r => {
+      const dt = r['วัน-เวลา']; const name = r['ชื่อ-นามสกุล']; const level = r['ชั้นเรียน'];
+      const subject = (r['หมวดวิชา'] || src.subj).trim();
+      const full = r['ชื่อชุดข้อสอบ']; const scoreStr = r['คะแนนที่ได้']; const totalStr = r['จำนวนข้อ'];
+      const pctStr = r['เปอร์เซ็นต์']; const timeStr = r['เวลาที่ใช้'];
+      if (!dt || !name || !full) return;
+      const { code, topic } = parseSetName(subject, full);
+      const dtInfo = parseDateTimeKey(dt);
+      log.push({
+        name, level, subject, code, topic, full,
+        score: parseFloat(scoreStr) || 0,
+        total: parseFloat(totalStr) || 0,
+        pct: parseInt((pctStr || '0').replace('%','')) || 0,
+        time: parseTimeUsed(timeStr),
+        dtKey: dtInfo.key, dateLabel: dtInfo.dateLabel
+      });
+    });
+  });
+  LOG = log;
+}
+
+// ---------- Derived views ----------
+function levelsAvailable() {
+  const s = new Set(ROSTER.map(r => r.level).filter(Boolean));
+  return Array.from(s).sort();
+}
+
+function setsForLevel(level) {
+  // unique (subject, code) combos seen in log for this level, ordered by subject then first-seen date
+  const map = new Map();
+  LOG.filter(l => l.level === level).forEach(l => {
+    const key = l.subject + '|' + l.code;
+    if (!map.has(key) || l.dtKey < map.get(key).dtKey) {
+      map.set(key, { subject: l.subject, code: l.code, topic: l.topic, dtKey: l.dtKey });
+    }
+  });
+  return Array.from(map.values()).sort((a,b) => a.subject.localeCompare(b.subject) || a.code.localeCompare(b.code));
+}
+
+function studentAttemptsForSet(name, subject, code) {
+  return LOG.filter(l => l.name === name && l.subject === subject && l.code === code)
+    .sort((a,b) => a.dtKey - b.dtKey);
+}
+
+function latestPct(attempts) {
+  if (!attempts.length) return null;
+  return attempts[attempts.length - 1].pct;
+}
+
+function badgeClass(pct) {
+  if (pct === null) return 'empty';
+  if (pct < 50) return 'danger';
+  if (pct < 70) return 'warn';
+  return 'ok';
+}
+
+// ---------- Rendering ----------
+function render() {
+  const level = document.getElementById('levelSelect').value;
+  const studentFilter = document.getElementById('studentSelect').value;
+  const statusFilter = document.getElementById('statusSelect').value;
+
+  const students = ROSTER.filter(r => r.level === level);
+  const sets = setsForLevel(level);
+
+  // student select options
+  const sel = document.getElementById('studentSelect');
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="all">ทั้งหมด (' + students.length + ' คน)</option>' +
+    students.map(s => `<option value="${s.email}">${s.name}</option>`).join('');
+  sel.value = students.some(s => s.email === prevVal) ? prevVal : 'all';
+
+  // matrix header
+  const head = document.getElementById('matrixHead');
+  head.innerHTML = '<th>นักเรียน</th>' + sets.map(s =>
+    `<th>${s.subject}<span class="sub">${s.code}</span></th>`).join('') + '<th>ความคืบหน้า</th>';
+
+  // per-student computed rows
+  const rows = students.map(stu => {
+    const cells = sets.map(s => {
+      const attempts = studentAttemptsForSet(stu.name, s.subject, s.code);
+      return { pct: latestPct(attempts), attempts };
+    });
+    const done = cells.filter(c => c.pct !== null).length;
+    return { stu, cells, done };
+  });
+
+  // KPI
+  const totalDone = rows.filter(r => sets.length > 0 && r.done === sets.length).length;
+  const noneDone = rows.filter(r => r.done === 0).length;
+  const allLatest = rows.flatMap(r => r.cells.filter(c => c.pct !== null).map(c => c.pct));
+  const avgPct = allLatest.length ? Math.round(allLatest.reduce((a,b)=>a+b,0)/allLatest.length) : null;
+
+  document.getElementById('kpiTotal').innerHTML = students.length + ' <small>คน</small>';
+  document.getElementById('kpiNone').innerHTML = noneDone + ' <small>คน (' + (students.length? Math.round(noneDone/students.length*100):0) + '%)</small>';
+  document.getElementById('kpiDone').innerHTML = totalDone + ' <small>คน (' + (students.length? Math.round(totalDone/students.length*100):0) + '%)</small>';
+  document.getElementById('kpiAvg').innerHTML = (avgPct===null?'—':avgPct+'%');
+
+  // matrix body
+  const body = document.getElementById('matrixBody');
+  const followup = document.getElementById('followupList');
+  body.innerHTML = ''; followup.innerHTML = '';
+  let anyRow = false, anyFollow = false;
+
+  rows.forEach(r => {
+    if (studentFilter !== 'all' && r.stu.email !== studentFilter) return;
+    if (statusFilter === 'none' && r.done > 0) return;
+    if (statusFilter === 'done' && !(sets.length && r.done === sets.length)) return;
+    anyRow = true;
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + r.stu.name + '</td>' +
+      r.cells.map(c => `<td><span class="badge ${badgeClass(c.pct)}">${c.pct===null?'ยังไม่สอบ':c.pct+'%'}</span></td>`).join('') +
+      `<td style="font-weight:700; ${r.done===0?'color:var(--danger);':''}">${r.done}/${sets.length}</td>`;
+    body.appendChild(tr);
+
+    if (r.done === 0) {
+      anyFollow = true;
+      const row = document.createElement('div');
+      row.className = 'followup-row';
+      row.innerHTML = `<span class="name">${r.stu.name}</span><span class="note">— ยังไม่เข้าสอบสักชุด (${sets.length} ชุดที่ต้องทำในระดับ ${level})</span>`;
+      followup.appendChild(row);
+    }
+  });
+  if (!anyRow) body.innerHTML = '<tr><td colspan="99" style="padding:16px; color:var(--ink-soft);">ไม่มีรายชื่อในเงื่อนไขนี้</td></tr>';
+  if (!anyFollow) followup.innerHTML = '<p style="font-size:13px; color:var(--ink-soft); margin:0;">ไม่มีรายชื่อในเงื่อนไขนี้</p>';
+
+  // detail panel
+  const panel = document.getElementById('detailPanel');
+  if (studentFilter === 'all') {
+    panel.style.display = 'none';
+  } else {
+    const stu = students.find(s => s.email === studentFilter);
+    panel.style.display = 'block';
+    document.getElementById('detailAvatar').textContent = stu ? stu.name.slice(0,1) : '';
+    document.getElementById('detailName').textContent = stu ? stu.name : '';
+    const doneCount = rows.find(r => r.stu.email === studentFilter)?.done || 0;
+    document.getElementById('detailSub').textContent = `ทำแล้ว ${doneCount}/${sets.length} ชุด`;
+
+    const container = document.getElementById('detailSets');
+    container.innerHTML = '';
+    sets.forEach(s => {
+      const attempts = studentAttemptsForSet(stu.name, s.subject, s.code);
+      const card = document.createElement('div');
+      card.className = 'set-card' + (attempts.length ? '' : ' empty');
+      if (!attempts.length) {
+        card.innerHTML = `<div class="set-title">${s.subject} ${s.code}</div><div>ยังไม่ได้ทำ</div>`;
+      } else {
+        const rowsHtml = attempts.map((a,i) =>
+          `<div class="attempt-row"><span>ครั้งที่ ${i+1} (${a.dateLabel})</span><span>คะแนน <b>${a.pct}%</b> · เวลา ${fmtTime(a.time)}</span></div>`
+        ).join('');
+        const avgPctSet = Math.round(attempts.reduce((sum,a)=>sum+a.pct,0)/attempts.length);
+        const avgTimeSet = attempts.reduce((sum,a)=>sum+a.time,0)/attempts.length;
+        card.innerHTML = `<div class="set-title">${s.subject} ${s.code}</div>${rowsHtml}` +
+          `<div class="set-summary"><span>ทำทั้งหมด ${attempts.length} ครั้ง</span><span>เฉลี่ย ${avgPctSet}% · ${fmtTime(avgTimeSet)}</span></div>`;
+      }
+      container.appendChild(card);
+    });
+  }
+}
+
+function populateLevelSelect() {
+  const levelSel = document.getElementById('levelSelect');
+  const levels = levelsAvailable();
+  const prev = levelSel.value;
+  levelSel.innerHTML = levels.map(l => `<option value="${l}">${l}</option>`).join('');
+  if (levels.includes(prev)) levelSel.value = prev;
+  else if (levels.includes('G6')) levelSel.value = 'G6';
+}
+
+document.getElementById('levelSelect').addEventListener('change', render);
+document.getElementById('studentSelect').addEventListener('change', render);
+document.getElementById('statusSelect').addEventListener('change', render);
+
+// ---------- Live fetch ----------
+function setSourceBadge(state, when) {
+  const bar = document.getElementById('sourceBar');
+  const label = document.getElementById('sourceLabel');
+  const footer = document.getElementById('footerNote');
+  bar.classList.remove('live','cached');
+  if (state === 'loading') {
+    label.textContent = 'กำลังโหลดข้อมูลสด…';
+  } else if (state === 'live') {
+    bar.classList.add('live');
+    label.textContent = `ข้อมูลสดจาก Google Sheets · ดึงล่าสุด ${when}`;
+    footer.textContent = 'ข้อมูลนี้ดึงสดจาก Google Sheets ทั้ง 3 ชีท (รายชื่อ, CHEM, EARTH) ทุกครั้งที่เปิดหน้านี้ หรือกดรีเฟรช — คะแนนที่แสดงในตารางคือ "คะแนนล่าสุด" ของแต่ละชุดข้อสอบ ไม่ใช่ค่าเฉลี่ย';
+  } else {
+    bar.classList.add('cached');
+    label.textContent = 'โหลดข้อมูลสดไม่สำเร็จ';
+    footer.textContent = 'โหลดข้อมูลสดจาก Google Sheets ไม่สำเร็จ (อาจเป็นเพราะไม่มีอินเทอร์เน็ต, เปิดไฟล์แบบ local file://, หรือลิงก์เปลี่ยน) กดปุ่ม "รีเฟรชข้อมูล" เพื่อลองใหม่ หรือเปิดไฟล์นี้ผ่านเว็บโฮสติ้งแทนการเปิดไฟล์ในเครื่องโดยตรง';
+  }
+}
+
+async function loadLive() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  setSourceBadge('loading');
+  try {
+    const [rosterRes, chemRes, earthRes] = await Promise.all([
+      fetch(ROSTER_CSV, { cache: 'no-store' }),
+      fetch(CHEM_CSV, { cache: 'no-store' }),
+      fetch(EARTH_CSV, { cache: 'no-store' })
+    ]);
+    if (!rosterRes.ok || !chemRes.ok || !earthRes.ok) throw new Error('HTTP error fetching one or more sheets');
+    const [rosterText, chemText, earthText] = await Promise.all([rosterRes.text(), chemRes.text(), earthRes.text()]);
+    buildFromCSV(rosterText, chemText, earthText);
+    const now = new Date();
+    setSourceBadge('live', now.toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }));
+  } catch (err) {
+    setSourceBadge('cached');
+    console.warn('Live fetch failed:', err);
+  }
+  populateLevelSelect();
+  render();
+  btn.disabled = false;
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadLive);
+loadLive();
+</script>
+</body>
+</html>

@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+        <p class="text-amber-700/70 text-[10px] sm:text-xs text-center italic mt-1.5 mb-0">* App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ</p>
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email" class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+<!--Start ปุ่ม Adaptive 19-08-2569-->
+<!-- ===== ปุ่ม Adaptive Learning (ลิงก์ฝังไว้ในปุ่ม) ===== -->
+      <!-- ===== ปุ่ม Adaptive Learning (กล่องแยก ไม่ใช่ส่วนหนึ่งของ Import JSON) ===== -->
+      <a href="https://share.gemini.google/K4cjAWbDtSZk" target="_blank" rel="noopener noreferrer"
+         class="group flex items-center gap-4 bg-slate-800/80 hover:bg-slate-800 border border-purple-500/40 hover:border-purple-400 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 mt-4">
+          <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center overflow-hidden">
+              <span class="text-2xl absolute">🎓</span>
+              <img src="images/adaptive_symbol.png" alt="สัญลักษณ์ Adaptive Learning"
+                   class="relative w-full h-full object-contain" onerror="this.style.display='none'">
+          </div>
+          <div class="flex-grow min-w-0">
+              <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-purple-400 transition">Adaptive Learning</h4>
+              <p class="text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed">แหล่งเรียนรู้แบบปรับระดับ — Learn • Analyze • Adapt • Improve (เปิดในแท็บใหม่)</p>
+          </div>
+          <span class="text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition shrink-0 inline-block">↗️</span>
+      </a>
+      <!--Stop ปุ่ม Adaptive 19-08-2569-->
+  <!--Stop ปุ่ม Adaptive 19-08-2569-->
+
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+ 
+ </div>
+
+
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+     const quizTitle = "PHY_APP0003_Class_friction_2569_08_28_No01-10_GLM";
+     const quizDomain = "PHY";
+     const quizContent = "แรงเสียดทาน-TEDET ชุดที่ 2";
+
+// === Data from GEMINI ===
+    const questions = [
+  {
+    id: 1,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "static_friction_stacked_blocks",
+    tag_skill: "L4",
+    tag_misconception: "friction_always_opposes_applied_force_direction",
+    title: "ข้อที่ 1. ก้อนไม้ A (มวล 2 กก.) วางซ้อนบนก้อนไม้ B (มวล 3 กก.) บนพื้นเรียบ ดึงก้อน B ด้วยแรง F แนวนอน ปรากฏว่า A และ B เคลื่อนที่ไปด้วยกันเป็นก้อนเดียวโดยไม่ไถลซ้อน แรงเสียดทานสถิตที่ B กระทำต่อ A มีทิศทางและขนาดเป็นอย่างไร",
+    image: "",
+    options: [
+      "1. ทิศทางตรงข้าม F มีค่าเท่ากับ F",
+      "2. ทิศทางเดียวกับ F มีค่าเท่ากับ F",
+      "3. ทิศทางตรงข้าม F มีค่าเท่ากับ 2/5 F",
+      "4. ทิศทางเดียวกับ F มีค่าเท่ากับ 2/5 F"
+    ],
+    answer: 3,
+    hint: "จับก้อน A ตัวเดียววิเคราะห์: A เคลื่อนที่ด้วยความเร่งเดียวกับ B แรงเสียดทานจึงต้องเป็นแรงเดียวที่ทำให้ A เร่งไปด้วย ใช้ Newton 2 สำหรับก้อน A"
+  },
+  {
+    id: 2,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "kinetic_friction_braking_distance",
+    tag_skill: "L3",
+    tag_misconception: "heavier_object_always_has_more_friction_coefficient",
+    title: "ข้อที่ 2. รถยนต์คันหนึ่งเบรกกะทันหันบนถนนแห้งเรียบด้วยความเร็วเริ่มต้นเท่ากันทุกกรณี ข้อใดกล่าวถูกต้องเกี่ยวกับระยะทางหยุด",
+    image: "",
+    options: [
+      "1. รถที่บรรทุกสินค้าเต็มคัน หยุดได้ไกลกว่ารถเปล่า เพราะแรงเสียดทานเท่ากันแต่มวลมากกว่า",
+      "2. รถที่บรรทุกสินค้าเต็มคัน หยุดได้ใกล้กว่ารถเปล่า เพราะมีแรงเสียดทานมากกว่า",
+      "3. รถทั้งสองกรณีหยุดได้ระยะทางเท่ากัน เพราะสัมประสิทธิ์แรงเสียดทานเท่ากัน",
+      "4. รถเปล่าหยุดได้ใกล้กว่า เพราะแรงเสียดทานพลวัตมีค่าน้อยกว่า"
+    ],
+    answer: 1,
+    hint: "เปรียบเทียบความเร่งจาก a = μg สำหรับทั้งสองกรณี จากนั้นใช้สมการ v² = u² + 2as แล้วสังเกตว่า a ขึ้นกับอะไร"
+  },
+  {
+    id: 3,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "static_friction_inclined_plane_critical_angle",
+    tag_skill: "L4",
+    tag_misconception: "friction_depends_on_surface_area",
+    title: "ข้อที่ 3. วางก้อนไม้กลมทรงกระบอก (มวล m) บนพื้นเอียงแล้วค่อยๆ เพิ่มมุมเอียง α จนก้อนไม้เริ่มจะไถล หากนำก้อนไม้กลมลูกเดียวกันนี้มาวางในแนวตั้ง (แกนตั้งฉากกับพื้นเอียง) แล้วทำการทดลองเพิ่มมุมในลักษณะเดียวกัน มุมเอียงวิกฤตที่ก้อนไม้เริ่มไถลจะเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. มุมวิกฤตเพิ่มขึ้น เพราะพื้นที่สัมผัสน้อยลง",
+      "2. มุมวิกฤตลดลง เพราะพื้นที่สัมผัสน้อยลง",
+      "3. มุมวิกฤตลดลง เพราะศูนย์กลางมวลต่ำลง",
+      "4. มุมวิกฤตไม่เปลี่ยนแปลง เพราะขึ้นกับ μ และมวลเท่านั้น"
+    ],
+    answer: 4,
+    hint: "ลองพิสูจน์สูตรมุมวิกฤต tan θ = μ จากสมดุลแรงบนพื้นเอียง สังเกตว่าพื้นที่สัมผัสปรากฏในสมการหรือไม่"
+  },
+  {
+    id: 4,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "static_friction_walking_direction",
+    tag_skill: "L3",
+    tag_misconception: "friction_on_walking_foot_opposes_motion",
+    title: "ข้อที่ 4. เด็กนักเรียนกำลังเดินไปทางขวาบนพื้นปูนเรียบ ขณะที่เท้าขวาเหยียบพื้นและผลักตัวไปข้างหน้า แรงเสียดทานที่พื้นกระทำต่อเท้าขวามีทิศทางและลักษณะอย่างไร",
+    image: "",
+    options: [
+      "1. ทิศทางไปทางซ้าย เป็นแรงเสียดทานพลวัต",
+      "2. ทิศทางไปทางขวา เป็นแรงเสียดทานสถิต",
+      "3. ทิศทางไปทางซ้าย เป็นแรงเสียดทานสถิต",
+      "4. ทิศทางไปทางขวา เป็นแรงเสียดทานพลวัต"
+    ],
+    answer: 2,
+    hint: "เท้าที่เหยียบพื้นไม่ไถล ดังนั้นเป็นแรงเสียดทานสถิต ลองคิดว่าถ้าพื้นไม่มีแรงเสียดทานเลย เท้าจะเกิดอะไรขึ้น"
+  },
+  {
+    id: 5,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "connected_bodies_friction",
+    tag_skill: "L4",
+    tag_misconception: "tension_equals_applied_force_always",
+    title: "ข้อที่ 5. ก้อน A (มวล 4 กก.) วางบนพื้นหยาบ (μ = 0.3) ผูกเชือกเชื่อมกับก้อน B (มวล 2 กก.) ที่แขวนผ่านรอกไม่มีมวลไปทางตั้ง ดึงก้อน A ด้วยแรง F = 20 N แนวนอน ระหว่างที่ระบบเคลื่อนที่ ความตึงเชือกมีค่าเท่าใด (ใช้ g = 10 m/s²)",
+    image: "",
+    options: [
+      "1. 10 N",
+      "2. 12 N",
+      "3. 14 N",
+      "4. 20 N"
+    ],
+    answer: 1,
+    hint: "เขียนสมการ Newton 2 ให้ก้อน B แยกก่อน เพราะแรงที่กระทำต่อ B มีน้อยกว่า จากนั้นนำความเร่งที่ได้ไปใช้กับก้อน A"
+  },
+  {
+    id: 6,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "circular_motion_friction",
+    tag_skill: "L4",
+    tag_misconception: "centrifugal_force_is_real_outward_force",
+    title: "ข้อที่ 6. วางเหรียญบนจานเสียงที่หมุนรอบแกนผ่านศูนย์กลางด้วยความเร็วเชิงมุมคงที่ เมื่อเพิ่มความเร็วเชิงมุมจนเหรียญเริ่มจะไถลออก ขณะนั้นแรงเสียดทานสถิตสูงสุดที่กระทำต่อเหรียญมีทิศทางและทำหน้าที่อย่างไร",
+    image: "",
+    options: [
+      "1. ทิศทางหนีศูนย์กลาง เป็นแรงที่ทำให้เหรียญเร่งออก",
+      "2. ทิศทางเข้าหาศูนย์กลาง แต่ไม่เพียงพอที่จะรักษาวงโคจร",
+      "3. ทิศทางเข้าหาศูนย์กลาง เป็นแรงโคจรที่ไม่เพียงพอต่อความเร็วนั้น",
+      "4. ทิศทางตามเส้นสัมผัส ต้านการเคลื่อนที่ไปตามเส้นรอบวง"
+    ],
+    answer: 3,
+    hint: "วัตถุที่เคลื่อนที่เป็นวงกลมต้องมีแรงลูกฟูกเข้าหาศูนย์กลาง แรงเสียดทานทำหน้าที่นี้ แต่ถ้าความเร็วมากเกินไป μN จะให้แรงไม่พอ"
+  },
+  {
+    id: 7,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "inertia_friction_tablecloth_trick",
+    tag_skill: "L3",
+    tag_misconception: "friction_always_prevents_all_motion",
+    title: "ข้อที่ 7. นักมายากลดึงผ้าปูโต๊ะออกจากใต้จานแก้วที่วางอยู่บนโต๊ะอย่างรวดเร็ว จานแก้วยังคงอยู่กับที่เกือบทั้งหมด ข้อใดอธิบายได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. แรงเสียดทานระหว่างจานกับผ้ามีค่ามากพอที่จะรักษาจานไว้",
+      "2. แรงเสียดทานมีค่าน้อยและทำงานได้น้อยเกินไปจนไม่สามารถเปลี่ยนโมเมนตัมของจานได้ทัน",
+      "3. ผ้าถูกดึงออกทางแนวราบ จึงไม่มีแรงในแนวตั้งกระทำต่อจาน",
+      "4. มวลของจานแก้วมากกว่ามวลของผ้าจึงไม่เคลื่อนที่"
+    ],
+    answer: 2,
+    hint: "ใช้แนวคิด Impulse = F × Δt ถ้า Δt น้อยมาก แม้ F จะมีค่า แต่ Impulse รวมอาจน้อยเกินกว่าจะเปลี่ยนโมเมนตัมจานได้มากพอ"
+  },
+  {
+    id: 8,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "normal_force_friction_relationship",
+    tag_skill: "L3",
+    tag_misconception: "adding_mass_always_doubles_friction",
+    title: "ข้อที่ 8. ก้อนไม้มวล 1 กก. วางบนโต๊ะ (μs = 0.4, μk = 0.3) ต้องใช้แรง 5 N จึงจะเริ่มเลื่อน หากวางก้อนไม้มวล 2 กก. ซ้อนบนก้อนแรก จะต้องใช้แรงขั้นต่ำเท่าใดจึงจะเริ่มเลื่อนระบบนี้ (g = 10 m/s²)",
+    image: "",
+    options: [
+      "1. 7 N",
+      "2. 8 N",
+      "3. 10 N",
+      "4. 12 N"
+    ],
+    answer: 4,
+    hint: "แรงเสียดทานสถิตสูงสุด = μs × N เมื่อเพิ่มมวลบน แรงปฏิกิริยาตั้ง N เปลี่ยนแปลงอย่างไร"
+  },
+  {
+    id: 9,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "conveyor_belt_friction_direction",
+    tag_skill: "L4",
+    tag_misconception: "friction_on_moving_belt_always_opposes_motion",
+    title: "ข้อที่ 9. วางกล่องบนสายพานลำเลียงแนวนอนที่หยุดนิ่ง จากนั้นเปิดสายพานให้เคลื่อนที่ไปทางขวาด้วยความเร็วเพิ่มขึ้นเรื่อยๆ ในช่วงเวลาที่กล่องยังไม่ถึงความเร็วเท่าสายพาน แรงเสียดทานที่สายพานกระทำต่อกล่องมีทิศทางอย่างไร",
+    image: "",
+    options: [
+      "1. ไปทางซ้าย เพราะกล่องมีแนวโน้มลื่นไปทางขวา",
+      "2. ไปทางขวา แต่เป็นแรงเสียดทานพลวัต",
+      "3. ไปทางขวา เป็นแรงเสียดทานสถิตที่ทำให้กล่องเร่งไปด้วย",
+      "4. ไปทางซ้าย เพราะกล่องเคลื่อนที่ช้ากว่าสายพาน"
+    ],
+    answer: 3,
+    hint: "พิจารณาจุดสัมผัส: สายพานเลื่อนไปทางขวาเร็วกว่ากล่อง ด้านล่างของกล่องจึงมีแนวโน้มไถลไปทางซ้ายเทียบกับสายพาน แรงเสียดทานจึงต้านการไถลนั้น"
+  },
+  {
+    id: 10,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "tire_tread_water_displacement",
+    tag_skill: "L3",
+    tag_misconception: "smoother_tire_always_better_on_wet_road",
+    title: "ข้อที่ 10. ยางรถยนต์แบบเรียบเนียน (slick tire) ให้แรงเสียดทานกับถนนแห้งสูงกว่ายางที่มีร่องน้ำ แต่บนถนนเปียกยางเรียบเนียนมีแรงเสียดทานต่ำมาก ข้อใดอธิบายได้ดีที่สุด",
+    image: "",
+    options: [
+      "1. ร่องน้ำช่วยระบายน้ำออกจากผิวสัมผัส ทำให้ยางสัมผัสกับผิวถนนโดยตรงมากขึ้น",
+      "2. ร่องน้ำเพิ่มพื้นที่สัมผัสจริงระหว่างยางกับถนน",
+      "3. ยางเรียบเนียนมีสัมประสิทธิ์แรงเสียดทานลดลงเมื่อเปียก",
+      "4. น้ำทำหน้าที่เป็นสารหล่อลื่นต่อยางทุกชนิดเท่ากัน"
+    ],
+    answer: 1,
+    hint: "ลองนึกภาพว่าเกิดอะไรขึ้นระหว่างผิวยางกับพื้นถนนเมื่อมีน้ำอยู่ น้ำชั้นบางๆ จะแทนที่การสัมผัสโดยตรง"
+  },
+  {
+    id: 11,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "interleaved_pages_friction_magnification",
+    tag_skill: "L4",
+    tag_misconception: "total_friction_is_simple_sum_of_pairs",
+    title: "ข้อที่ 11. หนังสือสองเล่มมีขนาดและจำนวนหน้าเหมือนกัน ทดลองสอดเป็นหน้าสลับกัน (หน้าของเล่ม A สลับกับหน้าของเล่ม B) ทุกหน้า พบว่าต้องใช้แรงมหาศาลจึงจะดึงแหล่งออกจากกัน ข้อใดอธิบายผลการทดลองได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. แรงเสียดทานรวมเท่ากับจำนวนหน้าคูณแรงเสียดทานต่อคู่หน้า",
+      "2. การสอดสลับทำให้แรงปฏิกิริยาตั้งเพิ่มขึ้นอย่างมาก",
+      "3. หน้ากระดาษมีความขรุขระสูงกว่าปกติเมื่อสอดสลับกัน",
+      "4. แรงเสียดทานแต่ละคู่หน้าส่งผลต่อแรงกดระหว่างคู่อื่นๆ ทำให้แรงเสียดทานรวมเพิ่มขึ้นแบบทวีคูณ"
+    ],
+    answer: 4,
+    hint: "ลองคิดว่าเมื่อดึงหนังสือสองเล่มออกจากกัน แรงดึงแต่ละคู่หน้าจะกระจายอย่างไรไปยังคู่อื่นๆ รอบๆ"
+  },
+  {
+    id: 12,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "block_on_accelerating_cart",
+    tag_skill: "L4",
+    tag_misconception: "friction_on_block_in_cart_always_opposes_cart_motion",
+    title: "ข้อที่ 12. วางก้อนไม้บนรถเข็นที่อยู่บนพื้นเรียบ ดึงรถเข็นด้วยแรง F ทำให้รถเข็นเร่งไปทางขวา ก้อนไม้ไม่ไถลบนรถเข็น แรงเสียดทานที่รถเข็นกระทำต่อก้อนไม้มีทิศทางอย่างไร",
+    image: "",
+    options: [
+      "1. ไปทางซ้าย ต้านไม่ให้ก้อนไม้เคลื่อนที่",
+      "2. ไปทางขวา ทำให้ก้อนไม้เร่งไปพร้อมรถเข็น",
+      "3. ไปทางขวา แต่มีค่าน้อยกว่า F",
+      "4. ไปทางซ้าย เพราะก้อนไม้มีแนวโน้มลื่นไปทางขวา"
+    ],
+    answer: 2,
+    hint: "จับก้อนไม้ตัวเดียว: มีแรงอะไรกระทำต่อมันในแนวนอนบ้าง ก้อนไม้เร่งไปทางขวา แรงในแนวนอนต้องชี้ไปทางไหน"
+  },
+  {
+    id: 13,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "braking_distance_speed_relationship",
+    tag_skill: "L4",
+    tag_misconception: "braking_distance_proportional_to_speed",
+    title: "ข้อที่ 13. รถยนต์เบรกกะทันหันบนถนนเรียบ พบว่าเมื่อความเร็วเพิ่มเป็น 2 เท่า ระยะทางหยุดเพิ่มขึ้นเป็น 4 เท่า หากต้องการให้ระยะทางหยุดเพิ่มเป็น 9 เท่าของเดิม ความเร็วต้องเป็นกี่เท่าของเดิม",
+    image: "",
+    options: [
+      "1. 3 เท่า",
+      "2. 4.5 เท่า",
+      "3. 6 เท่า",
+      "4. 9 เท่า"
+    ],
+    answer: 1,
+    hint: "ใช้ v² = 2μgs แล้วเขียนอัตราส่วนระหว่างสองสถานการณ์ สังเกตว่า s ∝ v²"
+  },
+  {
+    id: 14,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "friction_horizontal_vs_inclined",
+    tag_skill: "L3",
+    tag_misconception: "same_block_same_friction_regardless_of_orientation",
+    title: "ข้อที่ 14. ก้อนไม้ก้อนเดียวกัน วางบนพื้นเรียบแนวนอน และบนพื้นเอียงมุม 30° ขนาดของแรงเสียดทานสถิตสูงสุดเปรียบเทียบกันอย่างไร (ก้อนไม้ไม่ไถลบนพื้นเอียง)",
+    image: "",
+    options: [
+      "1. เท่ากัน เพราะก้อนไม้และพื้นเหมือนกัน",
+      "2. บนพื้นเอียงมากกว่า เพราะต้องท้าทายแรงโน้มถ่วง",
+      "3. บนพื้นเรียบมากกว่า เพราะแรงปฏิกิริยาตั้งมากกว่า",
+      "4. บนพื้นเรียบมากกว่า เพราะมุมเอียงทำให้แรงเสียดทานลดลง"
+    ],
+    answer: 3,
+    hint: "เปรียบเทียบแรงปฏิกิริยาตั้ง (N) ในแต่ละกรณี บนพื้นเรียบ N = mg บนพื้นเอียง N = mg cos θ"
+  },
+  {
+    id: 15,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "friction_force_vs_applied_force_graph",
+    tag_skill: "L4",
+    tag_misconception: "friction_equals_applied_force_even_beyond_maximum_static",
+    title: "ข้อที่ 15. ทดลองดึงก้อนไม้บนพื้นหยาบด้วยแรง F ที่เพิ่มขึ้นทีละน้อยจากศูนย์ และวัดแรงเสียดทานที่เกิดขึ้นจริง ขณะที่ F เพิ่มผ่านค่าแรงเสียดทานสถิตสูงสุด กราฟแรงเสียดทานจริงเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. ลดลงทันทีเป็นศูนย์ เพราะวัตถุเริ่มเคลื่อนที่",
+      "2. ลดลงอย่างต่อเนื่องตามความเร็วที่เพิ่มขึ้น",
+      "3. เพิ่มขึ้นต่อเนื่องเป็นเส้นตรงเช่นเดิม",
+      "4. ลดลงเป็นขั้นบันไดแล้วคงที่ตามค่าแรงเสียดทานพลวัต"
+    ],
+    answer: 4,
+    hint: "แรงเสียดทานสถิตเพิ่มตาม F จนถึงค่าสูงสุด พอเลื่อนแล้วเปลี่ยนเป็นแรงเสียดทานพลวัตที่ค่าคงที่ (μk × N) ซึ่งน้อยกว่า"
+  },
+  {
+    id: 16,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "air_resistance_terminal_velocity_shape",
+    tag_skill: "L3",
+    tag_misconception: "heavier_object_falls_faster_ignore_air_resistance",
+    title: "ข้อที่ 16. ปล่อยลูกบอลโลหะสองลูกที่มีมวลต่างกันแต่ขนาดเท่ากัน จากความสูงเดียวกันในอากาศ ข้อใดกล่าวถูกต้อง",
+    image: "",
+    options: [
+      "1. ลูกบอลที่หนักกว่าตกลงถึงพื้นก่อน เพราะแรงโน้มถ่วงมากกว่า",
+      "2. ลูกบอลที่หนักกว่ามีความเร็วปลายทางสูงกว่า เพราะแรงต้านอากาศเท่ากันแต่มวลมากกว่า",
+      "3. ทั้งสองลูกตกถึงพื้นพร้อมกัน เพราะแรงต้านอากาศเท่ากัน",
+      "4. ลูกบอลที่เบากว่าตกลงถึงพื้นก่อน เพราะมีความเร่งมากกว่า"
+    ],
+    answer: 2,
+    hint: "ที่ความเร็วปลายทาง mg = ½ρCdAv² ถ้า A เท่ากัน ลูกที่หนักกว่าต้องมี v สูงกว่าจึงจะสมดุล"
+  },
+  {
+    id: 17,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "ice_skating_pressure_melting",
+    tag_skill: "L3",
+    tag_misconception: "ice_is_smooth_so_no_friction",
+    title: "ข้อที่ 17. รองเท้าสเกตน้ำแข็งมีใบมีดแคบๆ ทำให้เลื่อนบนน้ำแข็งได้ดี ข้อใดอธิบายหลักการที่เกี่ยวข้องกับแรงเสียดทานได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. พื้นที่สัมผัสน้อยทำให้แรงกดต่อพื้นน้ำแข็งสูงมาก น้ำแข็งบริเวณนั้นหลอมเป็นน้ำชั้นบางๆ ทำหน้าที่เป็นสารหล่อลื่น",
+      "2. ใบมีดแคบทำให้แรงเสียดทานลดลงตรงตามสัดส่วนพื้นที่สัมผัส",
+      "3. น้ำแข็งมีพื้นผิวเรียบเนียนตามธรรมชาติจึงมีแรงเสียดทานต่ำ",
+      "4. ความเร็วสูงทำให้เกิดความร้อนบนใบมีด น้ำแข็งจึงหลอมเป็นน้ำ"
+    ],
+    answer: 1,
+    hint: "ลองเปรียบเทียบกับการเดินบนน้ำแข็งด้วยรองเท้าปกติ ทำไมถึงไม่ลื่นเท่า สังเกตว่าแรงกดต่อหน่วยพื้นที่ต่างกัน"
+  },
+  {
+    id: 18,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "friction_sandwiched_between_walls",
+    tag_skill: "L4",
+    tag_misconception: "friction_requires_gravity_to_exist",
+    title: "ข้อที่ 18. ก้อนไม้ก้อนหนึ่งถูกกดให้ติดอยู่ระหว่างผนังสองด้านด้วยแรงกด F แนวนอนทั้งสองข้าง หากไม่มีแรงโน้มถ่วง แรงเสียดทานสูงสุดที่กันก้อนไม้ไม่ให้ตกลงมาเท่ากับเท่าใด (สัมประสิทธิ์แรงเสียดทานสถิตกับผนังทั้งสอง = μ)",
+    image: "",
+    options: [
+      "1. μF",
+      "2. 2μF",
+      "3. μF/2",
+      "4. 0 เพราะไม่มีแรงโน้มถ่วง"
+    ],
+    answer: 2,
+    hint: "ก้อนไม้สัมผัสกับผนัง 2 ด้าน แต่ละด้านมี N = F แรงเสียดทานสูงสุดรวมจึงเป็นผลรวมของทั้งสองด้าน"
+  },
+  {
+    id: 19,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "surface_area_independence",
+    tag_skill: "L3",
+    tag_misconception: "larger_contact_area_more_friction",
+    title: "ข้อที่ 19. ท่อนไม้ทรงกระบอกก้อนเดียวกัน วางบนโต๊ะใน 3 ลักษณะ: วางแนวนอน, วางตั้ง และวางเอียง 45° ดึงท่อนไม้ด้วยแรงในแนวราบผ่านเครื่องชั่งสปริง ข้อใดกล่าวถูกต้องเกี่ยวกับแรงที่วัดได้ขณะกำลังเลื่อน",
+    image: "",
+    options: [
+      "1. วางแนวนอนให้ค่าแรงมากที่สุด เพราะพื้นที่สัมผัสมากที่สุด",
+      "2. วางตั้งให้ค่าแรงน้อยที่สุด เพราะพื้นที่สัมผัสน้อยที่สุด",
+      "3. วางเอียง 45° ให้ค่าแรงต่างจากสองกรณีก่อน",
+      "4. ทั้ง 3 กรณีให้ค่าแรงเท่ากัน"
+    ],
+    answer: 4,
+    hint: "แรงเสียดทานพลวัต fk = μk × N สำหรับท่อนไม้ก้อนเดียวกันบนพื้นเรียบ ทั้ง 3 กรณีมี N และ μk เท่ากันหรือไม่"
+  },
+  {
+    id: 20,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "block_pressed_against_wall",
+    tag_skill: "L4",
+    tag_misconception: "wall_friction_depends_on_object_weight",
+    title: "ข้อที่ 20. กดก้อนไม้ (มวล 2 กก.) ให้ติดกับผนังตั้งด้วยแรง F แนวนอน ก้อนไม้อยู่นิ่ง ถ้าลดแรงกด F ลงเรื่อยๆ จนก้อนไม้เริ่มจะเลื่อนลง ขณะนั้นแรงกด F มีค่าเท่าใด (μs = 0.5, g = 10 m/s²)",
+    image: "",
+    options: [
+      "1. 5 N",
+      "2. 10 N",
+      "3. 20 N",
+      "4. 40 N"
+    ],
+    answer: 4,
+    hint: "เมื่อก้อนไม้เริ่มจะเลื่อน แรงเสียดทานสถิตสูงสุด = น้ำหนักก้อนไม้ และ fs(max) = μs × N โดยที่ N = F"
+  },
+  {
+    id: 21,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "rolling_vs_sliding_friction",
+    tag_skill: "L3",
+    tag_misconception: "rolling_friction_equals_sliding_friction",
+    title: "ข้อที่ 21. ลูกบอลเหล็กกลมและท่อนไม้ทรงกระบอก มีมวลเท่ากัน ปล่อยจากจุดเดียวกันบนพื้นเอียงมุมเดียวกัน ข้อใดกล่าวถูกต้องเกี่ยวกับการเคลื่อนที่ลงมาถึงจุดปลาย",
+    image: "",
+    options: [
+      "1. ท่อนไม้ถึงก่อน เพราะมีแรงเสียดทานน้อยกว่าลูกบอล",
+      "2. ถึงพร้อมกัน เพราะมวลและพื้นเอียงเหมือนกัน",
+      "3. ลูกบอลถึงก่อน เพราะเกลื่อนลงมาโดยมีแรงเสียดทานน้อยกว่าการไถล",
+      "4. ท่อนไม้ถึงก่อน เพราะพลังงานจลน์ทั้งหมดไปที่การเคลื่อนที่แปลเทียบ"
+    ],
+    answer: 3,
+    hint: "ลูกบอลกลิ้ง: พลังงานศักย์แบ่งเป็นพลังงานจลน์แปล + พลังงานหมุน ท่อนไม้ไถล: พลังงานศักย์บางส่วนสูญเสียไปกับแรงเสียดทาน"
+  },
+  {
+    id: 22,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "atwood_machine_with_friction",
+    tag_skill: "L4",
+    tag_misconception: "pulley_system_ignores_table_friction",
+    title: "ข้อที่ 22. ก้อน A (มวล 3 กก.) วางบนโต๊ะ (μk = 0.2) ผูกเชือกผ่านรอกไร้มวลเชื่อมกับก้อน B (มวล 1 กก.) ที่แขวนอยู่ ปล่อยระบบจากหยุดนิ่ง ความเร่งของระบบเท่ากับเท่าใด (g = 10 m/s²)",
+    image: "",
+    options: [
+      "1. 2.5 m/s²",
+      "2. 3.0 m/s²",
+      "3. 4.0 m/s²",
+      "4. 5.0 m/s²"
+    ],
+    answer: 1,
+    hint: "เขียนสมการ Newton 2 ให้ก้อน B และก้อน A แยกกัน โดยก้อน A มีแรงเสียดทานพลวัตต้านทาน แก้ระบบสมการหา a"
+  },
+  {
+    id: 23,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "coin_on_turntable_critical_speed",
+    tag_skill: "L4",
+    tag_misconception: "object_flies_off_due_to_centrifugal_force",
+    title: "ข้อที่ 23. วางเหรียญบนจานเสียงหมุนรอบศูนย์กลางรัศมี r หมุนด้วยความเร็วเชิงมุม ω เมื่อเพิ่ม ω จนเหรียญเริ่มไถลออก หากเลื่อนเหรียญไปวางที่รัศมี 2r แล้วหมุนด้วยความเร็วเชิงมุมเดิม จะเกิดอะไรขึ้น",
+    image: "",
+    options: [
+      "1. เหรียญไม่ไถล เพราะความเร็วเชิงมุมเดียวกัน",
+      "2. เหรียญไถลออกเพราะแรงเหวี่ยงศูนย์กลางเพิ่มขึ้น",
+      "3. เหรียญไม่ไถล เพราะแรงเสียดทานเพิ่มขึ้นตามรัศมี",
+      "4. เหรียญไถลออก เพราะต้องการแรงเสียดทานมากกว่าที่มีให้"
+    ],
+    answer: 4,
+    hint: "เปรียบเทียบแรงที่ต้องการ (mω²r) กับแรงเสียดทานสูงสุดที่มี (μmg) เมื่อ r เพิ่มเป็น 2 เท่า แรงที่ต้องการเปลี่ยนอย่างไร"
+  },
+  {
+    id: 24,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "pushing_vs_pulling_angle_effect",
+    tag_skill: "L4",
+    tag_misconception: "pushing_and_pulling_same_force_always",
+    title: "ข้อที่ 24. กล่องมวล m วางบนพื้นหยาบ (μs = 0.5) ต้องการเคลื่อนที่กล่องโดยใช้แรง F ทำมุม θ กับแนวราบ กรณีใดต้องใช้ F น้อยกว่า",
+    image: "",
+    options: [
+      "1. ผลัก (F ชี้ลงไปทางพื้นทำมุม θ กับแนวราบ)",
+      "2. ดึง (F ชี้ขึ้นห่างจากพื้นทำมุม θ กับแนวราบ)",
+      "3. ทั้งสองกรณีใช้ F เท่ากัน เพราะส่วนประกอบแนวนอนเท่ากัน",
+      "4. ข้อมูลไม่เพียงพอ เพราะขึ้นกับค่า θ"
+    ],
+    answer: 2,
+    hint: "ลองเขียนสมดุลแรงในแนวตั้ง: กรณีดึง N = mg - F sin θ กรณีผลัก N = mg + F sin θ แรงเสียดทานขึ้นกับอะไร"
+  },
+  {
+    id: 25,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "escalator_friction_analysis",
+    tag_skill: "L3",
+    tag_misconception: "friction_on_escalator_always_opposes_movement",
+    title: "ข้อที่ 25. คนยืนนิ่งบนบันไดเลื่อนที่เคลื่อนที่ขึ้นด้วยความเร็วคงที่ แรงเสียดทานที่พื้นบันไดเลื่อนกระทำต่อเท้าคนนั้นมีลักษณะอย่างไร",
+    image: "",
+    options: [
+      "1. เป็นแรงเสียดทานพลวัตทิศทางลง ต้านการเคลื่อนที่ขึ้น",
+      "2. เป็นแรงเสียดทานสถิตทิศทางขึ้น ช่วยดึงคนขึ้น",
+      "3. ไม่มีแรงเสียดทาน เพราะคนเคลื่อนที่ด้วยความเร็วคงที่",
+      "4. เป็นแรงเสียดทานพลวัตทิศทางขึ้น ช่วยผลักคนขึ้น"
+    ],
+    answer: 3,
+    hint: "คนยืนนิ่งเทียบกับบันไดเลื่อน ไม่มีแนวโน้มไถลสัมพัตจึงไม่ต้องการแรงเสียดทานสถิต และไม่ไถลจริงจึงไม่มีแรงเสียดทานพลวัต"
+  },
+  {
+    id: 26,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "pushing_vs_pulling_normal_force_difference",
+    tag_skill: "L4",
+    tag_misconception: "horizontal_force_only_affects_horizontal_motion",
+    title: "ข้อที่ 26. กล่องมวล 10 กก. บนพื้น (μk = 0.3) ทดลองเคลื่อนที่กล่องด้วยวิธีที่ 1: ดึงด้วยเชือกแนวนอน และทดลองที่ 2: ดึงด้วยเชือกทำมุม 30° กับแนวนอน ขณะเคลื่อนที่ด้วยความเร่งเท่ากัน ความต่างของแรงดึงทั้งสองวิธีเท่ากับเท่าใด (g = 10 m/s²)",
+    image: "",
+    options: [
+      "1. 15 N",
+      "2. 10 N",
+      "3. 5 N",
+      "4. 3 N"
+    ],
+    answer: 1,
+    hint: "เขียนสมการ ΣF = ma สำหรับแต่ละกรณี สังเกตว่า N ต่างกัน ทำให้ fk ต่างกัน จากนั้นหาผลต่างของ F"
+  },
+  {
+    id: 27,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "lubricant_friction_reduction_mechanism",
+    tag_skill: "L3",
+    tag_misconception: "lubricant_makes_surface_smoother",
+    title: "ข้อที่ 27. หยอดน้ำมันหล่อลื่นระหว่างสองผิวโลหะที่สัมผัสกัน ข้อใดอธิบายการทำงานของน้ำมันหล่อลื่นได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. น้ำมันเติมเต็มร่องร้ายผิว ทำให้ผิวเรียบเนียนขึ้น",
+      "2. น้ำมันทำปฏิกิริยาเคมีกับผิวโลหะ ลดสัมประสิทธิ์แรงเสียดทาน",
+      "3. น้ำมันดูดซับความร้อนจากการเสียดทาน ทำให้ผิวเย็นลง",
+      "4. น้ำมันแยกผิวสัมผัสออกจากกัน แทนที่ด้วยการเสียดสีของของเหลวที่มีแรงต้านน้อยกว่า"
+    ],
+    answer: 4,
+    hint: "ลองนึกภาพโมเลกุลน้ำมันเป็นชั้นบางๆ คั่นระหว่างผิวทั้งสอง ผิวโลหะไม่สัมผัสกันโดยตรงอีกต่อไป"
+  },
+  {
+    id: 28,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "small_block_on_large_moving_block",
+    tag_skill: "L4",
+    tag_misconception: "top_block_always_slides_when_bottom_moves",
+    title: "ข้อที่ 28. ก้อนเล็ก (มวล 1 กก.) วางบนก้อนใหญ่ (มวล 5 กก.) ที่วางบนพื้นเรียบไร้แรงเสียดทาน แรงเสียดทานสถิตสูงสุดระหว่างก้อนเล็กกับก้อนใหญ่เท่ากับ 4 N ดึงก้อนใหญ่ด้วยแรง 18 N แนวนอน ก้อนเล็กจะเกิดอะไรขึ้น",
+    image: "",
+    options: [
+      "1. ก้อนเล็กอยู่นิ่งบนก้อนใหญ่ เคลื่อนที่ไปด้วยกัน",
+      "2. ก้อนเล็กไถลย้อนหลังบนก้อนใหญ่",
+      "3. ก้อนเล็กไถลไปข้างหน้าบนก้อนใหญ่",
+      "4. ก้อนเล็กตกลงมาจากก้อนใหญ่ทันที"
+    ],
+    answer: 3,
+    hint: "หาความเร่งของก้อนใหญ่ก่อน (18/5 = 3.6 m/s²) จากนั้นดูว่าแรงเสียดทานสถิตสูงสุด 4 N ให้ความเร่งกับก้อนเล็กได้เท่าไร"
+  },
+  {
+    id: 29,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "kinetic_friction_independence_from_speed",
+    tag_skill: "L3",
+    tag_misconception: "faster_object_more_friction",
+    title: "ข้อที่ 29. ดึงก้อนไม้บนพื้นหยาบด้วยแรงคงที่ที่มากกว่าแรงเสียดทานสถิตสูงสุดเล็กน้อย ขณะก้อนไม้เริ่มเคลื่อนที่และมีความเร็วเพิ่มขึ้นเรื่อยๆ แรงเสียดทานที่กระทำต่อก้อนไม้เปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. เพิ่มขึ้นตามความเร็ว เพราะยิ่งเร็วยิ่งเสียดทานมาก",
+      "2. ลดลงตามความเร็ว เพราะผิวสัมผัสนานขึ้น",
+      "3. คงที่ตลอด เป็นค่าแรงเสียดทานพลวัตที่ไม่ขึ้นกับความเร็ว",
+      "4. ลดลงเป็นขั้นบันไดเมื่อความเร็วผ่านค่าบางค่า"
+    ],
+    answer: 3,
+    hint: "แรงเสียดทานพลวัต fk = μk × N สำหรับแบบจำลองมาตรฐาน ไม่มีตัวแปรความเร็วอยู่ในสมการ"
+  },
+  {
+    id: 30,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "material_dependent_friction_coefficient",
+    tag_skill: "L3",
+    tag_misconception: "same_weight_same_friction_force_always",
+    title: "ข้อที่ 30. ก้อนโลหะมวล 5 กก. วางบนพื้นไม้เรียบ และก้อนยางมวล 5 กก. วางบนพื้นคอนกรีตเรียบ ดึงทั้งสองก้อนด้วยเครื่องชั่งสปริงแนวนอน ขณะที่ก้อนกำลังเลื่อน ข้อใดกล่าวถูกต้อง",
+    image: "",
+    options: [
+      "1. ก้อนยางบนคอนกรีตให้ค่าแรงมากกว่า เพราะ μ ของยาง-คอนกรีตสูงกว่าเหล็ก-ไม้",
+      "2. ทั้งสองก้อนให้ค่าแรงเท่ากัน เพราะมวลและความเร่งโน้มถ่วงเท่ากัน",
+      "3. ก้อนโลหะบนไม้ให้ค่าแรงมากกว่า เพราะโลหะหนักกว่ายางต่อหน่วยปริมาตร",
+      "4. ทั้งสองก้อนให้ค่าแรงเท่ากัน เพราะพื้นทั้งสองเรียบเหมือนกัน"
+    ],
+    answer: 1,
+    hint: "fk = μk × N ทั้งสองก้อนมี N เท่ากัน (mg) แต่สัมประสิทธิ์ μk ของคู่วัสดุต่างกัน คู่ไหนมี μk สูงกว่า"
+  }
+];
+
+//ข้อมุลสร้างเพิ่ม 
+    const extraQuestions = [
+ {
+    id: 1,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "ladder_wall_friction_equilibrium",
+    tag_skill: "L4",
+    tag_misconception: "friction_only_exists_at_floor_contact",
+    title: "ข้อท้าทายที่ 1. บันไดพาดผนังตั้งทำมุมกับพื้น บันไดสัมผัสกับทั้งผนังและพื้น คนยืนบนบันได ข้อใดกล่าวถูกต้องเกี่ยวกับแรงเสียดทาน",
+    image: "",
+    options: [
+      "1. มีแรงเสียดทานเกิดขึ้นเฉพาะที่จุดสัมผัสกับพื้นเท่านั้น",
+      "2. แรงเสียดทานที่ผนังและพื้นมีทิศทางเดียวกัน",
+      "3. หากผนังเรียบเนียนมาก บันไดจะลื่นลงมาทางพื้น",
+      "4. แรงเสียดทานทั้งสองจุดทำหน้าที่ต่างทิศทางกันเพื่อรักษาสมดุล"
+    ],
+    answer: 3,
+    hint: "ลองวาดแผนภาพแรงทั้งหมดที่กระทำต่อบันได สังเกตว่าบันไดมีแนวโน้มจะเลื่อนไปทางไหนที่แต่ละจุดสัมผัส และจุดไหนที่ถ้าไม่มีแรงเสียดทานจะเกิดปัญหา"
+  },
+  {
+    id: 2,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "multiple_stacked_blocks_pull_bottom",
+    tag_skill: "L4",
+    tag_misconception: "pulling_bottom_block_always_moves_all",
+    title: "ข้อท้าทายที่ 2. ก้อน A (มวล 1 กก.) วางบนก้อน B (มวล 2 กก.) วางบนก้อน C (มวล 3 กก.) บนพื้นเรียบ แรงเสียดทานสถิตสูงสุดระหว่างก้อนทุกคู่เท่ากับ 2 N ดึงก้อน C ด้วยแรง 10 N ระบบเกิดอะไรขึ้น",
+    image: "",
+    options: [
+      "1. ทั้ง 3 ก้อนเคลื่อนที่ไปด้วยกัน",
+      "2. ก้อน A และ B ไถลย้อนหลังบน C ในขณะที่ C เคลื่อนที่ไปข้างหน้า",
+      "3. ก้อน A อยู่นิ่งบน B แต่ B ไถลบน C",
+      "4. ก้อน C เคลื่อนที่ไปข้างหน้า แต่ A และ B อยู่นิ่งบนพื้น"
+    ],
+    answer: 1,
+    hint: "หาความเร่งของระบบทั้งหมด (10/6 ≈ 1.67 m/s²) จากนั้นตรวจสอบว่าแรงเสียดทานสถิตสูงสุด 2 N ระหว่างแต่ละคู่เพียงพอที่จะทำให้ก้อนด้านบนเร่งตามหรือไม่"
+  },
+  {
+    id: 3,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "friction_in_vacuum_misconception",
+    tag_skill: "L2",
+    tag_misconception: "no_friction_in_vacuum",
+    title: "ข้อท้าทายที่ 3. นักเรียนคนหนึ่งกล่าวว่า 'ในสุญญากาศไม่มีแรงเสียดทานเพราะไม่มีอากาศ' ข้อในชุดต่อไปนี้ที่เกี่ยวข้องกับแรงเสียดทานในสุญญากาศ ข้อใดถูกต้อง",
+    image: "",
+    options: [
+      "1. ดึงก้อนไม้บนพื้นไม้ในสุญญากาศ ยังคงมีแรงเสียดทานเกิดขึ้นตามปกติ",
+      "2. ขับยานอวกาศในสุญญากาศต้องใช้แรงมากเพราะไม่มีแรงเสียดทานช่วยหน่วย",
+      "3. วัตถุทุกชนิดในสุญญากาศไม่มีแรงเสียดทานทั้งสิ้น",
+      "4. แรงเสียดทานในสุญญากาศมีค่าลดลงครึ่งหนึ่งจากในอากาศ"
+    ],
+    answer: 1,
+    hint: "แรงเสียดทานระหว่างผิวตันสองผิวเกิดจากปฏิกิริยาระหว่างอะตอมที่ผิวสัมผัส ไม่ได้เกี่ยวกับอากาศโดยตรง"
+  },
+  {
+    id: 4,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "sand_on_ice_friction_mechanism",
+    tag_skill: "L3",
+    tag_misconception: "sand_increases_roughness_so_more_friction_always",
+    title: "ข้อท้าทายที่ 4. ในฤดูหนาวประเทศที่มีหิมะตก มักโปรยทรายบนถนนที่ปกคลุมด้วยน้ำแข็ง ข้อใดอธิบายได้แม่นยำที่สุด",
+    image: "",
+    options: [
+      "1. ทรายทำให้พื้นผิวขรุขระขึ้น สัมประสิทธิ์แรงเสียดทานจึงเพิ่มขึ้น",
+      "2. ทรายดูดซับความร้อนจากแสงอาทิตย์ ทำให้น้ำแข็งละลาย",
+      "3. ทรายเพิ่มน้ำหนักบนถนน ทำให้แรงเสียดทานเพิ่มขึ้น",
+      "4. ทรายแทรกตัวระหว่างยางและน้ำแข็ง ทำลายชั้นน้ำที่หล่อลื่น"
+    ],
+    answer: 4,
+    hint: "น้ำแข็งมีชั้นน้ำบางๆ บนผิว ทำให้แรงเสียดทานต่ำมาก ทรายช่วยอย่างไรในเรื่องชั้นน้ำนี้"
+  },
+  {
+    id: 5,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "water_skiing_friction_analysis",
+    tag_skill: "L4",
+    tag_misconception: "water_always_reduces_friction_to_zero",
+    title: "ข้อท้าทายที่ 5. นักกีฬาสกีน้ำถูกเรือลากบนผิวน้ำ ขณะที่เร่งความเร็วขึ้นจนสกีลอยตัวเหนือผิวน้ำได้ แรงเสียดทานเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. ลดลงทันทีเป็นศูนย์เพราะไม่สัมผัสน้ำ",
+      "2. เพิ่มขึ้นเพราะความเร็วสูงทำให้แรงต้านน้ำมากขึ้น",
+      "3. ลดลงอย่างมากเพราะเปลี่ยนจากแรงเสียดทานแบบของแข็งเป็นแรงต้านของไหล",
+      "4. ไม่เปลี่ยนแปลง เพราะน้ำหนักคนเท่าเดิม"
+    ],
+    answer: 3,
+    hint: "เปรียบเทียบการสัมผัสแบบผิวตันกับผิวน้ำตรงจุดสัมผัสสกีกับน้ำ ก่อนและหลังลอยตัว"
+  },
+  {
+    id: 6,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "tilting_table_critical_angle_measurement",
+    tag_skill: "L3",
+    tag_misconception: "object_slides_when_angle_exceeds_45_degrees",
+    title: "ข้อท้าทายที่ 6. วางก้อนวัสดุหลายชนิดบนแป้นที่สามารถเอียงได้ พบว่าก้อนยางเริ่มไถลที่มุม 15° ก้อนไม้เริ่มไถลที่มุม 30° และก้อนเหล็กเริ่มไถลที่มุม 45° ข้อใดเรียงลำดับสัมประสิทธิ์แรงเสียดทานสถิตถูกต้อง",
+    image: "",
+    options: [
+      "1. ยาง > ไม้ > เหล็ก",
+      "2. เหล็ก > ไม้ > ยาง",
+      "3. ไม้ > ยาง > เหล็ก",
+      "4. ยาง > เหล็ก > ไม้"
+    ],
+    answer: 1,
+    hint: "ใช้ความสัมพันธ์ tan θ = μs มุมยิ่งน้อย แสดงว่า μs มากหรือน้อย"
+  },
+  {
+    id: 7,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "wet_floor_slipping_mechanism",
+    tag_skill: "L3",
+    tag_misconception: "water_makes_surface_smooth",
+    title: "ข้อท้าทายที่ 7. พื้นกระเบื้องเคลือบที่แห้งมีแรงเสียดทานสูงพอที่จะเดินได้ปกติ แต่เมื่อเปียกน้ำจะเกิดอันตรายจากการลื่นไถล ข้อใดอธิบายกลไกได้ดีที่สุด",
+    image: "",
+    options: [
+      "1. น้ำทำให้ผิวกระเบื้องเรียบเนียนขึ้น",
+      "2. น้ำลดแรงปฏิกิริยาตั้งระหว่างเท้ากับพื้น",
+      "3. น้ำชั้นบางๆ แทรกตัวระหว่างเท้ากับพื้น ทำให้ผิววัสดุไม่สัมผัสกันโดยตรง",
+      "4. น้ำทำปฏิกิริยากับเคลือบผิวกระเบื้องลดสัมประสิทธิ์แรงเสียดทาน"
+    ],
+    answer: 3,
+    hint: "คิดว่าแรงเสียดทานเกิดขึ้นที่จุดสัมผัสระหว่างผิวตันสองผิว เมื่อน้ำเข้ามาคั่น ผิวตันยังสัมผัสกันจริงๆ หรือไม่"
+  },
+  {
+    id: 8,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "magnetic_levitation_friction",
+    tag_skill: "L2",
+    tag_misconception: "all_moving_objects_have_friction",
+    title: "ข้อท้าทายที่ 8. รถไฟลอยตัว (Maglev) ใช้แม่เหล็กยกตัวรถให้ลอยเหนือราง ข้อใดกล่าวถูกต้องเกี่ยวกับแรงเสียดทานในระบบนี้",
+    image: "",
+    options: [
+      "1. มีแรงเสียดทานเกิดขึ้นน้อยมากระหว่างแม่เหล็กกับราง",
+      "2. แรงเสียดทานระหว่างรถกับรางเป็นศูนย์เพราะไม่มีการสัมผัสทางกายภาพ",
+      "3. ยังมีแรงเสียดทานเท่ากับรถไฟธรรมดาเพราะมวลเท่ากัน",
+      "4. แรงเสียดทานลดลงเพราะแม่เหล็กมีผิวเรียบ"
+    ],
+    answer: 2,
+    hint: "แรงเสียดทานแบบของแข็ง (dry friction) เกิดขึ้นเมื่อผิวตันสองผิวสัมผัสกัน ถ้าไม่สัมผัสกันเลยล่ะ"
+  },
+  {
+    id: 9,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "smooth_glass_surfaces_high_friction",
+    tag_skill: "L4",
+    tag_misconception: "smoother_surface_always_less_friction",
+    title: "ข้อท้าทายที่ 9. ทดลองวางแผ่นกระจกสองแผ่นให้ซ้อนกันอย่างสนิท แล้วพยายามเลื่อนแผ่นบนซ้อนออก พบว่าต้องใช้แรงมากผิดปกติ ข้อใดอธิบายได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. กระจกมีน้ำหนักมากจึงมีแรงเสียดทานมาก",
+      "2. ผิวเรียบเนียนมากๆ ทำให้สุญญากาศระหว่างผิวดึงดูดผิวเข้าหากัน",
+      "3. แรงดึงดูดระหว่างโมเลกุลที่ผิวสัมผัสสนิทมีค่ามากกว่าแรงเสียดทานปกติ",
+      "4. กระจกเกิดประจุไฟฟ้าสถิตขณะเสียดสี ดึงดูดกัน"
+    ],
+    answer: 3,
+    hint: "เมื่อผิวเรียบเนียนสนิทมากๆ โมเลกุลผิวทั้งสองอยู่ในระยะใกล้มากจนเกิดแรงยึดเหนี่ยวระหว่างโมเลกุล (cohesive/adhesive forces) ที่แรงกว่าแรงเสียดทานปกติ"
+  },
+  {
+    id: 10,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "rocket_launch_air_friction",
+    tag_skill: "L3",
+    tag_misconception: "air_friction_helps_rocket_go_up",
+    title: "ข้อท้าทายที่ 10. จรวดขึ้นสู่อวกาศด้วยความเร็วเพิ่มขึ้นเรื่อยๆ แรงต้านอากาศที่กระทำต่อจรวดเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. คงที่ตลอด เพราะมวลจรวดไม่เปลี่ยน",
+      "2. เพิ่มขึ้นตามความเร็ว เพราะแรงต้านอากาศแปรผันตรงกำลังสองของความเร็ว",
+      "3. ลดลงเรื่อยๆ เพราะความหนาแน่นอากาศลดลงตามระดับความสูง",
+      "4. เพิ่มขึ้นจนถึงค่าหนึ่งแล้วลดลง เพราะความเร็วเพิ่มแต่ความหนาแน่นอากาศลดลง"
+    ],
+    answer: 4,
+    hint: "แรงต้านอากาศ Fd = ½ρCdAv² มีสองตัวแปรที่เปลี่ยนแปลง: ความเร็ว v เพิ่มขึ้น แต่ความหนาแน่นอากาศ ρ ลดลงเมื่อสูงขึ้น"
+  },
+  {
+    id: 11,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "curling_stone_curving_mechanism",
+    tag_skill: "L4",
+    tag_misconception: "friction_always_slows_object_linearly",
+    title: "ข้อท้าทายที่ 11. ในกีฬาเคอล์ลิง หินจะเคลื่อนที่ไปตามเส้นโค้งไม่ใช่เส้นตรง ข้อใดอธิบายได้ใกล้เคียงที่สุด",
+    image: "",
+    options: [
+      "1. ผิวน้ำแข็งมีความเรียบไม่สม่ำเสมอ",
+      "2. การหมุนตัวของหินทำให้แรงเสียดทานไม่สมมาตร ด้านหน้าเลื่อนต่างจากด้านหลัง",
+      "3. แรงโน้มถ่วงดึงหินให้เคลื่อนที่เป็นวงกลม",
+      "4. น้ำที่หินขัดออกมาทำให้ผิวน้ำแข็งเอียง"
+    ],
+    answer: 2,
+    hint: "หินเคอล์ลิงถูกบิดให้หมุนตัวเล็กน้อยขณะปล่อย ลองคิดว่าจุดสัมผัสด้านหน้าและด้านหลังของหินเลื่อนทิศทางต่างกัน จะกระทบแรงเสียดทานอย่างไร"
+  },
+  {
+    id: 12,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "elevator_friction_normal_force_change",
+    tag_skill: "L4",
+    tag_misconception: "elevator_friction_same_as_stationary_floor",
+    title: "ข้อท้าทายที่ 12. คนยืนบนพื้นลิฟต์ที่กำลังเร่งขึ้นด้วยความเร่ง a ถ้าลิฟต์เร่งขึ้นแทนที่จะเคลื่อนที่ด้วยความเร็วคงที่ แรงเสียดทานสูงสุดระหว่างเท้าคนกับพื้นลิฟต์จะเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. ไม่เปลี่ยนแปลง เพราะมวลคนเท่าเดิม",
+      "2. เพิ่มขึ้น เพราะแรงปฏิกิริยาตั้งเพิ่มขึ้น",
+      "3. ลดลง เพราะแรงโน้มถ่วงสัมพัทธ์ลดลง",
+      "4. เพิ่มขึ้น เพราะความเร็วเพิ่มขึ้น"
+    ],
+    answer: 2,
+    hint: "เขียนสมดุลแรงในแนวตั้งแก่คน: N - mg = ma ดังนั้น N = m(g+a) แรงเสียดทานสูงสุดขึ้นกับอะไร"
+  },
+  {
+    id: 13,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "tire_tread_water_evacuation_principle",
+    tag_skill: "L3",
+    tag_misconception: "tread_pattern_only_for_roughness",
+    title: "ข้อท้าทายที่ 13. ยางรถยนต์ที่ใช้วิ่งบนถนนแห้งหากเป็นยางเรียบ (slick) จะยึดเกาะได้ดีกว่ายางที่มีร่อง แต่ต้องใช้ยางมีร่องบนถนนทั่วไป ข้อใดอธิบายได้ถูกต้องที่สุดว่าทำไม",
+    image: "",
+    options: [
+      "1. ยางเรียบมีอันตรายเมื่อเปียกแต่ไม่มีปัญหาเมื่อแห้ง",
+      "2. ร่องยางช่วยระบายน้ำและสิ่งเล็กๆ ออกจากผิวสัมผัสในสภาวะต่างๆ ไม่ใช่แค่เรื่องน้ำ",
+      "3. ยางเรียบทำให้เสียงดังเกินไป",
+      "4. กฎหมายบังคับให้ใช้ยางมีร่องเท่านั้น"
+    ],
+    answer: 2,
+    hint: "ลองนึกสภาวะอื่นนอกเหนือจากถนนเปียก: ถนนมีฝุ่น, มีทราย, มีคราบมัน ร่องยางช่วยอะไร"
+  },
+  {
+    id: 14,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "block_on_accelerated_wedge",
+    tag_skill: "L4",
+    tag_misconception: "friction_on_wedge_same_as_stationary_incline",
+    title: "ข้อท้าทายที่ 14. ก้อนไม้วางบนรูปสามเหลี่ยม (wedge) ที่วางอยู่บนพื้นเรียบ ดันรูปสามเหลี่ยมไปทางขวาด้วยความเร่ง a ก้อนไม้อยู่นิ่งบนรูปสามเหลี่ยมโดยไม่ไถล เปรียบเทียบกับกรณีที่รูปสามเหลี่ยมอยู่นิ่ง แรงเสียดทานบนผิวเอียงเปลี่ยนแปลงอย่างไร",
+    image: "",
+    options: [
+      "1. ไม่เปลี่ยนแปลง เพราะมวลและมุมเอียงเหมือนกัน",
+      "2. ลดลง เพราะแรงเฉือนจากการเร่งช่วยต้านแรงโน้มถ่วง",
+      "3. เพิ่มขึ้น เพราะต้องท้าทายทั้งแรงโน้มถ่วงและแรงเฉือนจากการเร่ง",
+      "4. อาจเพิ่มหรือลด ขึ้นกับทิศทางและขนาดของ a เทียบกับ g tan θ"
+    ],
+    answer: 4,
+    hint: "วิเคราะห์ในกรอบอ้างอิงเร่ง (non-inertial frame) ของรูปสามเหลี่ยม จะมีแรงเทียมเพิ่มเข้ามา ลองเขียนสมดุลแรงแล้วดูว่าเงื่อนไขการไม่ไถลเปลี่ยนไปอย่างไร"
+  },
+  {
+    id: 15,
+    domain: "PHY",
+    content: "แรงเสียดทาน",
+    tag_content: "zipper_friction_wedge_principle",
+    tag_skill: "L3",
+    tag_misconception: "zipper_works_by_magnetic_forces",
+    title: "ข้อท้าทายที่ 15. กระเป๋าเสื้อผ้าใช้รูดลูกบิด (zipper) ในการเปิดปิด ข้อใดเกี่ยวข้องกับหลักการแรงเสียดทานโดยตรงที่สุด",
+    image: "",
+    options: [
+      "1. รูดลูกบิดใช้แรงเสียดทานระหว่างฟันซิปตัวผู้กับตัวเมียในการยึดกัน",
+      "2. รูดลูกบิดทำหน้าที่เปลี่ยนทิศทางของแรงเพื่อให้ฟันซิปเข้าหรือออกจากกัน",
+      "3. รูดลูกบิดใช้หลักการเรียบเนียนผิวเพื่อลดแรงเสียดทาน",
+      "4. ฟันซิปใช้แม่เหล็กยึดตัวกันจึงไม่เกี่ยวกับแรงเสียดทาน"
+    ],
+    answer: 1,
+    hint: "ลองสังเกตฟันซิปที่ปิดแล้ว: ฟันตัวผู้และตัวเมียสอดเข้าหากัน ถ้าดึงตรงๆ จะไม่แยก เพราะอะไร"
+  }
+  ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)-เอาออก
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+//    }
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+          //localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)-เอาออก
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+      // เอาออก - เพื่อไม่แสดงเลขข้อ Claude 21-08-2569 document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+//Start จุดที่แก้ไข : โค้ดที่แก้ใหม่เพื่อไม่แสดงเลขข้อ แนะนำโดย Claude 21-08-2569
+      let displayTitle = q.title;
+      if (testMode === 'EXAM') {
+        displayTitle = displayTitle.replace(/^ข้อ(?:ท้าทายที่|ที่)\s*\d+\.\s*/, '');
+      }
+      document.getElementById('q-title').innerHTML = displayTitle.replace(/\n/g, '<br>');
+//Stop จุดที่แก้ไข
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <!-- <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3> -->
+            <h3 class="text-lg font-bold text-gray-800 mb-2">${testMode === 'EXAM' ? '⏸️ พักสายตาสักครู่' : `ข้อที่ ${currentQ + 1}`}</h3>            
+                       
+                         <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

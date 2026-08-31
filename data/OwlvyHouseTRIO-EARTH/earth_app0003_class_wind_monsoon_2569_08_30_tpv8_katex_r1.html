@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <!--- เพิ่ม KaTeX สำหรับแสดงผลสูตรคณิตศาสตร์/วิทยาศาสตร์ (LaTeX) By Claude 30/08/2569 --->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ===== [ เพิ่มใหม่: KaTeX สำหรับ render สูตร LaTeX 30/08/2569 ] ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <!-- ================================ -->
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <!-- ===== [ เพิ่มใหม่: รูปภาพประกอบโจทย์ (q.image) 30/08/2569 ] ===== -->
+      <img id="q-image" src="" alt="รูปประกอบข้อสอบ" class="w-full max-w-md mx-auto rounded-xl mb-4 border border-gray-100 hidden">
+      <!-- ================================ -->
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+<p class="text-amber-700/70 text-[10px] sm:text-xs text-center italic mt-1.5 mb-0">* App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ</p>    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email"
+ class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+<!--Start ปุ่ม Adaptive 19-08-2569-->
+<!-- ===== ปุ่ม Adaptive Learning (ลิงก์ฝังไว้ในปุ่ม) ===== -->
+      <!-- ===== ปุ่ม Adaptive Learning (กล่องแยก ไม่ใช่ส่วนหนึ่งของ Import JSON) ===== -->
+      <a href="https://share.gemini.google/MK5cobbGPGPx" target="_blank" rel="noopener noreferrer"
+         class="group flex items-center gap-4 bg-slate-800/80 hover:bg-slate-800 border border-purple-500/40 hover:border-purple-400 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 mt-4">
+          <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center overflow-hidden">
+              <span class="text-2xl absolute">🎓</span>
+              <img src="images/adaptive_symbol.png" alt="สัญลักษณ์ Adaptive Learning"
+                   class="relative w-full h-full object-contain" onerror="this.style.display='none'">
+          </div>
+          <div class="flex-grow min-w-0">
+              <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-purple-400 transition">Adaptive Learning</h4>
+              <p class="text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed">แหล่งเรียนรู้แบบปรับระดับ — Learn • Analyze • Adapt • Improve (เปิดในแท็บใหม่)</p>
+          </div>
+          <span class="text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition shrink-0 inline-block">↗️</span>
+      </a>
+      <!--Stop ปุ่ม Adaptive 19-08-2569-->
+  <!--Stop ปุ่ม Adaptive 19-08-2569-->
+
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+    // ===== [ เพิ่มใหม่: ฟังก์ชัน render สูตร LaTeX ด้วย KaTeX 30/08/2569 ] =====
+    // เรียกใช้ทุกครั้งหลังใส่ข้อความ (โจทย์/ตัวเลือก/คำใบ้) ลงใน DOM แล้ว
+    // เพื่อแปลง $...$ หรือ $$...$$ ให้กลายเป็นสมการที่แสดงผลถูกต้อง
+    function renderMath(el) {
+      if (typeof renderMathInElement === 'function' && el) {
+        renderMathInElement(el, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    // ================================
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+    const quizTitle = "EARTH-AP0003-Class-Wind-2569-08-30-GEMINI";
+     const quizDomain = "EARTH";
+     const quizContent = "ลมบก, ลมทะเล และลมมรสุม";
+    const questions = [
+
+{
+    id: 1,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "air_pressure_and_temperature",
+    tag_skill: "L2",
+    tag_misconception: "high_pressure_causes_rain",
+    title: "ข้อที่ 1. นักเรียนวัดอุณหภูมิอากาศในบริเวณหนึ่งพบว่ามีอุณหภูมิลดต่ำลงอย่างรวดเร็วเนื่องจากมวลอากาศเย็นเคลื่อนเข้ามาปกคลุม ข้อใดอธิบายความสัมพันธ์ระหว่างอุณหภูมิ ความกดอากาศ และสภาพอากาศในบริเวณนี้ได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. ความกดอากาศต่ำลง และมักเกิดพายุฝนฟ้าคะนองรุนแรง",
+      "2. ความกดอากาศต่ำลง และท้องฟ้าจะโปร่งใสไร้เมฆ",
+      "3. ความกดอากาศสูงขึ้น และมักเกิดฝนตกหนักเนื่องจากอากาศลอยตัว",
+      "4. ความกดอากาศสูงขึ้น อากาศจมตัวลง และท้องฟ้ามักจะโปร่งใส"
+    ],
+    answer: 4,
+    hint: "อากาศเย็นมีความแน่นสูงกว่าอากาศร้อน จึงกดทับลงมาเกิดเป็นความกดอากาศสูง ซึ่งมักทำให้อากาศจมตัวและท้องฟ้าโปร่ง"
+  },
+  {
+    id: 2,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "sea_breeze_mechanism",
+    tag_skill: "L3",
+    tag_misconception: "land_heats_up_slower_than_water",
+    title: "ข้อที่ 2. บริเวณชายหาดแห่งหนึ่ง ณ เวลา 13.00 น. วัดอุณหภูมิพื้นดินได้ $34^\\circ\\text{C}$ และวัดอุณหภูมิผิวน้ำทะเลได้ $28^\\circ\\text{C}$ ปรากฏการณ์ใดจะเกิดขึ้นในบริเวณดังกล่าว",
+    image: "",
+    options: [
+      "1. อากาศเหนือพื้นน้ำลอยตัวขึ้น อากาศเหนือพื้นดินพัดไปแทนที่ เกิดลมบก",
+      "2. อากาศเหนือพื้นดินและพื้นน้ำมีความกดอากาศเท่ากัน จึงไม่มีลมพัด",
+      "3. อากาศเหนือพื้นดินร้อนและขยายตัวลอยตัวขึ้น อากาศเหนือทะเลที่เย็นกว่าพัดเข้าสู่ชายฝั่ง เกิดลมทะเล",
+      "4. เกิดลมพัดจากชายฝั่งออกสู่ทะเล เนื่องจากความกดอากาศเหนือพื้นดินสูงกว่าทะเล"
+    ],
+    answer: 3,
+    hint: "ในเวลากลางวัน พื้นดินรับความร้อนได้เร็วกว่าพื้นน้ำ ทำให้อากาศเหนือพื้นดินร้อน ลอยตัวสูงขึ้น เกิดความกดอากาศต่ำ ลมจึงพัดจากทะเลเข้าหาฝั่ง"
+  },
+  {
+    id: 3,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "land_breeze_mechanism",
+    tag_skill: "L3",
+    tag_misconception: "sea_breeze_occurs_at_night",
+    title: "ข้อที่ 3. ชาวประมงพื้นบ้านมักอาศัยปรากฏการณ์ทางธรรมชาติในการนำเรือแล่นออกจากฝั่งไปจับปลาในตอนกลางคืน ข้อใดอธิบายสภาวะทางอุตุนิยมวิทยาที่สนับสนุนการเดินทางนี้ได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. เกิดลมบก โดยอากาศเหนือพื้นดินเย็นเร็ว มีความกดอากาศสูงกว่า พัดออกสู่ทะเลที่มีความกดอากาศต่ำกว่า",
+      "2. เกิดลมบก โดยอากาศเหนือพื้นทะเลเย็นเร็ว มีความกดอากาศสูงกว่า พัดดันเรือเข้าสู่ชายฝั่ง",
+      "3. เกิดลมทะเล โดยอากาศเหนือพื้นดินคายความร้อนได้ช้ากว่า จึงมีความกดอากาศต่ำ พัดพาเรือออกสู่ทะเล",
+      "4. เกิดลมทะเล โดยอากาศเหนือพื้นน้ำร้อนกว่า จึงพัดเอาอากาศเย็นจากฝั่งออกไปสู่ทะเลในเวลากลางวัน"
+    ],
+    answer: 1,
+    hint: "กลางคืนพื้นดินคายความร้อนได้เร็วกว่าพื้นน้ำ อากาศเหนือพื้นดินจึงเย็นและกดทับเป็นความกดอากาศสูง ลมพัดจากบกออกสู่ทะเล"
+  },
+  {
+    id: 4,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "specific_heat_capacity",
+    tag_skill: "L4",
+    tag_misconception: "water_has_lower_heat_capacity_than_soil",
+    title: "ข้อที่ 4. จากการทดลองนำทรายและน้ำมาตากแดดเป็นเวลา 30 นาที แล้วนำเข้าในร่มเพื่อวัดการเปลี่ยนแปลงอุณหภูมิ พบว่าทรายมีอุณหภูมิสูงขึ้นและลดลงเร็วกว่าน้ำ คุณสมบัติทางกายภาพนี้เกี่ยวข้องกับการเกิดลมประจำเวลาอย่างไร",
+    image: "",
+    options: [
+      "1. น้ำมีความจุความร้อนต่ำกว่าทราย จึงเกิดการเปลี่ยนแปลงอุณหภูมิอย่างรวดเร็วในเวลากลางวัน",
+      "2. ความจุความร้อนจำเพาะของน้ำสูงกว่าทราย ทำให้พื้นน้ำร้อนช้าและเย็นช้ากว่าพื้นดิน เกิดความแตกต่างของความกดอากาศ",
+      "3. ทรายคายความร้อนได้ช้ากว่าน้ำ จึงทำให้อากาศเหนือพื้นดินมีความกดอากาศต่ำตลอดทั้งวันและคืน",
+      "4. ทั้งน้ำและทรายมีความจุความร้อนเท่ากัน แต่การสะท้อนแสงของน้ำทำให้เกิดลมบกในเวลากลางวัน"
+    ],
+    answer: 2,
+    hint: "น้ำมีความจุความร้อนจำเพาะสูงกว่าดิน/ทราย จึงรับและคายความร้อนได้ช้ากว่า เป็นสาเหตุสำคัญของอุณหภูมิที่แตกต่างระหว่างบกกับทะเล"
+  },
+  {
+    id: 5,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "air_flow_direction",
+    tag_skill: "L2",
+    tag_misconception: "air_moves_from_low_to_high_pressure",
+    title: "ข้อที่ 5. หากกำหนดให้จุด A มีอุณหภูมิ $22^\\circ\\text{C}$ และจุด B มีอุณหภูมิ $30^\\circ\\text{C}$ ทิศทางการเคลื่อนที่ของอากาศในระดับผิวพื้น และสภาวะความกดอากาศของทั้งสองจุดควรเป็นอย่างไร",
+    image: "",
+    options: [
+      "1. ลมพัดจาก B ไป A โดย A มีความกดอากาศต่ำ และ B มีความกดอากาศสูง",
+      "2. ลมพัดจาก B ไป A โดย A มีความกดอากาศสูง และ B มีความกดอากาศต่ำ",
+      "3. ลมพัดจาก A ไป B โดย A มีความกดอากาศต่ำ และ B มีความกดอากาศสูง",
+      "4. ลมพัดจาก A ไป B โดย A มีความกดอากาศสูง และ B มีความกดอากาศต่ำ"
+    ],
+    answer: 4,
+    hint: "บริเวณอุณหภูมิต่ำ (A) มีความกดอากาศสูง บริเวณอุณหภูมิสูง (B) มีความกดอากาศต่ำ ลมจะพัดจากความกดอากาศสูงไปยังความกดอากาศต่ำ (A ไป B)"
+  },
+  {
+    id: 6,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "monsoon_mechanisms",
+    tag_skill: "L3",
+    tag_misconception: "sw_monsoon_brings_cold_dry_air",
+    title: "ข้อที่ 6. ในช่วงเดือนพฤษภาคมถึงเดือนตุลาคม ประเทศไทยจะได้รับอิทธิพลจากลมมรสุมตะวันตกเฉียงใต้ ลมนี้เกิดขึ้นจากสาเหตุใดและส่งผลต่อลักษณะอากาศอย่างไร",
+    image: "",
+    options: [
+      "1. อากาศเหนือทวีป Asia เย็นกว่ามหาสมุทร Indian พัดพาความหนาวเย็นเข้ามา",
+      "2. อุณหภูมิเหนือพื้นทวีป Asia สูงกว่ามหาสมุทร Indian เกิดความกดอากาศต่ำบนทวีป ดูดมวลอากาศชื้นจากมหาสมุทรเข้ามาทำให้ฝนตกชุก",
+      "3. ความกดอากาศสูงจากทวีป Asia พัดพาความชุ่มชื้นจากทะเลจีนใต้เข้ามาสู่ประเทศไทย",
+      "4. อากาศเหนือมหาสมุทร Indian มีอุณหภูมิสูงกว่าทวีป Asia ทำให้ลมพัดพาความแห้งแล้งมาสู่ภูมิภาค"
+    ],
+    answer: 2,
+    hint: "ฤดูร้อนทวีปเอเชียร้อนจัด เกิดความกดอากาศต่ำ ลมมรสุมตะวันตกเฉียงใต้จึงพัดพาความชื้นจากมหาสมุทรอินเดียเข้ามาทำให้ฝนตก"
+  },
+  {
+    id: 7,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "regional_wind_analysis",
+    tag_skill: "L4",
+    tag_misconception: "air_moves_randomly_between_zones",
+    title: "ข้อที่ 7. พิจารณาข้อมูลพื้นที่ 3 บริเวณที่อยู่ติดกัน: พื้นที่ X มีอุณหภูมิ $25^\\circ\\text{C}$, พื้นที่ Y มีอุณหภูมิ $32^\\circ\\text{C}$, พื้นที่ Z มีอุณหภูมิ $20^\\circ\\text{C}$ ทิศทางการเคลื่อนที่ของลมผิวพื้นระหว่างพื้นที่เหล่านี้ข้อใดถูกต้อง",
+    image: "",
+    options: [
+      "1. ลมพัดจาก Z ไปยัง Y และจาก X ไปยัง Y",
+      "2. ลมพัดจาก Y ไปยัง X และจาก Y ไปยัง Z",
+      "3. ลมพัดจาก X ไปยัง Z และจาก Y ไปยัง X",
+      "4. ลมพัดจาก Z ไปยัง X และจาก X ไปยัง Y เท่านั้น"
+    ],
+    answer: 1,
+    hint: "ความกดอากาศเรียงจากสูงไปต่ำตามอุณหภูมิต่ำไปสูง: Z (เย็นสุด-กดสูง) และ X (เย็นรองลงมา) จะพัดเข้าหา Y (ร้อนสุด-กดต่ำ)"
+  },
+  {
+    id: 8,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "diurnal_wind_cycle",
+    tag_skill: "L3",
+    tag_misconception: "wind_direction_never_changes_in_a_day",
+    title: "ข้อที่ 8. หากนำถุงลม (Windsock) ไปติดตั้งไว้บริเวณชายฝั่งทะเล ข้อใดอธิบายการเปลี่ยนแปลงทิศทางของถุงลมในรอบ 24 ชั่วโมงได้ถูกต้อง",
+    image: "",
+    options: [
+      "1. เวลา 12.00 น. ถุงลมเบนชี้ไปทางทะเล เวลา 24.00 น. ถุงลมเบนชี้เข้าหาชายฝั่ง",
+      "2. เวลา 12.00 น. ถุงลมเบนชี้เข้าหาชายฝั่ง เวลา 24.00 น. ถุงลมเบนชี้ออกสู่ทะเล",
+      "3. ถุงลมจะเบนชี้ไปทางทิศตะวันออกเฉียงเหนือตลอดทั้งวันและคืน",
+      "4. เวลา 12.00 น. ถุงลมอยู่นิ่ง เวลา 24.00 น. ถุงลมหมุนเป็นวงกลม"
+    ],
+    answer: 2,
+    hint: "กลางวันเกิดลมทะเล (พัดจากทะเลเข้าฝั่ง ถุงลมชี้เข้าหาฝั่ง) กลางคืนเกิดลมบก (พัดจากฝั่งออกทะเล ถุงลมชี้ออกสู่ทะเล)"
+  },
+  {
+    id: 9,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "monsoon_vs_local_winds",
+    tag_skill: "L4",
+    tag_misconception: "monsoon_and_local_wind_same_scale",
+    title: "ข้อที่ 9. การเปรียบเทียบระหว่าง 'ลมทะเล' กับ 'ลมมรสุมตะวันตกเฉียงใต้' ข้อใดสรุปความเหมือนและความแตกต่างได้ถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. เกิดจากกลไกอุณหภูมิที่แตกต่างกัน แต่มีขอบเขตพื้นที่ครอบคลุมเท่ากัน",
+      "2. ลมทะเลเป็นลมประจำปี ส่วนลมมรสุมตะวันตกเฉียงใต้เป็นลมประจำเวลา",
+      "3. เกิดขึ้นเฉพาะในเวลากลางคืนเหมือนกัน แต่ลมมรสุมมีพายุหมุนร่วมด้วย",
+      "4. เกิดจากความแตกต่างของอุณหภูมิระหว่างพื้นดินกับพื้นน้ำเหมือนกัน แต่ลมมรสุมมีขนาดพื้นที่และช่วงเวลาเกิดที่ใหญ่และยาวนานกว่า"
+    ],
+    answer: 4,
+    hint: "ทั้งสองปรากฏการณ์เกิดจากความต่างของอุณหภูมิ/ความดันระหว่างบกกับน้ำ แต่ลมบก-ลมทะเลเปลี่ยนตามช่วงวัน ส่วนมรสุมเปลี่ยนตามฤดูกาลและระดับทวีป"
+  },
+  {
+    id: 10,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "ne_monsoon_characteristics",
+    tag_skill: "L3",
+    tag_misconception: "ne_monsoon_causes_rain_all_over_thailand",
+    title: "ข้อที่ 10. ลมมรสุมตะวันออกเฉียงเหนือที่พัดผ่านประเทศไทยในช่วงเดือนพฤศจิกายนถึงมกราคม มีแหล่งกำเนิดและลักษณะอากาศอย่างไร",
+    image: "",
+    options: [
+      "1. พัดมาจากมวลอากาศเย็นความกดอากาศสูงในจีน ทำให้ไทยตอนบนหนาวเย็นและแห้งแล้ง แต่ภาคใต้ฝั่งตะวันออกมีฝนตกชุก",
+      "2. พัดมาจากมหาสมุทรอินเดีย ทำให้ทั่วทุกภาคของประเทศไทยมีฝนตกหนักและคลื่นลมแรง",
+      "3. พัดมาจากขั้วโลกใต้ นำความเย็นและความชื้นสูงทำให้เกิดหิมะตกบนยอดเขาสูงของไทย",
+      "4. พัดมาจากทะเลจีนใต้ นำความร้อนและความชื้นทำให้ทั่วประเทศไทยมีอากาศร้อนชื้น"
+    ],
+    answer: 1,
+    hint: "มรสุมตะวันออกเฉียงเหนือพัดความหนาวแห้งจากจีนมาไทยตอนบน แต่เมื่อผ่านอ่าวไทยจะหอบความชื้นไปตกเป็นฝนทางภาคใต้ฝั่งตะวันออก"
+  },
+  {
+    id: 11,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "cloud_formation_coastal",
+    tag_skill: "L3",
+    tag_misconception: "clouds_form_only_over_water",
+    title: "ข้อที่ 11. ในวันที่มีแดดจัดตลอดวัน บริเวณชายฝั่งทะเลมักจะสังเกตเห็นก้อนเมฆก่อตัวขึ้นเหนือพื้นดินชายฝั่งในช่วงบ่าย ปรากฏการณ์นี้เกิดขึ้นเนื่องจากสาเหตุใด",
+    image: "",
+    options: [
+      "1. ลมบกพัดไอน้ำจากชายฝั่งไปควบแน่นเป็นเมฆเหนือทะเล",
+      "2. ไอน้ำระเหยจากทะเลแล้วจมตัวลงเหนือชายฝั่งก่อตัวเป็นเมฆ",
+      "3. อากาศเหนือพื้นดินร้อนขึ้น ลอยตัวพาไอน้ำที่มากับลมทะเลขึ้นไปควบแน่นเป็นเมฆเหนือฝั่ง",
+      "4. พื้นดินมีความกดอากาศสูง ดันอากาศชื้นให้ควบแน่นในระดับต่ำ"
+    ],
+    answer: 3,
+    hint: "ลมทะเลพัดพาความชื้นเข้าสู่ฝั่ง ขณะที่อากาศเหนือฝั่งร้อนและลอยตัวสูงขึ้น พาไอน้ำขึ้นไปกลั่นตัวเป็นเมฆเหนือชายฝั่งในตอนบ่าย"
+  },
+  {
+    id: 12,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "smoke_drift_experiment",
+    tag_skill: "L3",
+    tag_misconception: "land_breeze_blows_inland",
+    title: "ข้อที่ 12. ถ้าจุดกองไฟบนหาดทรายชายทะเล ณ เวลา 22.00 น. ควันไฟจะลอยเฉียงไปในทิศทางใด เพราะเหตุใด",
+    image: "",
+    options: [
+      "1. ลอยเบนเข้าหาฝั่ง เพราะเกิดลมทะเลพัดจากทะเลเข้าหาฝั่ง",
+      "2. ลอยเบนออกสู่ทะเล เพราะเกิดลมบกพัดจากฝั่งที่มีความกดอากาศสูงออกสู่ทะเล",
+      "3. ลอยขึ้นตรงๆ ไม่เบน เพราะเวลากลางคืนไม่มีลมพัดบริเวณชายฝั่ง",
+      "4. ลอยเบนขนานไปกับแนวชายหาด เพราะแรงคอริออลิสหมุนควันไฟ"
+    ],
+    answer: 2,
+    hint: "เวลา 22.00 น. เป็นเวลากลางคืน เกิดลมบกพัดจากฝั่งออกสู่ทะเล ทำให้ควันไฟเบนออกไปทางทะเล"
+  },
+  {
+    id: 13,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "altitude_and_pressure",
+    tag_skill: "L4",
+    tag_misconception: "altitude_increases_air_pressure",
+    title: "ข้อที่ 13. พิจารณาข้อความต่อไปนี้ เกี่ยวกับความดันบรรยากาศและลม\nก. เมื่อระดับความสูงเพิ่มขึ้น ความกดอากาศจะลดลง\nข. อากาศจะเคลื่อนที่จากบริเวณความกดอากาศต่ำไปความกดอากาศสูงเสมอ\nค. ลมเกิดจากความแตกต่างของอุณหภูมิและความกดอากาศสองแห่ง\nข้อใดถูกต้อง",
+    image: "",
+    options: [
+      "1. ข้อ ก และ ข ถูกต้อง",
+      "2. ข้อ ข และ ค ถูกต้อง",
+      "3. ข้อ ก เท่านั้น ถูกต้อง",
+      "4. ข้อ ก และ ค ถูกต้อง"
+    ],
+    answer: 4,
+    hint: "ยิ่งสูงความกดอากาศยิ่งลดลง (ก ถูก) และลมพัดจากความกดอากาศสูงไปต่ำ (ข ผิด) โดยมีสาเหตุมาจากความแตกต่างของอุณหภูมิและความดัน (ค ถูก)"
+  },
+  {
+    id: 14,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "seasonal_wind_shift",
+    tag_skill: "L3",
+    tag_misconception: "monsoon_changes_daily",
+    title: "ข้อที่ 14. กราฟทิศทางลมในรอบปีของจังหวัดหนึ่งในภาคเหนือพบว่า ในช่วงฤดูหนาวลมพัดมาจากทิศเหนือ/ตะวันออกเฉียงเหนือ แต่ช่วงฤดูฝนลมเปลี่ยนเป็นทิศตะวันตกเฉียงใต้ ปรากฏการณ์นี้จัดเป็นลมประเภทใด",
+    image: "",
+    options: [
+      "1. ลมมรสุม (Monsoon)",
+      "2. ลมประจำเวลา (Diurnal wind)",
+      "3. ลมหุบเขา (Valley breeze)",
+      "4. ลมพายุหมุนเขตร้อน (Tropical cyclone)"
+    ],
+    answer: 1,
+    hint: "ลมที่มีการเปลี่ยนทิศทางเกือบตรงกันข้ามตามฤดูกาลในรอบปี เรียกว่า ลมมรสุม"
+  },
+  {
+    id: 15,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "pressure_table_analysis",
+    tag_skill: "L4",
+    tag_misconception: "high_temp_means_high_pressure",
+    title: "ข้อที่ 15. ตารางแสดงความกดอากาศ 3 บริเวณในเวลาเดียวกัน:\nบริเวณ A: $1,016\\text{ hPa}$, บริเวณ B: $1,008\\text{ hPa}$, บริเวณ C: $1,012\\text{ hPa}$\nข้อสรุปเกี่ยวกับทิศทางลมและอุณหภูมิข้อใดถูกต้องที่สุด",
+    image: "",
+    options: [
+      "1. บริเวณ A มีอุณหภูมิสูงที่สุด และลมพัดจาก B ไป A",
+      "2. บริเวณ B มีอุณหภูมิต่ำที่สุด และลมพัดจาก A ไป C",
+      "3. บริเวณ A น่าจะมีอุณหภูมิต่ำที่สุด และลมผิวพื้นจะพัดจาก A ไป B",
+      "4. บริเวณ C มีความกดอากาศต่ำที่สุด และเกิดลมพัดออกจาก C ทุกทิศทาง"
+    ],
+    answer: 3,
+    hint: "ความกดอากาศสูงสุดคือ A ($1,016\\text{ hPa}$) แสดงว่าอุณหภูมิต่ำสุด ลมจะพัดจากความดันสูง (A) ไปความดันต่ำสุด (B)"
+  },
+  {
+    id: 16,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "misconception_air_density",
+    tag_skill: "L2",
+    tag_misconception: "hot_air_is_denser_than_cold_air",
+    title: "ข้อที่ 16. เมื่อมวลอากาศได้รับความร้อนจากพื้นดินที่ร้อนจัด อากาศจะมีการเปลี่ยนแปลงทางกายภาพตามข้อใด",
+    image: "",
+    options: [
+      "1. หดตัว หนาแน่นขึ้น และจมตัวลงเกิดเป็นความกดอากาศสูง",
+      "2. ขยายตัว ความหนาแน่นลดลง และลอยตัวสูงขึ้นเกิดเป็นความกดอากาศต่ำ",
+      "3. ความหนาแน่นคงที่ แต่ความดันเพิ่มขึ้นทำให้อากาศเคลื่อนที่ลงด้านล่าง",
+      "4. ขยายตัว ความหนาแน่นเพิ่มขึ้น และพัดออกไปข้างๆ"
+    ],
+    answer: 2,
+    hint: "อากาศร้อนจะขยายตัว ทำให้ปริมาตรเพิ่มขึ้น ความหนาแน่นจึงลดลงและลอยตัวขึ้นสู่เบื้องบน เกิดความกดอากาศต่ำ"
+  },
+  {
+    id: 17,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "environmental_impact_on_breeze",
+    tag_skill: "L4",
+    tag_misconception: "land_use_does_not_affect_wind",
+    title: "ข้อที่ 17. หากมีการตัดไม้ทำลายป่าและเปลี่ยนพื้นที่ป่าชายเลนริมชายฝั่งให้เป็นลานคอนกรีตขนาดใหญ่ เหตุการณ์นี้จะส่งผลต่อการเกิด 'ลมทะเล' ในเวลากลางวันอย่างไร",
+    image: "",
+    options: [
+      "1. ลมทะเลจะพัดเบาลง เพราะคอนกรีตสะท้อนความร้อนได้ดีกว่าป่าไม้",
+      "2. ลมทะเลจะไม่เกิดขึ้นอีกเลย เพราะไม่มีต้นไม้ช่วยคายไอน้ำ",
+      "3. ทิศทางลมทะเลจะเปลี่ยนเป็นพัดออกจากชายฝั่งแทน",
+      "4. ลมทะเลจะพัดแรงขึ้น เพราะคอนกรีตดูดซับความร้อนและทำให้อากาศเหนือฝั่งร้อนและลอยตัวเร็วขึ้น"
+    ],
+    answer: 4,
+    hint: "ลานคอนกรีตร้อนเร็วกว่าป่าไม้ ทำให้ความแตกต่างอุณหภูมิระหว่างฝั่งกับทะเลเพิ่มขึ้น ส่งผลให้ความกดอากาศต่างกันมาก ลมทะเลจึงพัดแรงขึ้น"
+  },
+  {
+    id: 18,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "kite_flying_scenario",
+    tag_skill: "L3",
+    tag_misconception: "wind_blows_towards_sea_during_day",
+    title: "ข้อที่ 18. เด็กชายสองคนเล่นว่าวริมหาด โดยยืนหันหน้าออกสู่ทะเล หากเขาต้องการยิงว่าวให้ลอยขึ้นไปตามแนวลมในเวลากลางวัน (11.00 น.) เขาควรหันหลังหรือหันหน้าเข้าหาลมอย่างไร",
+    image: "",
+    options: [
+      "1. หันหลังให้ทะเล เพราะลมทะเลพัดจากทะเลเข้าหาฝั่ง",
+      "2. หันหน้าออกสู่ทะเล เพราะลมบกพัดจากฝั่งออกสู่ทะเล",
+      "3. ยืนหันไปทางทิศเหนือ เพราะลมพัดขนานกับหาดเสมอ",
+      "4. ไม่ว่าจะยืนหันหน้าไปทางใด ว่าวจะไม่สามารถลอยได้เพราะไม่มีลม"
+    ],
+    answer: 1,
+    hint: "เวลากลางวันเกิดลมทะเลพัดจากทะเลเข้าหาฝั่ง การปล่อยว่าวตามแนวลมต้องให้ลมพัดมาจากด้านหลัง (หันหลังให้ทะเล) หรือหันหน้าเข้าหาลมที่มาจากทะเล"
+  },
+  {
+    id: 19,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "monsoon_rain_distribution",
+    tag_skill: "L4",
+    tag_misconception: "all_coasts_get_rain_in_same_season",
+    title: "ข้อที่ 19. เหตุใดจังหวัดระนอง (ภาคใต้ฝั่งตะวันตก) จึงมีฝนตกชุกมากในเดือน กรกฎาคม ในขณะที่จังหวัดนราธิวาส (ภาคใต้ฝั่งตะวันออก) กลับมีฝนตกชุกมากในเดือน พฤศจิกายน",
+    image: "",
+    options: [
+      "1. เดือนกรกฎาคมรับลมบก ส่วนเดือนพฤศจิกายนรับลมทะเล",
+      "2. จังหวัดระนองอยู่ใกล้ป่าไม้ ส่วนจังหวัดนราธิวาสอยู่ใกล้ภูเขาไฟ",
+      "3. ระนองรับมรสุม SW (ก.ค.) นราธิวาสรับมรสุม NE ผ่านอ่าวไทย (พ.ย.)",
+      "4. อุณหภูมิของระนองสูงกว่านราธิวาสตลอดทั้งปี"
+    ],
+    answer: 3,
+    hint: "ภาคใต้ฝั่งตะวันตกเปิดรับลมมรสุมตะวันตกเฉียงใต้ (พ.ค.-ต.ค.) ส่วนภาคใต้ฝั่งตะวันออกเปิดรับลมมรสุมตะวันออกเฉียงเหนือที่หอบความชื้นจากอ่าวไทย (พ.ย.-ม.ค.)"
+  },
+  {
+    id: 20,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "sea_surface_temp_effect",
+    tag_skill: "L4",
+    tag_misconception: "warm_sea_causes_land_breeze_in_daytime",
+    title: "ข้อที่ 20. หากเกิดปรากฏการณ์น้ำทะเลเย็นลงผิดปกติ (Coastal Upwelling) ในเวลากลางวัน จะส่งผลต่อความแรงของลมทะเลบริเวณชายฝั่งอย่างไร",
+    image: "",
+    options: [
+      "1. ลมทะเลจะพัดเบาลง เพราะอุณหภูมิชายฝั่งและทะเลใกล้เคียงกันมากขึ้น",
+      "2. ลมทะเลจะพัดแรงขึ้น เพราะความแตกต่างของอุณหภูมิระหว่างบกกับทะเลเพิ่มมากขึ้น",
+      "3. ลมทะเลจะหยุดพัดทันทีและกลายเป็นลมบกแทน",
+      "4. ไม่ส่งผลกระทบใดๆ เพราะความแรงของลมทะเลขึ้นกับดวงอาทิตย์เท่านั้น"
+    ],
+    answer: 2,
+    hint: "เมื่อน้ำทะเลเย็นลง แต่พื้นดินยังร้อนเท่าเดิม ความแตกต่างของอุณหภูมิ ($\\Delta T$) และความกดอากาศ ($\\Delta P$) จะเพิ่มขึ้น ส่งผลให้ลมทะเลพัดแรงขึ้น"
+  },
+  {
+    id: 21,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "isobar_and_wind_speed",
+    tag_skill: "L3",
+    tag_misconception: "isobars_far_apart_means_strong_wind",
+    title: "ข้อที่ 21. จากแผนที่อากาศ หากพบว่าเส้นความกดอากาศเท่า (Isobars) บริเวณชายหาดตั้งอยู่ชิดกันมาก หมายความว่าอย่างไร",
+    image: "",
+    options: [
+      "1. บริเวณนั้นมีอุณหภูมิเท่ากันทุกจุด จึงไม่มีลมพัด",
+      "2. ความกดอากาศเปลี่ยนแปลงน้อย ทำให้เกิดลมพัดเบาๆ",
+      "3. เกิดการเคว้งคว้างของอากาศ และเกิดลมพัดย้อนทิศทาง",
+      "4. ความกดอากาศแตกต่างกันอย่างรวดเร็วในระยะทางสั้น ทำให้เกิดลมพัดแรง"
+    ],
+    answer: 4,
+    hint: "เส้น Isobar ชิดกัน แสดงถึงความแตกต่างของความกดอากาศสูงในระยะทางใกล้ (Pressure Gradient สูง) ทำให้ลมพัดแรง"
+  },
+  {
+    id: 22,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "convection_cell_concept",
+    tag_skill: "L3",
+    tag_misconception: "air_moves_only_horizontally",
+    title: "ข้อที่ 22. ในวัฏจักรการพาความร้อนของ 'ลมทะเล' ลมในระดับบนของบรรยากาศ (Upper-level wind) จะพัดในทิศทางใด",
+    image: "",
+    options: [
+      "1. พัดจากบนบกออกสู่ทะเล เพื่อเติมเต็มมวลอากาศที่จมตัวลงเหนือทะเล",
+      "2. พัดจากทะเลเข้าหาบก ทิศทางเดียวกับลมผิวพื้น",
+      "3. พัดดิ่งลงสู่พื้นดินโดยตรง",
+      "4. หยุดนิ่งไม่มีการเคลื่อนที่ในระดับบน"
+    ],
+    answer: 1,
+    hint: "ลมผิวพื้นพัดจากทะเลเข้าหาบก อากาศร้อนบนบกลอยตัวขึ้น แล้วพัดย้อนกลับในระดับบนจากบกออกสู่ทะเลเพื่อครบวงจรกระแสพาความร้อน (Convection Cell)"
+  },
+  {
+    id: 23,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "thermal_property_comparison",
+    tag_skill: "L2",
+    tag_misconception: "land_and_water_cool_at_same_rate",
+    title: "ข้อที่ 23. ข้อความเกี่ยวกับคุณสมบัติทางความร้อนของพื้นดินและพื้นน้ำข้อใด 'ไม่ถูกต้อง'",
+    image: "",
+    options: [
+      "1. พื้นดินดูดซับความร้อนจากดวงอาทิตย์ได้ดีกว่าพื้นน้ำ",
+      "2. พื้นน้ำคายความร้อนสะสมได้ไวกว่าพื้นดินในเวลากลางคืน",
+      "3. พื้นดินมีอุณหภูมิเปลี่ยนแปลงผันผวนมากกว่าพื้นน้ำในรอบวัน",
+      "4. พื้นน้ำมีความจุความร้อนจำเพาะสูงกว่าพื้นดิน"
+    ],
+    answer: 2,
+    hint: "พื้นน้ำคายความร้อนได้ช้ากว่าพื้นดิน ไม่ใช่ไวกว่า ดังนั้นในเวลากลางคืนน้ำทะเลจึงยังคงอุ่นกว่าพื้นดิน"
+  },
+  {
+    id: 24,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "island_diurnal_wind",
+    tag_skill: "L3",
+    tag_misconception: "islands_have_no_land_sea_breeze",
+    title: "ข้อที่ 24. เกาะขนาดใหญ่แห่งหนึ่งกลางมหาสมุทร ในเวลากลางวันมักเกิดปรากฏการณ์ใดขึ้นรอบๆ เกาะนั้น",
+    image: "",
+    options: [
+      "1. ลมพัดออกจากศูนย์กลางเกาะไปสู่มหาสมุทรทุกทิศทาง",
+      "2. ลมพัดจากมหาสมุทรทุกทิศทางเข้าสู่ศูนย์กลางเกาะ และเกิดเมฆพัดพาฝนบนเกาะ",
+      "3. เกิดลมบกพัดรุนแรงทำให้เกิดคลื่นใหญ่พัดออกจากเกาะ",
+      "4. อากาศจมตัวลงเหนือเกาะทำให้ไม่มีเมฆก่อตัวเลย"
+    ],
+    answer: 2,
+    hint: "กลางวันเกาะร้อนกว่าทะเลรอบๆ ลมทะเลจึงพัดจากมหาสมุทรทุกทิศทางเข้าหาศูนย์กลางเกาะ อากาศยกตัวขึ้นก่อเมฆกลางเกาะ"
+  },
+  {
+    id: 25,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "winter_monsoon_air_mass",
+    tag_skill: "L3",
+    tag_misconception: "winter_wind_is_humid",
+    title: "ข้อที่ 25. มวลอากาศที่เดินทางมากับลมมรสุมตะวันออกเฉียงเหนือมีแหล่งกำเนิดจากบริเวณใด และมีลักษณะสมบัติอย่างไร",
+    image: "",
+    options: [
+      "1. มหาสมุทรแปซิฟิก — ร้อนชื้น",
+      "2. ทวีปออสเตรเลีย — เย็นชื้น",
+      "3. มหาสมุทรอินเดีย — ร้อนแห้ง",
+      "4. ไซบีเรียและประเทศจีน — เย็นแห้ง"
+    ],
+    answer: 4,
+    hint: "มรสุมตะวันออกเฉียงเหนือกำเนิดจากมวลอากาศความกดอากาศสูงแผ่นดินใหญ่จีน/ไซบีเรีย ซึ่งมีลักษณะเย็นและแห้งแล้ง"
+  },
+  {
+    id: 26,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "relative_humidity_coastal",
+    tag_skill: "L4",
+    tag_misconception: "relative_humidity_drops_when_sea_breeze_arrives",
+    title: "ข้อที่ 26. สถาปนิกออกแบบบ้านพักชายทะเล ควรวางตำแหน่งหน้าต่างขนาดใหญ่ไว้ทิศทางใด เพื่อรับลมธรรมชาติช่วยลดอุณหภูมิในตัวบ้านช่วงเวลากลางวัน",
+    image: "",
+    options: [
+      "1. ทิศที่หันเข้าหาทะเล เพื่อรับลมทะเลที่พัดเข้ามาในเวลากลางวัน",
+      "2. ทิศที่หันเข้าหาภูเขาด้านหลังบ้าน เพื่อรับลมบกในเวลากลางวัน",
+      "3. ทิศเหนือเสมอ เพื่อหลบแสงแดดและลมประจำเวลา",
+      "4. ทิศตะวันออก เพื่อรับลมมรสุมตะวันตกเฉียงใต้"
+    ],
+    answer: 1,
+    hint: "กลางวันลมทะเลพัดจากทะเลเข้าหาชายฝั่ง หน้าต่างที่หันรับทิศทางทะเลจะเปิดรับลมเย็นสบายเข้าบ้าน"
+  },
+  {
+    id: 27,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "wind_speed_cloud_cover",
+    tag_skill: "L4",
+    tag_misconception: "cloudy_days_have_stronger_sea_breeze",
+    title: "ข้อที่ 27. ในวันที่ท้องฟ้ามืดครึ้มมีเมฆมากบังแสงอาทิตย์ตลอดวัน ความเร็วของ 'ลมทะเล' บริเวณชายฝั่งจะเปลี่ยนแปลงอย่างไรเมื่อเทียบกับวันแดดจัด",
+    image: "",
+    options: [
+      "1. พัดแรงขึ้น เพราะเมฆช่วยกักเก็บความร้อนบนพื้นดิน",
+      "2. พัดแรงขึ้น เพราะอุณหภูมิทะเลสูงกว่าพื้นดินมาก",
+      "3. พัดเบาลง เพราะความแตกต่างอุณหภูมิระหว่างพื้นดินและพื้นน้ำลดลง",
+      "4. พัดด้วยความเร็วเท่าเดิม เพราะลมทะเลไม่เกี่ยวกับแสงอาทิตย์"
+    ],
+    answer: 3,
+    hint: "เมฆบังแสงอาทิตย์ ทำให้พื้นดินร้อนขึ้นไม่มาก ความต่างของอุณหภูมิ ($\\Delta T$) ระหว่างบกกับทะเลจึงน้อย ลมทะเลจึงพัดเบาลง"
+  },
+  {
+    id: 28,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "fishermen_navigation_cycle",
+    tag_skill: "L3",
+    tag_misconception: "fishermen_use_sea_breeze_to_go_out",
+    title: "ข้อที่ 28. หากชาวประมงต้องการออกเรือไปหาปลาและกลับเข้าฝั่งโดยพึ่งพาพลังงานลมประจำเวลาอย่างคุ้มค่าที่สุด เขาควรวางแผนเวลาเดินทางอย่างไร",
+    image: "",
+    options: [
+      "1. ออกเรือตอนเที่ยงวัน (ลมบก) และกลับเข้าฝั่งตอนเที่ยงคืน (ลมทะเล)",
+      "2. ออกเรือตอนกลางคืน (ลมบก) และกลับเข้าฝั่งตอนสายถึงบ่าย (ลมทะเล)",
+      "3. ออกเรือตอนเช้าตรู่ (ลมทะเล) และกลับเข้าฝั่งตอนค่ำ (ลมบก)",
+      "4. ออกเรือและกลับเข้าฝั่งช่วงเวลาใดก็ได้เพราะทิศทางลมเหมือนกันตลอดวัน"
+    ],
+    answer: 2,
+    hint: "กลางคืนเกิดลมบกพัดออกจากฝั่ง (ช่วยส่งเรือออก) สายถึงบ่ายเกิดลมทะเลพัดเข้าหาฝั่ง (ช่วยดันเรือกลับเข้าฝั่ง)"
+  },
+  {
+    id: 29,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "nighttime_sea_warming_effect",
+    tag_skill: "L4",
+    tag_misconception: "cold_land_causes_sea_breeze",
+    title: "ข้อที่ 29. หากในคืนหนึ่ง อุณหภูมิบนพื้นดินลดลงอย่างรวดเร็วเหลือ $18^\\circ\\text{C}$ ขณะที่อุณหภูมิผิวน้ำทะเลยังคงอยู่ที่ $26^\\circ\\text{C}$ ลมบกในคืนนั้นจะมีลักษณะอย่างไร",
+    image: "",
+    options: [
+      "1. หยุดพัดโดยสิ้นเชิง เพราะความดันทั้งสองแห่งเท่ากัน",
+      "2. กลับทิศทางกลายเป็นลมทะเลแรงรุนแรง",
+      "3. พัดเบาลงกว่าปกติเพราะอากาศบนฝั่งเย็นเกินไป",
+      "4. พัดแรงกว่าปกติ เพราะความแตกต่างอุณหภูมิและความดันอากาศระหว่างบกกับทะเลมีมาก"
+    ],
+    answer: 4,
+    hint: "ความแตกต่างอุณหภูมิสูงถึง $8^\\circ\\text{C}$ ทำให้ความแตกต่างความกดอากาศสูงมาก ลมบกจึงพัดแรงกว่าคืนปกติ"
+  },
+  {
+    id: 30,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "barometer_reading_breeze",
+    tag_skill: "L3",
+    tag_misconception: "low_barometer_means_high_pressure",
+    title: "ข้อที่ 30. หากนำบารอมิเตอร์ไปตรวจวัดค่าความดันอากาศ ณ ชายหาด พบว่าช่วงเช้าอ่านได้ $1,013\\text{ hPa}$ ต่อมาช่วงบ่ายอ่านได้ $1,007\\text{ hPa}$ การเปลี่ยนแปลงนี้สัมพันธ์กับการเกิดลมชนิดใด",
+    image: "",
+    options: [
+      "1. เกิดลมทะเล เพราะพื้นดินร้อนขึ้น ทำให้อากาศขยายตัวความดันบนฝั่งจึงลดลง ลมจากทะเลจึงพัดเข้ามา",
+      "2. เกิดลมบก เพราะความดันบนฝั่งลดลง อากาศจึงพัดจากฝั่งออกสู่ทะเล",
+      "3. เกิดลมมรสุมตะวันออกเฉียงเหนือ พัดพาความเย็นเข้ามาทำให้อากาศจมตัว",
+      "4. เกิดลมพายุงวงช้างเนื่องจากความดันเพิ่มขึ้นอย่างรวดเร็ว"
+    ],
+    answer: 1,
+    hint: "ความดันอากาศบนฝั่งลดลงในช่วงบ่าย แสดงว่าพื้นดินร้อนขึ้นอากาศลอยตัว เกิดความกดอากาศต่ำ ลมทะเลจึงพัดเข้าหาฝั่ง"
+  }
+
+];
+
+    const extraQuestions = [
+{
+    id: 1,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "misconception_pressure_flow",
+    tag_skill: "L4",
+    tag_misconception: "air_flows_from_low_to_high_pressure",
+    title: "ข้อท้าทายที่ 1. นักเรียนคนหนึ่งกล่าวว่า 'ลมทะเลเกิดจากอากาศเหนือพื้นดินมีความกดอากาศสูง พัดไปแทนที่อากาศเหนือทะเลที่มีความกดอากาศต่ำกว่า' คำกล่าวนี้ถูกต้องหรือไม่ เพราะเหตุใด",
+    image: "",
+    options: [
+      "1. ถูกต้อง เพราะเวลากลางวันพื้นดินจะเย็นกว่าพื้นน้ำเสมอ",
+      "2. ถูกต้อง เพราะอากาศร้อนจมตัวลงสร้างความกดอากาศสูง",
+      "3. ไม่ถูกต้อง เพราะเวลากลางวันดินร้อนกว่า ความกดอากาศเหนือดินจะต่ำกว่า ลมจึงพัดจากทะเล (ความกดอากาศสูง) เข้าสู่ฝั่ง",
+      "4. ไม่ถูกต้อง เพราะลมจะพัดจากบริเวณอุณหภูมิสูงไปสู่อุณหภูมิต่ำกว่าเสมอ"
+    ],
+    answer: 3,
+    hint: "คำกล่าวผิดตรงสลับความกดอากาศ กลางวันแผ่นดินร้อน = ความกดอากาศต่ำ ลมทะเลพัดจากทะเล (ความกดอากาศสูง) เข้าฝั่ง"
+  },
+  {
+    id: 2,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "heat_capacity_misconception",
+    tag_skill: "L4",
+    tag_misconception: "water_heats_up_faster_than_soil",
+    title: "ข้อท้าทายที่ 2. หากน้ำทะเลมีคุณสมบัติดูดซับความร้อนได้ดีและอุณหภูมิสูงขึ้นไวกว่าพื้นดิน จะเกิดผลกระทบต่อปรากฏการณ์ลมประจำเวลาอย่างไร",
+    image: "",
+    options: [
+      "1. กลางวันจะเกิดลมบก และกลางคืนจะเกิดลมทะเล (ตรงข้ามกับความเป็นจริง)",
+      "2. จะเกิดลมทะเลทั้งกลางวันและกลางคืนโดยไม่มีลมบกเลย",
+      "3. จะเกิดลมบกเฉพาะเวลากลางวัน และไม่มีลมเกิดขึ้นในเวลากลางคืน",
+      "4. ปรากฏการณ์ลมประจำเวลาจะไม่เปลี่ยนแปลงไปจากเดิม"
+    ],
+    answer: 1,
+    hint: "หากน้ำร้อนไวกว่าดิน กลางวันทะเลจะร้อนกว่าฝั่ง ลมจะพัดจากฝั่งไปทะเล (ลมบกในกลางวัน) ซึ่งตรงข้ามกับปรากฏการณ์จริง"
+  },
+  {
+    id: 3,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "high_pressure_weather_misconception",
+    tag_skill: "L4",
+    tag_misconception: "high_pressure_causes_heavy_rain",
+    title: "ข้อท้าทายที่ 3. ความเข้าใจผิดที่ว่า 'บริเวณที่มีความกดอากาศสูงจะมีเมฆมากและฝนตกหนัก' แท้จริงแล้วสภาวะอากาศภายใต้มวลอากาศความกดอากาศสูงเป็นอย่างไร",
+    image: "",
+    options: [
+      "1. อากาศจมตัวลง ยับยั้งการก่อตัวของเมฆ ท้องฟ้าโปร่ง อากาศแห้งหรือหนาวเย็น",
+      "2. อากาศลอยตัวขึ้นอย่างรวดเร็วพาไอน้ำไปควบแน่นเป็นเมฆฝนฟ้าคะนอง",
+      "3. อากาศหมุนวนขึ้นบนกลายเป็นพายุหมุนเขตร้อน",
+      "4. เกิดความชื้นสัมพัทธ์ $100\\%$ ตลอดเวลาทำให้อากาศอึดอัด"
+    ],
+    answer: 1,
+    hint: "ความกดอากาศสูง (High pressure) เกิดจากมวลอากาศหนักจมตัวลง ทำให้เมฆไม่สามารถตั้งตัวได้ ท้องฟ้าจึงโปร่งใส"
+  },
+  {
+    id: 4,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "land_breeze_time_misconception",
+    tag_skill: "L4",
+    tag_misconception: "land_breeze_occurs_during_day",
+    title: "ข้อท้าทายที่ 4. ข้อใดคือเหตุผลที่สำคัญที่สุดที่ทำให้ 'ลมบก' ไม่สามารถเกิดขึ้นในช่วงเวลากลางวันได้",
+    image: "",
+    options: [
+      "1. ลมมรสุมพัดต้านลมบกเอาไว้ในเวลากลางวัน",
+      "2. น้ำทะเลคายความร้อนออกมามากในเวลากลางวันทำให้อากาศเหนือทะเลเย็นจัด",
+      "3. รังสีจากดวงอาทิตย์ทำให้พื้นดินสะสมความร้อนจนอุณหภูมิสูงกว่าพื้นน้ำเสมอ",
+      "4. แรงคอริออลิสยับยั้งการเคลื่อนที่ของลมบกในช่วงที่มีแสงแดด"
+    ],
+    answer: 3,
+    hint: "กลางวันมีดวงอาทิตย์ พื้นดินรับความร้อนได้เร็วกว่าพื้นน้ำ จึงร้อนกว่าทะเลเสมอ ทำให้เกิดลมทะเล ลมบกจึงเกิดไม่ได้"
+  },
+  {
+    id: 5,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "sw_monsoon_origin_misconception",
+    tag_skill: "L4",
+    tag_misconception: "sw_monsoon_comes_from_china",
+    title: "ข้อท้าทายที่ 5. หากพิจารณามวลอากาศที่พัดมากับลมมรสุมตะวันตกเฉียงใต้ เหตุใดจึงทำให้ประเทศไทยมีฝนตกชุกเป็นระยะเวลานานหลายเดือน",
+    image: "",
+    options: [
+      "1. เพราะพัดมาจากทวีปไซบีเรียซึ่งหอบเอาหิมะละลายมาเป็นฝน",
+      "2. เพราะพัดผ่านทะเลจีนใต้และดูดซับความร้อนจากเส้นศูนย์สูตร",
+      "3. เพราะเป็นมวลอากาศเย็นแห้งที่ปะทะกับอากาศร้อนบนฝั่ง",
+      "4. เพราะเดินทางผ่านมหาสมุทรอินเดียและทะเลอันดามันอันกว้างใหญ่ จึงหอบเอาไอน้ำมหาศาลเข้าสู่แผ่นดิน"
+    ],
+    answer: 4,
+    hint: "ลมมรสุม SW มีเส้นทางพัดผ่านมหาสมุทรอินเดียอันกว้างใหญ่ จึงดูดซับไอน้ำมาอย่างเต็มที่ เมื่อปะทะแนวเขาและแผ่นดินจึงกลายเป็นฝนตกชุก"
+  },
+  {
+    id: 6,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "multi_zone_pressure_analysis",
+    tag_skill: "L4",
+    tag_misconception: "wind_blows_from_low_temp_to_high_temp_wrongly",
+    title: "ข้อท้าทายที่ 6. พื้นที่ 4 จุดเรียงกันตามแนวชายหาดไปทะเล: P (ในบก), Q (ชายหาด), R (ทะเลใกล้ฝั่ง), S (ทะเลลึก) ในเวลากลางวันวัดอุณหภูมิได้ $35^\\circ\\text{C}, 32^\\circ\\text{C}, 28^\\circ\\text{C}, 26^\\circ\\text{C}$ ตามลำดับ ทิศทางลมหลักผิวพื้นจะเป็นอย่างไร",
+    image: "",
+    options: [
+      "1. พัดจาก P ไปยัง S โดยตรง",
+      "2. พัดจาก S ผ่าน R และ Q เข้าหา P",
+      "3. พัดจาก Q ออกไปทั้งสองข้างหา P และ R",
+      "4. ลมหมุนวนรอบจุด R เพียงจุดเดียว"
+    ],
+    answer: 2,
+    hint: "เรียงอุณหภูมิต่ำไปสูง = S ($26^\\circ\\text{C}$) $\\rightarrow$ R ($28^\\circ\\text{C}$) $\\rightarrow$ Q ($32^\\circ\\text{C}$) $\\rightarrow$ P ($35^\\circ\\text{C}$) ความดันจึงสูงที่สุดที่ S ลมจะพัดจาก S เข้าหา P"
+  },
+  {
+    id: 7,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "experimental_model_breeze",
+    tag_skill: "L4",
+    tag_misconception: "experimental_smoke_moves_towards_heat_source",
+    title: "ข้อท้าทายที่ 7. นักเรียนจัดชุดการทดลองสร้างแบบจำลองลม โดยใช้อ่างใส่ทราย (แทนแผ่นดิน) และอ่างใส่น้ำ (แทนทะเล) วางในตู้กระจกปิด นำโคมไฟส่องไปที่ทรายและน้ำ แล้วจุดจุดควันหอมตรงกลาง ข้อใดคือสิ่งที่จะสังเกตเห็นหลังเปิดโคมไฟ 15 นาที",
+    image: "",
+    options: [
+      "1. ควันลอยโค้งเคลื่อนที่จากฝั่งน้ำไปหาฝั่งทรายในระดับล่าง",
+      "2. ควันลอยโค้งเคลื่อนที่จากฝั่งทรายไปหาฝั่งน้ำในระดับล่าง",
+      "3. ควันลอยขึ้นตรงๆ ไปแตะเพดานตู้แล้วหยุดนิ่ง",
+      "4. ควันจมตัวลงส่อพื้นฝั่งทรายทั้งหมด"
+    ],
+    answer: 1,
+    hint: "ทรายถูกไฟส่องจะร้อนกว่าน้ำ อากาศเหนือทรายลอยตัวขึ้น อากาศเย็นเหนือผิวน้ำจะพัดแทนที่ ลอยควันจากฝั่งน้ำไปหาฝั่งทราย (จำลองลมทะเล)"
+  },
+  {
+    id: 8,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "coriolis_effect_on_monsoon",
+    tag_skill: "L4",
+    tag_misconception: "monsoon_winds_blow_straight_north",
+    title: "ข้อท้าทายที่ 8. ลมมรสุมตะวันตกเฉียงใต้ ข้ามเส้นศูนย์สูตรมาจากซีกโลกใต้ เหตุใดจึงเฉเบนกลายเป็นลมที่พัดมาจากทิศ 'ตะวันตกเฉียงใต้' เมื่อเข้าสู่ซีกโลกเหนือ",
+    image: "",
+    options: [
+      "1. ผลจากแรงคอริออลิส (Coriolis Effect) ที่เกิดจากการหมุนรอบตัวเองของโลก เบี่ยงทิศทางลมไปทางขวาในซีกโลกเหนือ",
+      "2. แรงดึงดูดของดวงจันทร์ฉุดมวลอากาศให้เลี้ยวขวา",
+      "3. แรงต้านทานของทิวเขาตะนาวศรีบังบังคับทิศทางลม",
+      "4. การเปลี่ยนแปลงสนามแม่เหล็กโลกบริเวณเส้นศูนย์สูตร"
+    ],
+    answer: 1,
+    hint: "มวลอากาศข้ามเส้นศูนย์สูตรมาซีกโลกเหนือ จะถูกแรงคอริออลิสเบนทิศทางไปทางขวามือของทิศทางเคลื่อนที่เดิม กลายเป็นลมตะวันตกเฉียงใต้"
+  },
+  {
+    id: 9,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "intertropical_convergence_zone",
+    tag_skill: "L4",
+    tag_misconception: "monsoon_is_unaffected_by_itcz",
+    title: "ข้อท้าทายที่ 9. ร่องความกดอากาศต่ำ (ITCZ) มีความสัมพันธ์กับการเกิดลมมรสุมและร่องฝนในประเทศไทยอย่างไร",
+    image: "",
+    options: [
+      "1. เมื่อ ITCZ เคลื่อนลงใต้ จะดึงดูดลมมรสุมตะวันตกเฉียงใต้ให้พัดแรงขึ้นดึงฝนมาตกภาคเหนือ",
+      "2. เมื่อ ITCZ เคลื่อนผ่านประเทศไทย จะเป็นบริเวณที่แนวลมพัดเข้าหากัน เกิดอากาศยกตัวและฝนตกชุกหนาแน่น",
+      "3. ITCZ เป็นแนวความกดอากาศสูงที่ผลักดันลมมรสุมให้ออกไปจากประเทศไทย",
+      "4. ITCZ เกิดขึ้นเฉพาะในมหาสมุทรไม่เกี่ยวข้องกับฝนบนแผ่นดินไทย"
+    ],
+    answer: 2,
+    hint: "ITCZ คือร่องความกดอากาศต่ำที่เป็นแนวพาความร้อน อากาศลอยตัวสูง เมื่อพาดผ่านบริเวณใดจะพาฝนตกชุกและดึงดูดลมมรสุมเข้าหา"
+  },
+  {
+    id: 10,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "coastal_fog_formation",
+    tag_skill: "L4",
+    tag_misconception: "fog_forms_due_to_high_temperatures",
+    title: "ข้อท้าทายที่ 10. ในช่วงเช้าตรู่บริเวณชายฝั่งทะเล บางครั้งจะเกิดหมอกชายฝั่ง (Coastal Fog) หนาแน่น สภาวะการเคลื่อนที่ของลมแบบใดที่เอื้อต่อการเกิดหมอกนี้",
+    image: "",
+    options: [
+      "1. ลมทะเลพัดอัดอากาศร้อนชื้นเข้ามาปะทะกับพื้นดินที่ยังเย็นอยู่ตอนเช้าตรู่",
+      "2. ลมบกพัดเบาๆ พกอากาศเย็นจากฝั่งไปกลั่นตัวเหนือทะเลอุ่น",
+      "3. ลมมรสุมตะวันตกเฉียงใต้พัดด้วยความเร็วสูงเกิน $80\\text{ km/h}$",
+      "4. ลมหุบเขาพัดลงมาจากยอดเขาสูงตัดผ่านชายหาด"
+    ],
+    answer: 1,
+    hint: "หมอกชายฝั่งมักเกิดเมื่อลมทะเลอ่อนๆ พัดพาอากาศชื้นเหนือทะเลเข้ามาสัมผัสกับพื้นดินชายฝั่งที่ยังเย็นอยู่ตอนเช้า ทำให้ไอน้ำควบแน่นเป็นหมอก"
+  },
+  {
+    id: 11,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "sea_breeze_front",
+    tag_skill: "L4",
+    tag_misconception: "sea_breeze_is_always_gentle",
+    title: "ข้อท้าทายที่ 11. 'แนวปะทะลมทะเล' (Sea Breeze Front) คืออะไร และส่งผลต่อสภาพอากาศท้องถิ่นอย่างไรเมื่อเคลื่อนตัวเข้าสู่แผ่นดิน (Inland)",
+    image: "",
+    options: [
+      "1. แนวปะทะระหว่างมวลอากาศเย็นชื้นจากทะเลกับอากาศร้อนแห้งบนบก ทำให้เกิดเมฆก้อนพายุฝนฟ้าคะนองตามแนวปะทะ",
+      "2. แนวความกดอากาศสูงจากทะเลที่ทำให้ท้องฟ้าแจ่มใสไร้เมฆตราบเท่าที่พัดผ่าน",
+      "3. บริเวณที่ลมบกและลมทะเลพัดมาชนกันกลางทะเลเกิดเป็นคลื่นยักษ์",
+      "4. การหยุดหมุนของกระแสลมผิวพื้นทำให้เกิดมลพิษสะสม"
+    ],
+    answer: 1,
+    hint: "Sea Breeze Front เป็นแนวปะทะขนาดเล็กระหว่างอากาศเย็นชื้นจากทะเลที่ดันเข้ามาชนกับอากาศร้อนบนบก ทำให้อากาศยกตัวรุนแรงเกิดฝนฟ้าคะนองได้"
+  },
+  {
+    id: 12,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "urban_heat_island_breeze",
+    tag_skill: "L4",
+    tag_misconception: "cities_reduce_wind_speed_completely",
+    title: "ข้อท้าทายที่ 12. หากเมืองพัทยาเติบโตขึ้นจนเกิดปรากฏการณ์เกาะความร้อนเมือง (Urban Heat Island) อุณหภูมิในเมืองสูงกว่าพื้นที่รอบข้าง $3^\\circ\\text{C}$ จะเกิดอะไรขึ้นกับระบบลมทะเล local circulation",
+    image: "",
+    options: [
+      "1. ลมทะเลจะพัดมาไม่ถึงตัวเมืองเพราะตึกสูงบดบังลมไว้หมด",
+      "2. เกิดการหมุนเวียนลมท้องถิ่นเสริม (Urban Breeze) ทำให้อากาศจากทะเลถูกดูดเข้าสู่ใจกลางเมืองแรงขึ้น",
+      "3. ทิศทางลมทะเลจะเปลี่ยนเป็นพัดออกจากเมืองไปสู่ทะเลตลอด 24 ชั่วโมง",
+      "4. ระบบความกดอากาศต่ำในเมืองจะถูกแทนที่ด้วยความกดอากาศสูงทำให้อากาศแห้งแล้ง"
+    ],
+    answer: 2,
+    hint: "ความร้อนในเมืองทำให้เกิดความกดอากาศต่ำก้อนใหญ่ เร่งให้แรงดันความดันระหว่างทะเลกับเมืองกว้างขึ้น ทำให้ลมทะเลพัดข้ามตึกย่านชายฝั่งเข้าสู่ใจกลางเมืองแรงขึ้น"
+  },
+  {
+    id: 13,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "transitional_monsoon_period",
+    tag_skill: "L4",
+    tag_misconception: "monsoon_changes_instantly",
+    title: "ข้อท้าทายที่ 13. ช่วงเดือนเมษายน และเดือนตุลาคม ซึ่งเป็น 'ช่วงเปลี่ยนผ่านมรสุม' (Inter-monsoon period) สภาพอากาศและลมในประเทศไทยมักจะมีลักษณะอย่างไร",
+    image: "",
+    options: [
+      "1. มีลมพัดแรงสม่ำเสมอในทิศทางเดียวตลอดทั้งเดือน",
+      "2. เกิดหิมะตกในภาคเหนือและภัยแล้งรุนแรงในภาคใต้",
+      "3. อากาศแปรปรวน ทิศทางลมไม่แน่นอน ลมพัดเบา และเกิดฝนฟ้าคะนองถอนโคนเฉพาะแห่งได้ง่าย",
+      "4. เกิดลมบกและลมทะเลพัดคลุมทั่วทุกจังหวัดในประเทศไทย"
+    ],
+    answer: 3,
+    hint: "ช่วงเปลี่ยนผ่านมรสุม อิทธิพลจากมรสุมเดิมอ่อนกำลังลง แต่ระบบใหม่ยังไม่เข้าแทนที่ อากาศจึงแปรปรวน ลมเบา กระแสอากาศดิ่งยกตัวเกิดฝนพายุฤดูร้อน/ฝนพายุพัดเฉพาะที่"
+  },
+  {
+    id: 14,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "climate_change_monsoon_impact",
+    tag_skill: "L4",
+    tag_misconception: "global_warming_reduces_all_wind",
+    title: "ข้อท้าทายที่ 14. นักวิทยาศาสตร์คาดการณ์ว่าภาวะโลกร้อนทำให้อนุทวีปอินเดียสะสมความร้อนสูงขึ้นเรื่อยๆ ในฤดูร้อน เหตุการณ์นี้ส่งผลต่อลมมรสุมฤดูร้อน (SW Monsoon) อย่างไร",
+    image: "",
+    options: [
+      "1. ลมมรสุมอ่อนกำลังลงจนหยุดพัดอย่างสิ้นเชิง",
+      "2. ความแตกต่างความดันระหว่างมหาสมุทรกับแผ่นดินเพิ่มขึ้น ส่งผลให้ลมมรสุมพัดรุนแรงและหอบฝนตกหนักสุดขั้วมากขึ้น",
+      "3. ลมมรสุมจะเปลี่ยนทิศทางเป็นพัดออกจากแผ่นดินอินเดียลงสู่มหาสมุทรแทน",
+      "4. ไม่ส่งผลกระทบใดๆ ต่อระบบมรสุมโลก"
+    ],
+    answer: 2,
+    hint: "แผ่นดินร้อนขึ้นมากขีดสุด จะเกิดความกดอากาศต่ำลึกมาก ($\\Delta P$ กว้างขึ้น) ดึงดูดลมมรสุมฤดูร้อนจากมหาสมุทรพัดรุนแรงและอุ้มน้ำมากขึ้น เกิดสภาพอากาศสุดขั้ว"
+  },
+  {
+    id: 15,
+    domain: "EARTH",
+    content: "ลมบก, ลมทะเล และลมมรสุม",
+    tag_content: "diurnal_pressure_wave",
+    tag_skill: "L4",
+    tag_misconception: "breeze_reverses_at_exact_sunset",
+    title: "ข้อท้าทายที่ 15. ช่วงเวลาใดในรอบวันที่ลมประจำทะเล/บก มักจะ 'สงบนิ่งที่สุด' (Slack water / Wind transition period)",
+    image: "",
+    options: [
+      "1. ช่วงเช้าสาย (08.00-09.00 น.) และช่วงยามเย็น (17.00-18.00 น.) ซึ่งเป็นช่วงอุณหภูมิบกและทะเลใกล้เคียงกัน",
+      "2. ช่วงเที่ยงวัน (12.00 น.) ซึ่งเป็นช่วงอุณหภูมิสูงสุด",
+      "3. ช่วงเที่ยงคืน (24.00 น.) ซึ่งเป็นช่วงความกดอากาศเท่ากันพอดี",
+      "4. ช่วงบ่ายโมงตรง (13.00 น.) ซึ่งลมทะเลกำลังพัดแรงสุด"
+    ],
+    answer: 1,
+    hint: "ช่วงเปลี่ยนผ่านระหว่างลมบกไปลมทะเล (เช้า) และลมทะเลไปลมบก (เย็น) อุณหภูมิและความดันเหนือฝั่งและทะเลสลับขั้วจนใกล้เคียงกัน ลมจะสงบนิ่งที่สุดชั่วคราว"
+  }
+
+
+     ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+//    }
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+         // localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+ // เอาออก - เพื่อไม่แสดงเลขข้อ Claude 21-08-2569 document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+//Start จุดที่แก้ไข : โค้ดที่แก้ใหม่เพื่อไม่แสดงเลขข้อ แนะนำโดย Claude 21-08-2569
+      let displayTitle = q.title;
+      if (testMode === 'EXAM') {
+        displayTitle = displayTitle.replace(/^ข้อ(?:ท้าทายที่|ที่)\s*\d+\.\s*/, '');
+      }
+      document.getElementById('q-title').innerHTML = displayTitle.replace(/\n/g, '<br>');
+//Stop จุดที่แก้ไข
+
+      // ===== [ เพิ่มใหม่: แสดง/ซ่อนรูปภาพประกอบโจทย์ตาม q.image 30/08/2569 ] =====
+      const qImage = document.getElementById('q-image');
+      if (q.image && q.image.trim() !== '') {
+        qImage.src = q.image;
+        qImage.classList.remove('hidden');
+      } else {
+        qImage.src = '';
+        qImage.classList.add('hidden');
+      }
+      // ================================
+
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในโจทย์และตัวเลือกทั้งหมด 30/08/2569 ] =====
+      renderMath(document.getElementById('question-box'));
+      // ================================
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = q.hint.replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในคำใบ้ 30/08/2569 ] =====
+      renderMath(document.getElementById('hint-text'));
+      // ================================
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <!-- <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3> -->
+            <h3 class="text-lg font-bold text-gray-800 mb-2">${testMode === 'EXAM' ? '⏸️ พักสายตาสักครู่' : `ข้อที่ ${currentQ + 1}`}</h3>            
+
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: แปลง newline ดิบที่หลุดอยู่ในสตริงให้เป็น \n ที่ถูกต้อง ] =====
+    // ปัญหา: บางครั้ง AI คัดลอกโจทย์หลายบรรทัดมาใส่ใน "title"/"hint" โดยตัวอักษรขึ้นบรรทัดใหม่
+    // (newline จริงๆ) หลุดปนอยู่ในสตริง ซึ่ง JSON ไม่อนุญาตให้มี newline ดิบอยู่ในสตริง ทำให้ parse ล้มเหลว
+    // วิธีแก้: ไล่ทีละตัวอักษร ติดตามว่ากำลังอยู่ "ในเครื่องหมายคำพูด" หรือไม่ (โดยข้าม escape
+    // sequence ที่มีอยู่แล้วอย่างถูกต้อง เพื่อไม่ให้หลงนับ \" เป็นการปิดสตริง) ถ้าเจอ newline
+    // ขณะอยู่ในสตริง จะแปลงเป็น \n (escape ที่ถูกต้อง) แต่ถ้า newline อยู่นอกสตริง (เช่น
+    // การเว้นบรรทัดเพื่อจัดรูปแบบ JSON) จะปล่อยผ่านตามปกติ ไม่แตะต้อง
+    cleanJson = (function fixRawNewlinesInStrings(str) {
+      let result = '';
+      let inString = false;
+      let escapeNext = false;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (escapeNext) {
+          result += ch;
+          escapeNext = false;
+          continue;
+        }
+        if (ch === '\\') {
+          result += ch;
+          escapeNext = true;
+          continue;
+        }
+        if (ch === '"') {
+          inString = !inString;
+          result += ch;
+          continue;
+        }
+        if (inString && (ch === '\n' || ch === '\r')) {
+          result += (ch === '\n') ? '\\n' : '\\r';
+          continue;
+        }
+        result += ch;
+      }
+      return result;
+    })(cleanJson);
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ลบ trailing comma ก่อนปิดวงเล็บ ] =====
+    // ปัญหา: AI มักพิมพ์คอมม่าตัวสุดท้ายก่อนปิด array/object เช่น [{"id":1},{"id":2},]
+    // ซึ่งไม่ใช่ JSON ที่ถูกต้อง (JSON มาตรฐานห้ามมี comma ตัวสุดท้ายก่อน ] หรือ })
+    // ทำให้ JSON.parse() ล้มเหลวทันที วิธีแก้คือลบ comma ที่ตามด้วยช่องว่าง (ถ้ามี) แล้วตามด้วย ] หรือ } ทิ้ง
+    cleanJson = cleanJson.replace(/,(\s*[\]}])/g, '$1');
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ซ่อมแซม backslash ที่ AI ลืม escape คู่ ] =====
+    // ปัญหา: เวลา AI สร้างสูตร LaTeX เช่น \Delta, \circ, \text{} มักลืมใส่ backslash คู่
+    // ตาม JSON spec ทำให้ JSON.parse() ล้มเหลว (error) ทันที
+    // วิธีแก้: สแกนหา backslash ทีละตัว ถ้าเป็นคู่ที่ถูกต้องอยู่แล้ว (\\ หรือ escape
+    // มาตรฐานของ JSON เช่น \" \/ \b \f \n \r \t \u) จะปล่อยผ่านไม่แตะต้อง
+    // แต่ถ้าเป็น backslash เดี่ยวที่ตามด้วยอักษรอื่น (เช่น \D, \c, \t ที่จริงคือ LaTeX)
+    // จะเติม backslash คู่ให้อัตโนมัติ เพื่อให้ JSON.parse() อ่านผ่านได้
+    cleanJson = cleanJson.replace(/\\\\|\\["\\\/bfnrtu]|\\/g, (match) => {
+      return match.length === 2 ? match : '\\\\';
+    });
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

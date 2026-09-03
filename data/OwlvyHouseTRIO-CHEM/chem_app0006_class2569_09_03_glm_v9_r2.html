@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <!--- เพิ่ม KaTeX สำหรับแสดงผลสูตรคณิตศาสตร์/วิทยาศาสตร์ (LaTeX) By Claude 30/08/2569 --->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ===== [ เพิ่มใหม่: KaTeX สำหรับ render สูตร LaTeX 30/08/2569 ] ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <!-- ================================ -->
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse Adaptive TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <!-- ===== [ เพิ่มใหม่: รูปภาพประกอบโจทย์ (q.image) 30/08/2569 ] ===== -->
+      <img id="q-image" src="" alt="รูปประกอบข้อสอบ" class="w-full max-w-md mx-auto rounded-xl mb-4 border border-gray-100 hidden">
+      <!-- ================================ -->
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+<p class="text-amber-700/70 text-[10px] sm:text-xs text-center italic mt-1.5 mb-0">* App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ</p>    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email"
+ class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+    // ===== [ เพิ่มใหม่: ฟังก์ชัน render สูตร LaTeX ด้วย KaTeX 30/08/2569 ] =====
+    // เรียกใช้ทุกครั้งหลังใส่ข้อความ (โจทย์/ตัวเลือก/คำใบ้) ลงใน DOM แล้ว
+    // เพื่อแปลง $...$ หรือ $$...$$ ให้กลายเป็นสมการที่แสดงผลถูกต้อง
+    function renderMath(el) {
+      if (typeof renderMathInElement === 'function' && el) {
+        renderMathInElement(el, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    // ================================
+
+    // ===== [ เพิ่มใหม่: ฟังก์ชัน escapeHtml ป้องกัน < > & ทำลายโครงสร้าง HTML 30/08/2569 ] =====
+    // ปัญหา: โจทย์ที่ใช้ innerHTML (เพื่อให้ \n กลายเป็นขึ้นบรรทัดใหม่ <br> ได้) จะพังทันที
+    // ถ้าข้อความมีอักขระ < > & ปนอยู่ เช่น "5<x<10" หรือ "a>b" หรือ LaTeX ที่ใช้ & ในตาราง/เมทริกซ์
+    // เพราะ browser จะตีความ < ว่าเป็นการเปิดแท็ก HTML ทำให้ข้อความส่วนที่เหลือหายไปทั้งหมด
+    // วิธีแก้: แปลง & < > ให้เป็น HTML entity ก่อนเสมอ (ต้องแปลง & ก่อนเป็นอันดับแรก
+    // ไม่งั้นจะไปแปลง &lt; ที่เพิ่งสร้างซ้ำอีกที) โดยไม่แตะเครื่องหมาย $ หรือ backslash เลย
+    // จึงไม่กระทบการทำงานของ KaTeX แต่อย่างใด (พิสูจน์แล้วด้วยการทดสอบ DOM จริง)
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str;
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    // ================================
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+     const quizTitle = "CHEM-APP0006-Class-SeparationTechniques-2569-09-03-#12-13_GLM";
+     const quizDomain = "CHEM";
+     const quizContent = "การแยกสาร ชุดที่ 6";
+
+    const questions = [
+{
+    "id": 1,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "separation_sequence",
+    "tag_skill": "L4",
+    "tag_misconception": "filtration_before_dissolution_works",
+    "title": "ข้อที่ 1. ในค่ายวิทยาศาสตร์ นักเรียนได้รับสารผสม 3 ชนิดคือ ผงเหล็ก ผงทราย และเกลือแกง ปนกันอยู่ในถ้วยแก้วเดียว ครูกำหนดให้ต้องแยกสารทั้งสามออกจากกันให้ได้อย่างละเอียด ลำดับขั้นตอนการแยกสารที่ถูกต้องที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เติมน้ำละลายทั้งหมด แล้วกรองผ่านกระดาษกรอง จากนั้นนำของแข็งที่ได้ไปใช้แม่เหล็กดึงเหล็ก",
+      "2. ระเหยแห้งสารผสมก่อน จากนั้นใช้แม่เหล็กดึงเหล็ก แล้วจึงเติมน้ำละลายและกรอง",
+      "3. ใช้แม่เหล็กดึงผงเหล็กออกก่อน เติมน้ำละลายเกลือแล้วกรองเอาทราย จากนั้นระเหยแห้งน้ำที่กรองได้จะเหลือเกลือ",
+      "4. ใช้แม่เหล็กดึงผงเหล็กออก ระเหยแห้งทันทีเพื่อให้เกลือผลึก แล้วจึงเติมน้ำกรองทราย"
+    ],
+    "answer": 3,
+    "hint": "ลองพิจารณาว่าขั้นตอนใดต้องทำก่อนเพื่อไม่ให้สารละลายน้ำปนเปื้อน และลำดับละลาย-กรอง-ระเหยแห้งควรเรียงอย่างไรจึงจะได้สารครบทั้ง 3 ชนิด"
+  },
+  {
+    "id": 2,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_seawater",
+    "tag_skill": "L3",
+    "tag_misconception": "filtration_removes_dissolved_substances",
+    "title": "ข้อที่ 2. เด็กชายภูมิตักน้ำทะเลมา 1 ลิตร ต้องการทำเกลือสำหรับนำไปทดลองในชั้นเรียน วิธีการที่เหมาะสมที่สุดในการแยกเกลือออกจากน้ำทะเลคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เทน้ำทะเลลงถาดกว้างตื้น ตั้งตากแดดจนน้ำระเหยหมด จะเหลือผลึกเกลือ",
+      "2. กรองน้ำทะเลด้วยกระดาษกรอง เกลือจะติดค้างอยู่บนกระดาษกรอง",
+      "3. ใช้แม่เหล็กจุ่มลงไปในน้ำทะเลเพื่อดึงเกลือออก",
+      "4. ต้มน้ำทะเลให้เดือดแล้วกรองไอน้ำที่ลอยขึ้นด้วยกระชอน"
+    ],
+    "answer": 1,
+    "hint": "คิดถึงสมบัติของเกลือที่ละลายน้ำและไม่ระเหยง่าย แล้วพิจารณาว่าวิธีใดที่น้ำจะหายไปแต่เกลือยังอยู่"
+  },
+  {
+    "id": 3,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sublimation_separation",
+    "tag_skill": "L3",
+    "tag_misconception": "naphthalene_melts_instead_of_sublimes",
+    "title": "ข้อที่ 3. แม่บ้านหกลูกเหม็นก้อนกลม (แนฟทาลีน) ลงไปปนกับผงเกลือในโหล ต้องการแยกลูกเหม็นออกมาใช้ใหม่ วิธีที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เติมน้ำลงไปเพื่อละลายลูกเหม็น แล้วกรองออกมา",
+      "2. ใช้แม่เหล็กดูดลูกเหม็นออกจากผงเกลือ",
+      "3. ต้มให้เดือดเพื่อให้ลูกเหม็นหลอมเหลวแล้วกรองของเหลวออก",
+      "4. ให้ความร้อนในถ้วยคลุมด้วยฝาเย็น ลูกเหม็นจะระเหิดเป็นไอแล้วควบแน่นกลับเป็นของแข็งเกาะที่ฝา เหลือผงเกลือในถ้วย"
+    ],
+    "answer": 4,
+    "hint": "นึกถึงสมบัติพิเศษของลูกเหม็นที่เปลี่ยนจากของแข็งเป็นแก๊สได้โดยตรงเมื่อได้รับความร้อน ไม่ต้องผ่านการเป็นของเหลว"
+  },
+  {
+    "id": 4,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "separating_funnel",
+    "tag_skill": "L2",
+    "tag_misconception": "oil_heavier_than_water",
+    "title": "ข้อที่ 4. น้ำมันพืชหกลงแก้วน้ำเย็น เมื่อตั้งทิ้งไว้ 30 นาที พบว่าเกิดชั้นแยกชัดเจน 2 ชั้น วิธีการแยกน้ำมันออกจากน้ำที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. กรองด้วยกระดาษกรอง เพราะน้ำมันเป็นของแข็งเม็ดละเอียด",
+      "2. ใช้กรวยแยกของเหลว เปิดก๊อกให้น้ำ (ชั้นล่าง) ไหลออกก่อน จากนั้นรับน้ำมัน (ชั้นบน) ไว้ในภาชนะอื่น",
+      "3. ใช้แม่เหล็กดูดน้ำมันออกจากน้ำ",
+      "4. ระเหยแห้งให้น้ำมันระเหยไปก่อนน้ำ"
+    ],
+    "answer": 2,
+    "hint": "พิจารณาว่าชั้นใดอยู่ด้านบนและชั้นใดอยู่ด้านล่าง จากความหนาแน่นที่ต่างกัน แล้วนึกถึงอุปกรณ์ที่ใช้แยกของเหลว 2 ชนิดที่ไม่ละลายกัน"
+  },
+  {
+    "id": 5,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_limitations",
+    "tag_skill": "L2",
+    "tag_misconception": "filtration_makes_water_pure",
+    "title": "ข้อที่ 5. นักเรียนกรองน้ำโคลนด้วยกระดาษกรอง ได้น้ำใสขึ้น แต่เมื่อส่องดูด้วยกล้องขยายพบว่ายังมีจุดขุ่นเล็ก ๆ ปนอยู่ สาเหตุที่เป็นไปได้มากที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. กระดาษกรองมีรูพรุนมากเกินไปทำให้น้ำทั้งหมดไหลผ่านไม่ได้กรองเลย",
+      "2. น้ำโคลนมีสารเคมีละลายอยู่ทำให้น้ำขุ่นเสมอ",
+      "3. มีอนุภาคโคลนขนาดเล็กกว่ารูพรุนของกระดาษกรองจึงผ่านลงมาได้",
+      "4. กระดาษกรองดูดน้ำโคลนขึ้นไปทำให้เกิดจุดขุ่นใหม่"
+    ],
+    "answer": 3,
+    "hint": "คิดถึงขนาดของรูพรุนในกระดาษกรองเทียบกับขนาดของอนุภาคโคลนที่หลากหลาย อนุภาคขนาดเท่าใดจึงผ่านได้"
+  },
+  {
+    "id": 6,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sieving_solids",
+    "tag_skill": "L3",
+    "tag_misconception": "all_solids_need_chemical_methods",
+    "title": "ข้อที่ 6. แม่ครัวพลาดเทถั่วดำลงไปปนในถังข้าวสาร (ทั้งสองเป็นของแข็ง ถั่วดำมีขนาดใหญ่กว่าเมล็ดข้าว) วิธีการแยกที่เร็วที่สุดและเหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ร่อนผ่านตะแกรงที่มีรูขนาดใหญ่พอให้ข้าวสารร่วงผ่าน แต่ถั่วดำค้างอยู่บนตะแกรง",
+      "2. เติมน้ำให้ถั่วดำละลาย แล้วกรองข้าวสารออกมา",
+      "3. ใช้แม่เหล็กดูดถั่วดำออกจากข้าวสาร",
+      "4. ระเหิดถั่วดำให้กลายเป็นไอหายไป"
+    ],
+    "answer": 1,
+    "hint": "สังเกตว่าของแข็งทั้งสองชนิดไม่ละลายน้ำ แต่มีขนาดต่างกัน ให้คิดถึงอุปกรณ์ที่ใช้แยกของแข็งตามขนาด"
+  },
+  {
+    "id": 7,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "magnetic_separation",
+    "tag_skill": "L3",
+    "tag_misconception": "all_metals_magnetic",
+    "title": "ข้อที่ 7. โรงงานรีไซเคิลมีกองขยะปนกันมากมายทั้งพลาสติก กระดาษ แก้ว และเศษเหล็ก ต้องการแยกเศษเหล็กออกจากกองขยะโดยเร็วที่สุด วิธีที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เผากองขยะเพื่อทำลายเศษเหล็กให้หายไป",
+      "2. ให้ขยะเคลื่อนที่ผ่านแม่เหล็กไฟฟ้าขนาดใหญ่ เศษเหล็กจะถูกดูดออกจากสายพานลำเลียง",
+      "3. ล้างกองขยะด้วยน้ำเพื่อให้เศษเหล็กลอยขึ้น",
+      "4. หมักกองขยะเพื่อให้เศษเหล็กย่อยสลายไปเอง"
+    ],
+    "answer": 2,
+    "hint": "นึกถึงสมบัติเฉพาะของเหล็กที่โลหะอื่นหรือวัสดุอื่นไม่มี และคิดว่าอุปกรณ์ใดที่ใช้ประโยชน์จากสมบัตินี้ในระดับอุตสาหกรรม"
+  },
+  {
+    "id": 8,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sublimation_iodine",
+    "tag_skill": "L3",
+    "tag_misconception": "iodine_evaporates_from_liquid",
+    "title": "ข้อที่ 8. ในห้องปฏิบัติการ ครูให้นักเรียนผงไอโอดีนสีม่วงดำปนอยู่กับผงเกลือสีขาว ให้แยกทั้งสองออกจากกัน วิธีการที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ละลายสารผสมในน้ำแล้วกรองเอาผงไอโอดีนออก",
+      "2. ใช้แม่เหล็กดึงผงไอโอดีนออกจากผงเกลือ",
+      "3. ต้มให้เดือดเพื่อให้ผงเกลือระเหยไปก่อน เหลือผงไอโอดีน",
+      "4. ให้ความร้อนเบา ๆ ไอโอดีนจะระเหิดเป็นไอสีม่วง แล้วควบแน่นเป็นของแข็งบนพื้นผิวเย็น เหลือผงเกลือในถ้วย"
+    ],
+    "answer": 4,
+    "hint": "ไอโอดีนมีสมบัติพิเศษคล้ายลูกเหม็น คือเปลี่ยนจากของแข็งไปเป็นแก๊สได้โดยตรง ให้คิดถึงวิธีที่ใช้ประโยชน์จากสมบัตินี้"
+  },
+  {
+    "id": 9,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sedimentation_decantation",
+    "tag_skill": "L2",
+    "tag_misconception": "suspended_particles_dissolve_over_time",
+    "title": "ข้อที่ 9. นักเรียนตักน้ำโคลนจากแม่น้ำใส่แก้ว แล้วตั้งทิ้งไว้บนโต๊ะ 1 คืน เมื่อเช้ามาดูอีกครั้ง จะพบสิ่งใด",
+    "image": "",
+    "options": [
+      "1. อนุภาคโคลนที่หนักกว่าน้ำจะค่อย ๆ ตกไปกองที่ก้นแก้ว น้ำด้านบนใสขึ้น",
+      "2. โคลนจะละลายหายไปในน้ำทั้งหมด",
+      "3. โคลนจะลอยขึ้นมารวมกันที่ผิวน้ำ",
+      "4. น้ำจะกลายเป็นของแข็งเพราะอุณหภูมิกลางคืนต่ำ"
+    ],
+    "answer": 1,
+    "hint": "พิจารณาความหนาแน่นของอนุภาคโคลนเทียบกับน้ำ และคิดว่าเมื่อไม่มีแรงกวน อนุภาคจะเคลื่อนที่ไปทางใด"
+  },
+  {
+    "id": 10,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "chromatography",
+    "tag_skill": "L4",
+    "tag_misconception": "ink_color_chemical_change",
+    "title": "ข้อที่ 10. นักเรียนหยดหมึกสีน้ำเงินลงบนกระดาษกรองแล้วจุ่มปลายกระดาษลงในน้ำเล็กน้อย หลังผ่านไป 10 นาที พบวงสีน้ำเงินและวงสีฟ้าแยกออกจากกันชัดเจน อธิบายปรากฏการณ์นี้ได้ว่า",
+    "image": "",
+    "options": [
+      "1. หมึกเปลี่ยนสีเพราะเกิดปฏิกิริยาเคมีกับน้ำในกระดาษกรอง",
+      "2. สีหมึกลอยขึ้นด้านบนเพราะมีความหนาแน่นน้อยกว่าน้ำ",
+      "3. หมึกเป็นสารผสมของสีย้อมหลายชนิด แต่ละชนิดเคลื่อนที่ไปตามกระดาษด้วยความเร็วต่างกัน จึงแยกเป็นวงสีต่าง ๆ",
+      "4. สีหมึกระเหิดขึ้นเพราะความร้อนจากแสงแดด"
+    ],
+    "answer": 3,
+    "hint": "ลองคิดว่าหมึกชนิดเดียวอาจไม่ใช่สารบริสุทธิ์ชนิดเดียว แต่เป็นสารผสม และองค์ประกอบแต่ละอย่างอาจมีความสามารถในการเคลื่อนที่ต่างกัน"
+  },
+  {
+    "id": 11,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_recover_solute",
+    "tag_skill": "L3",
+    "tag_misconception": "dissolved_substance_removed_by_filtration",
+    "title": "ข้อที่ 11. นักเรียนละลายน้ำตาลทราย 2 ช้อนโต๊ะในน้ำ 1 แก้ว จนหมด ต่อมาต้องการแยกน้ำตาลกลับคืนมาในรูปของแข็ง วิธีที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. กรองด้วยกระดาษกรอง เพราะน้ำตาลเป็นอนุภาคละเอียดที่ติดอยู่ในน้ำ",
+      "2. ระเหยแห้งน้ำออกไปด้วยความร้อน เมื่อน้ำระเหยหมด ผลึกน้ำตาลจะปรากฏขึ้น",
+      "3. ใช้แม่เหล็กดึงผลึกน้ำตาลออกจากน้ำ",
+      "4. เติมน้ำเพิ่มขึ้นอีก เพื่อให้น้ำตาลตกตะกอนออกมา"
+    ],
+    "answer": 2,
+    "hint": "นึกถึงความจริงที่ว่าน้ำตาลละลายน้ำแล้วยังคงอยู่ในรูปของสารเดิม ไม่ได้เปลี่ยนไปเป็นสารใหม่ และคิดว่าการขจัดตัวทำละลายออกจะทำให้เกิดอะไร"
+  },
+  {
+    "id": 12,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "winnowing_density",
+    "tag_skill": "L3",
+    "tag_misconception": "winnowing_uses_weight_not_density",
+    "title": "ข้อที่ 12. ชาวนานวดข้าวเปลือกผสมเมล็ดข้าวสารในกระบะ แล้วเป่าลมเบา ๆ ผ่านไป พบว่าเปลือกข้าวปลิวไปไกลกว่าเมล็ดข้าวสาร เหตุใดจึงเป็นเช่นนั้น",
+    "image": "",
+    "options": [
+      "1. เพราะเปลือกข้าวหนักกว่าเมล็ดข้าวสาร จึงถูกแรงลมผลักให้เคลื่อนที่เร็วขึ้น",
+      "2. เพราะเมล็ดข้าวสารมีแรงยึดเหนี่ยวกับกระบะมากกว่า",
+      "3. เพราะเปลือกข้าวละลายในอากาศทำให้ปลิวไป",
+      "4. เพราะเปลือกข้าวมีมวลและความหนาแน่นน้อยกว่าเมล็ดข้าวสาร จึงถูกลมพัดให้ปลิวไปไกลกว่า"
+    ],
+    "answer": 4,
+    "hint": "พิจารณาว่าสิ่งใดที่ทำให้วัตถุสองชนิดตอบสนองต่อแรงลมต่างกัน คิดถึงมวลและความหนาแน่นเมื่อเทียบกับอากาศ"
+  },
+  {
+    "id": 13,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_dissolved_solids",
+    "tag_skill": "L3",
+    "tag_misconception": "filter_traps_all_solids",
+    "title": "ข้อที่ 13. นักเรียนเติมน้ำลงในสารผสมของทรายและเกลือ แล้วกรองผ่านกระดาษกรอง พบของแข็งสีขาวบนกระดาษกรอง เมื่อชิมของแข็งไม่เค็ม แต่น้ำที่ผ่านลงไปด้านล่างเค็ม สรุปได้ว่าอย่างไร",
+    "image": "",
+    "options": [
+      "1. ของแข็งบนกระดาษกรองคือทราย ส่วนเกลือละลายอยู่ในน้ำที่ผ่านลงไปในภาชนะรองรับ",
+      "2. กระดาษกรองดักจับเกลือทั้งหมดไว้ ทำให้น้ำที่ผ่านลงไปเค็มจากเกลือที่ละลายออกมาจากกระดาษ",
+      "3. เกลือถูกทำลายไปในระหว่างการกรอง ทำให้ของแข็งไม่เค็ม",
+      "4. ทรายและเกลือหลอมรวมกันเป็นของแข็งชนิดใหม่บนกระดาษกรอง"
+    ],
+    "answer": 1,
+    "hint": "คิดถึงขนาดอนุภาคของทรายเทียบกับเกลือที่ละลายน้ำ และพิจารณาว่ากระดาษกรองดักจับได้เฉพาะสารชนิดใด"
+  },
+  {
+    "id": 14,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "density_separation",
+    "tag_skill": "L3",
+    "tag_misconception": "fat_sinks_because_thick",
+    "title": "ข้อที่ 14. น้ำซุปไก่ร้อน ๆ เมื่อวางทิ้งไว้จนเย็นลง พบชั้นไขมันสีขาวลอยอยู่ด้านบน วิธีแยกไขมันออกจากน้ำซุปที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. กรองด้วยกระดาษกรองเพราะไขมันเป็นของแข็งที่ดักได้ง่าย",
+      "2. ใช้แม่เหล็กดึงไขมันออกจากน้ำซุป",
+      "3. ตักชั้นไขมันด้านบนออกด้วยช้อน เพราะไขมันมีความหนาแน่นน้อยกว่าน้ำจึงลอยอยู่ด้านบน",
+      "4. ระเหิดไขมันด้วยความร้อนให้กลายเป็นไอหายไป"
+    ],
+    "answer": 3,
+    "hint": "สังเกตว่าไขมันอยู่ชั้นใดในน้ำซุป และนึกถึงความหนาแน่นของไขมันเทียบกับน้ำ วิธีแยกที่ง่ายที่สุดคืออะไร"
+  },
+  {
+    "id": 15,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_equipment",
+    "tag_skill": "L2",
+    "tag_misconception": "funnel_creates_suction",
+    "title": "ข้อที่ 15. ในการกรองน้ำโคลนด้วยกระดาษกรอง นักเรียนต้องใช้กรวยแก้วช่วย เหตุใดจึงต้องใช้กรวย",
+    "image": "",
+    "options": [
+      "1. เพราะกรวยช่วยให้น้ำร้อนไหลผ่านกระดาษกรองได้เร็วขึ้น",
+      "2. เพราะกรวยช่วยรองรับกระดาษกรอง และนำทางของเหลวที่กรองแล้วให้ไหลลงสู่ภาชนะรองรับโดยไม่หก",
+      "3. เพราะกรวยช่วยดูดน้ำให้ผ่านกระดาษกรองด้วยแรงดึงดูด",
+      "4. เพราะกรวยช่วยเพิ่มความเร็วในการละลายของสาร"
+    ],
+    "answer": 2,
+    "hint": "ลองนึกภาพการกรองโดยไม่มีกรวย แล้วคิดว่าเกิดปัญหาอะไรขึ้น กรวยช่วยแก้ปัญหาใด"
+  },
+  {
+    "id": 16,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "magnetic_separation_sulfur",
+    "tag_skill": "L3",
+    "tag_misconception": "iron_sulfur_chemically_bonded_after_mixing",
+    "title": "ข้อที่ 16. ครูให้ผงเหล็กสีดำปนกับผงกำมะถันสีเหลืองในหลอดทดลอง ให้นักเรียนแยกออกจากกันโดยไม่ทำปฏิกิริยาเคมี วิธีที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เติมน้ำลงไปเพื่อละลายกำมะถันแล้วกรองเอาผงเหล็ก",
+      "2. ให้ความร้อนในหลอดเพื่อให้กำมะถันระเหิดกลายเป็นไอ",
+      "3. ระเหยแห้งสารผสมจนแห้งสนิท",
+      "4. ใช้แม่เหล็กดึงผงเหล็กออกจากหลอด เหลือผงกำมะถันอยู่ในหลอด"
+    ],
+    "answer": 4,
+    "hint": "พิจารณาสมบัติเด่นของเหล็กที่กำมะถันไม่มี และคิดว่าเมื่อสองสารเป็นเพียงสารผสม (ไม่ใช่สารประกอบ) สมบัติเดิมยังคงอยู่หรือไม่"
+  },
+  {
+    "id": 17,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "density_layering",
+    "tag_skill": "L2",
+    "tag_misconception": "all_liquids_mix_evenly",
+    "title": "ข้อที่ 17. น้ำผึ้งเทลงแก้วน้ำเปล่าแล้วคนเบา ๆ ทิ้งไว้ 1 ชั่วโมง พบว่าเกิดชั้นแยกชัดเจน เหตุใดจึงเป็นเช่นนั้น",
+    "image": "",
+    "options": [
+      "1. น้ำผึ้งมีความหนาแน่นมากกว่าน้ำ จึงจมอยู่ชั้นล่าง ส่วนน้ำลอยอยู่ชั้นบน",
+      "2. น้ำผึ้งมีความหนาแน่นน้อยกว่าน้ำ จึงลอยอยู่ชั้นบน",
+      "3. น้ำผึ้งละลายในน้ำจนหมด แต่เกิดผลึกใหม่ตกตะกอน",
+      "4. น้ำผึ้งแข็งตัวที่ชั้นล่างเพราะอุณหภูมิต่ำ"
+    ],
+    "answer": 1,
+    "hint": "นึกถึงสมบัติความหนาแน่นของน้ำผึ้งเทียบกับน้ำ และหลักการว่าของเหลวที่หนาแน่นกว่าจะอยู่ตรงไหนเมื่อผสมกัน"
+  },
+  {
+    "id": 18,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_equipment",
+    "tag_skill": "L2",
+    "tag_misconception": "filtration_recovers_salt",
+    "title": "ข้อที่ 18. นักเรียนต้องการแยกเกลือออกจากน้ำเกลือ โดยไม่สนใจจะเก็บน้ำกลับคืนมา อุปกรณ์ชุดใดเหมาะสมที่สุดสำหรับงานนี้",
+    "image": "",
+    "options": [
+      "1. กรวยแก้ว กระดาษกรอง และบีกเกอร์",
+      "2. แม่เหล็ก และแท่นวางแม่เหล็ก",
+      "3. จานระเหย ขาตั้ง ตะแกรง และตะเกียงแอลกอฮอล์",
+      "4. กรวยแยกของเหลว และขาตั้งวงแหวน"
+    ],
+    "answer": 3,
+    "hint": "ลองคิดว่าเราต้องการให้เกลืออยู่แต่ให้น้ำออกไป อุปกรณ์ชุดใดที่ช่วยให้เกิดการเปลี่ยนสถานะจากของเหลวเป็นแก๊สได้"
+  },
+  {
+    "id": 19,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_tea",
+    "tag_skill": "L2",
+    "tag_misconception": "tea_leaves_dissolve_in_hot_water",
+    "title": "ข้อที่ 19. การชงชาด้วยน้ำร้อนแล้วกรองใบชาด้วยกระชอน ทำให้ได้น้ำชาใส หลักการทำงานของกระชอนในสถานการณ์นี้คือข้อใด",
+    "image": "",
+    "options": [
+      "1. ใบชาละลายน้ำร้อนทำให้น้ำชามีรสชาติ กระชอนช่วยเร่งการละลาย",
+      "2. ใบชาไม่ละลายน้ำ กระชอนจึงดักจับใบชาไว้ ส่วนสารที่ละลายออกมาจากใบชาในน้ำร้อนผ่านลงไปได้",
+      "3. กระชอนช่วยเปลี่ยนรสชาติของน้ำชาให้ดีขึ้น",
+      "4. ใบชาหลอมเหลวในน้ำร้อนแล้วแข็งตัวเป็นก้อนใหญ่ให้กระชอนดักได้"
+    ],
+    "answer": 2,
+    "hint": "แยกให้ออกระหว่าง 'ตัวใบชา' ที่ไม่ละลายน้ำ กับ 'สารสกัด' ที่ออกมาจากใบชาแล้วละลายน้ำ กระชอนดักอะไร และปล่อยอะไรผ่าน"
+  },
+  {
+    "id": 20,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "distillation",
+    "tag_skill": "L4",
+    "tag_misconception": "evaporation_preserves_water",
+    "title": "ข้อที่ 20. นักวิทยาศาสตร์ต้องการน้ำบริสุทธิ์จากน้ำเกลือ พร้อมทั้งเก็บเกลือไว้ใช้งานต่อ วิธีการแยกสารที่ตอบโจทย์ได้ครบทั้งสองอย่างคือข้อใด",
+    "image": "",
+    "options": [
+      "1. กรองน้ำเกลือด้วยกระดาษกรอง เพื่อดักเกลือและให้น้ำบริสุทธิ์ผ่านลงไป",
+      "2. ระเหยแห้งน้ำเกลือจนหมด เกลือจะเหลืออยู่ในจาน",
+      "3. ตั้งน้ำเกลือทิ้งไว้ให้ตกตะกอน แล้วตักน้ำส่วนบนออก",
+      "4. กลั่น (distillation) - ต้มน้ำเกลือให้เป็นไอ เก็บไอน้ำผ่านหลอดควบแน่นได้น้ำบริสุทธิ์ เกลือเหลืออยู่ในขวดกลั่น"
+    ],
+    "answer": 4,
+    "hint": "ลองคิดว่าเราต้องการได้ทั้ง 'น้ำ' และ 'เกลือ' กลับมาในเวลาเดียวกัน วิธีใดที่ให้ทั้งสองอย่างในรูปที่ต้องการ"
+  },
+  {
+    "id": 21,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sublimation_process",
+    "tag_skill": "L2",
+    "tag_misconception": "sublimation_requires_liquid_phase",
+    "title": "ข้อที่ 21. เมื่อให้ความร้อนลูกเหม็นในจานเคลือบที่มีฝาแก้วคลุม พบผงขาวเกาะใต้ฝาแก้ว อธิบายปรากฏการณ์นี้ได้ว่าอย่างไร",
+    "image": "",
+    "options": [
+      "1. ลูกเหม็นระเหิดเปลี่ยนจากของแข็งเป็นแก๊สโดยไม่กลายเป็นของเหลว แล้วควบแน่นกลับเป็นของแข็งบนพื้นผิวเย็นของฝาแก้ว",
+      "2. ลูกเหม็นหลอมเหลวเป็นของเหลวก่อน แล้วจึงเดือดเป็นแก๊สแล้วควบแน่น",
+      "3. ลูกเหม็นเปลี่ยนเป็นของเหลวโดยตรงแล้วกระเด็นขึ้นไปเกาะฝา",
+      "4. ลูกเหม็นสลายตัวเป็นสองสาร สารหนึ่งลอยขึ้นไปเกาะฝา"
+    ],
+    "answer": 1,
+    "hint": "ลูกเหม็นมีสมบัติพิเศษที่เรียกว่า 'ระเหิด' ให้คิดว่าการระเหิดต่างจากการระเหยอย่างไร และเกิดขึ้นโดยผ่านสถานะใดบ้าง"
+  },
+  {
+    "id": 22,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_evaporation_combo",
+    "tag_skill": "L3",
+    "tag_misconception": "dissolve_and_filter_wrong_order",
+    "title": "ข้อที่ 22. นักเรียนพบสารผสมของผงดินเล็ก ๆ ปนกับผงเกลือ ต้องการแยกเกลือออกมาใช้ วิธีการที่ถูกต้องที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ระเหยแห้งสารผสมทันทีเพื่อให้ผงดินตกตะกอนออกมา",
+      "2. ใช้แม่เหล็กดึงผงดินออกจากผงเกลือ",
+      "3. เติมน้ำละลายเกลือ กรองเพื่อดักผงดินไว้ แล้วระเหยแห้งน้ำที่ผ่านลงมาเพื่อได้ผลึกเกลือ",
+      "4. ระเหิดผงดินให้กลายเป็นไอหายไป เหลือผงเกลือ"
+    ],
+    "answer": 3,
+    "hint": "พิจารณาว่าสารใดละลายน้ำและสารใดไม่ละลาย แล้วนึกถึงลำดับขั้นตอนที่ใช้ประโยชน์จากความแตกต่างนี้"
+  },
+  {
+    "id": 23,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_limitations_salt",
+    "tag_skill": "L4",
+    "tag_misconception": "filter_can_trap_dissolved_salt",
+    "title": "ข้อที่ 23. ทำไมการกรองด้วยกระดาษกรองจึงแยกเกลือออกจากน้ำทะเลไม่ได้",
+    "image": "",
+    "options": [
+      "1. เพราะน้ำทะเลมีอนุภาคโคลนขนาดใหญ่ที่กระดาษกรองดักไม่ได้",
+      "2. เพราะเกลือละลายเป็นอนุภาคระดับโมเลกุลที่เล็กกว่ารูพรุนของกระดาษกรองมาก จึงผ่านลงไปพร้อมน้ำ",
+      "3. เพราะเกลือมีสีเหมือนน้ำทะเล กระดาษกรองจึงจำแนกไม่ได้",
+      "4. เพราะเกลือหนักกว่าน้ำทำให้จมอยู่ด้านล่างและไม่ผ่านกระดาษกรอง"
+    ],
+    "answer": 2,
+    "hint": "คิดถึงขนาดของอนุภาค 'เกลือที่ละลายแล้ว' เทียบกับรูพรุนของกระดาษกรอง และคิดว่าสารที่ละลายน้ำจะอยู่ในรูปแบบใด"
+  },
+  {
+    "id": 24,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "separating_funnel_sequence",
+    "tag_skill": "L3",
+    "tag_misconception": "oil_sinks_because_thick",
+    "title": "ข้อที่ 24. น้ำมันพืชและน้ำเทลงในกรวยแยกของเหลว ปิดฝาทิ้งไว้ให้แยกชั้นชัดเจน หลังจากนั้นเปิดก๊อกด้านล่าง สิ่งใดจะไหลออกมาก่อน",
+    "image": "",
+    "options": [
+      "1. น้ำมันพืช เพราะน้ำมันมีความหนาแน่นมากกว่าน้ำ",
+      "2. น้ำมันพืชและน้ำไหลออกพร้อมกันเพราะไม่ละลายกัน",
+      "3. ไม่มีอะไรไหลออกเพราะน้ำมันขวางทางไว้",
+      "4. น้ำ เพราะน้ำมีความหนาแน่นมากกว่าน้ำมัน จึงอยู่ชั้นล่างและไหลออกก่อน"
+    ],
+    "answer": 4,
+    "hint": "นึกถึงความหนาแน่นของน้ำมันเทียบกับน้ำ และคิดว่าของเหลวที่หนาแน่นกว่าจะอยู่ชั้นไหน แล้วเมื่อเปิดก๊อกด้านล่างสิ่งใดจะออกมาก่อน"
+  },
+  {
+    "id": 25,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_crystallization",
+    "tag_skill": "L2",
+    "tag_misconception": "evaporation_destroys_salt",
+    "title": "ข้อที่ 25. น้ำเกลือถูกระเหยแห้งจนแห้งสนิท พบผลึกสีขาวขนาดเล็กเกาะอยู่บนจานระเหย อธิบายได้ว่าเกิดอะไรขึ้น",
+    "image": "",
+    "options": [
+      "1. น้ำระเหยเปลี่ยนสถานะเป็นไอน้ำ (แก๊ส) กระจายออกไปในอากาศ ส่วนเกลือที่เคยละลายจับตัวกลับเป็นผลึกของแข็ง",
+      "2. น้ำและเกลือเกิดปฏิกิริยาเคมีกลายเป็นเกลือชนิดใหม่",
+      "3. เกลือหลอมเหลวจากความร้อนแล้วแข็งตัวใหม่เป็นผลึก",
+      "4. น้ำและเกลือระเหยไปพร้อมกันทั้งหมด เหลือแต่สารอื่นปนอยู่"
+    ],
+    "answer": 1,
+    "hint": "นึกถึงการเปลี่ยนสถานะของน้ำเมื่อได้รับความร้อน และคิดว่าเกลือที่เคยละลายอยู่จะกลับไปอยู่ในสถานะใดเมื่อตัวทำละลายหายไป"
+  },
+  {
+    "id": 26,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "magnetic_separation_plastic",
+    "tag_skill": "L3",
+    "tag_misconception": "plastic_also_magnetic",
+    "title": "ข้อที่ 26. เศษเหล็กและเศษพลาสติกปนกันอยู่ในถังขยะ ต้องการแยกเศษเหล็กออกมาทำการรีไซเคิล วิธีที่เร็วที่สุดและเหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เผาทั้งหมดเพื่อให้พลาสติกไหม้หายไป เหลือเศษเหล็ก",
+      "2. กรองด้วยกระดาษกรองเพื่อดักเศษเหล็ก",
+      "3. ใช้แม่เหล็กดึงเศษเหล็กออก เหลือเศษพลาสติกในถัง",
+      "4. ระเหิดเศษพลาสติกให้กลายเป็นไอหายไป"
+    ],
+    "answer": 3,
+    "hint": "พิจารณาว่าวัสดุสองชนิดนี้มีสมบัติอะไรที่แตกต่างกันอย่างชัดเจนที่สุด และนึกถึงอุปกรณ์ที่ใช้ประโยชน์จากความแตกต่างนี้"
+  },
+  {
+    "id": 27,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_dish",
+    "tag_skill": "L2",
+    "tag_misconception": "equipment_only_aesthetic_difference",
+    "title": "ข้อที่ 27. นักเรียนเลือกใช้จานระเหย (evaporating dish) แทนบีกเกอร์ในการระเหยแห้งน้ำเกลือ เหตุใดจึงเลือกใช้เช่นนั้น",
+    "image": "",
+    "options": [
+      "1. เพราะจานระเหยทนความร้อนสูงกว่าบีกเกอร์เพียงอย่างเดียว",
+      "2. เพราะจานระเหยมีปากกว้างและพื้นผิวรับความร้อนกว้าง ทำให้น้ำระเหยได้เร็วขึ้น",
+      "3. เพราะจานระเหยสามารถดูดความชื้นจากอากาศได้",
+      "4. เพราะจานระเหยเปลี่ยนสีเมื่อสารแห้งทำให้รู้ว่าเสร็จสิ้น"
+    ],
+    "answer": 2,
+    "hint": "ลองเปรียบเทียบรูปร่างของจานระเหยกับบีกเกอร์ คิดว่ารูปร่างส่งผลต่อพื้นที่ผิวสัมผัสอย่างไร และพื้นที่ผิวสัมผัสส่งผลต่อการระเหยอย่างไร"
+  },
+  {
+    "id": 28,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "multi_step_separation",
+    "tag_skill": "L4",
+    "tag_misconception": "single_method_separates_all",
+    "title": "ข้อที่ 28. นักเรียนได้รับสารผสม 4 ชนิดคือ ข้าวสาร ถั่วเขียว ผงเกลือ และผงเหล็ก ต้องการแยกทั้ง 4 อย่างออกจากกัน ลำดับวิธีการที่ถูกต้องที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เติมน้ำละลายเกลือแล้วกรองทุกอย่างพร้อมกัน แล้วจึงใช้แม่เหล็กและร่อนในภายหลัง",
+      "2. ใช้แม่เหล็กดึงผงเกลือออกก่อน แล้วจึงร่อนและกรอง",
+      "3. ระเหิดถั่วเขียวก่อน แล้วจึงใช้วิธีอื่นตามลำดับ",
+      "4. ใช้แม่เหล็กดึงผงเหล็กออก ร่อนแยกถั่วเขียวออกจากข้าวสารด้วยตะแกรง เติมน้ำละลายเกลือแล้วกรองข้าวสาร จากนั้นระเหยแห้งน้ำเกลือ"
+    ],
+    "answer": 4,
+    "hint": "พิจารณาสมบัติเด่นของสารแต่ละชนิด (แม่เหล็ก, ขนาด, การละลายน้ำ) แล้วเรียงลำดับว่าควรใช้วิธีใดก่อนหลัง เพื่อไม่ให้สารใดปนเปื้อน"
+  },
+  {
+    "id": 29,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "float_sink_density",
+    "tag_skill": "L2",
+    "tag_misconception": "light_objects_always_float",
+    "title": "ข้อที่ 29. ลูกโป่งลมลอยอยู่บนผิวน้ำในแก้ว แต่ก้อนหินเล็ก ๆ จมอยู่ก้นแก้ว เหตุใดจึงเป็นเช่นนั้น",
+    "image": "",
+    "options": [
+      "1. ลูกโป่งมีความหนาแน่นรวมน้อยกว่าน้ำจึงลอย ส่วนหินมีความหนาแน่นมากกว่าน้ำจึงจม",
+      "2. ลูกโป่งเบาเพราะเป็นยาง ส่วนหินหนักเพราะเป็นวัสดุธรรมชาติ",
+      "3. หินจมเพราะไม่มีอากาศข้างใน แต่ลูกโป่งลอยเพราะมีลมข้างใน",
+      "4. ลูกโป่งลอยเพราะลมข้างในพยุงตัวลูกโป่งไว้ ไม่เกี่ยวกับความหนาแน่น"
+    ],
+    "answer": 1,
+    "hint": "หลีกเลี่ยงการคิดว่า 'ของเบาลอย ของหนักจม' แต่ให้คิดถึงความหนาแน่นโดยรวมของวัตถุเทียบกับความหนาแน่นของน้ำ"
+  },
+  {
+    "id": 30,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_juice",
+    "tag_skill": "L2",
+    "tag_misconception": "fruit_pulp_dissolves_in_juice",
+    "title": "ข้อที่ 30. น้ำส้มคั้นสดที่มีเนื้อส้มปนอยู่มาก ต้องการน้ำส้มใสสำหรับเสิร์ฟ วิธีการแยกที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ใช้แม่เหล็กดึงเนื้อส้มออกจากน้ำส้ม",
+      "2. ระเหยแห้งน้ำส้มเพื่อให้เนื้อส้มตกตะกอน",
+      "3. กรองผ่านผ้าขาวบางหรือกระชอน เนื้อส้มจะถูกดักไว้ น้ำส้มใสไหลผ่านลงแก้ว",
+      "4. ระเหิดเนื้อส้มให้กลายเป็นไอหายไป"
+    ],
+    "answer": 3,
+    "hint": "พิจารณาว่าเนื้อส้มเป็นของแข็งชิ้นใหญ่ที่ไม่ละลายน้ำ และคิดถึงวิธีการแยกที่ใช้ประโยชน์จากขนาดอนุภาคที่ต่างกัน"
+  }
+];
+
+    const extraQuestions = [
+ {
+    "id": 1,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_state_change",
+    "tag_skill": "L2",
+    "tag_misconception": "matter_disappears_on_evaporation",
+    "title": "ข้อท้าทายที่ 1. น้ำเกลือ 50 มิลลิลิตรถูกระเหยแห้งด้วยความร้อน จนแห้งสนิทไม่เหลือน้ำ นักเรียนบางคนสรุปว่า 'น้ำหายไปแล้ว' ข้อสรุปที่ถูกต้องทางวิทยาศาสตร์คือข้อใด",
+    "image": "",
+    "options": [
+      "1. น้ำถูกทำลายให้หายไปเพราะความร้อนทำให้โมเลกุลน้ำแตกสลาย",
+      "2. น้ำไม่ได้หายไป แต่เปลี่ยนสถานะจากของเหลวเป็นแก๊ส (ไอน้ำ) กระจายอยู่ในอากาศรอบ ๆ",
+      "3. น้ำซึมลงใต้จานระเหยแล้วหายไปในอากาศด้านล่าง",
+      "4. น้ำเปลี่ยนไปเป็นเกลือที่เหลืออยู่บนจาน"
+    ],
+    "answer": 2,
+    "hint": "นึกถึงหลักการอนุรักษ์มวลสาร สสารไม่สามารถเกิดขึ้นหรือหายไปได้เอง แต่เปลี่ยนสถานะหรือตำแหน่งได้"
+  },
+  {
+    "id": 2,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "distillation_vs_evaporation",
+    "tag_skill": "L4",
+    "tag_misconception": "distillation_only_removes_water",
+    "title": "ข้อท้าทายที่ 2. จุดเด่นสำคัญของการกลั่นแยกสาร (distillation) เมื่อเทียบกับการระเหยแห้ง (evaporation) คือข้อใด",
+    "image": "",
+    "options": [
+      "1. การกลั่นทำให้เกลือแห้งเร็วขึ้นกว่าการระเหยแห้ง",
+      "2. การกลั่นทำให้เกลือสะอาดขึ้นกว่าเดิม",
+      "3. การกลั่นทำให้เกลือละลายน้ำได้ดีขึ้น",
+      "4. การกลั่นช่วยให้ได้ทั้งน้ำบริสุทธิ์จากการควบแน่นไอน้ำ และได้เกลือที่เหลืออยู่ในขวดกลั่น ในขณะที่การระเหยแห้งได้เฉพาะเกลือ"
+    ],
+    "answer": 4,
+    "hint": "เปรียบเทียบว่าการระเหยแห้งปล่อยให้ไอน้ำกระจายหายไป แต่การกลั่นมีการจัดระบบเก็บไอน้ำไว้ ผลลัพธ์ที่ได้จึงต่างกันอย่างไร"
+  },
+  {
+    "id": 3,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "magnetic_separation_residual",
+    "tag_skill": "L4",
+    "tag_misconception": "all_black_powder_is_iron",
+    "title": "ข้อท้าทายที่ 3. นักเรียนใช้แม่เหล็กดึงเหล็กออกจากสารผสมเหล็ก + กำมะถัน หลังใช้แม่เหล็ก 3 ครั้ง ยังพบผงสีดำบางส่วนตกค้างในหลอดทดลองและไม่ติดแม่เหล็ก ข้อสรุปที่เป็นไปได้มากที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ผงสีดำที่ตกค้างอาจเป็นกำมะถันหรือสารอื่นที่ไม่ดึงดูดแม่เหล็ก",
+      "2. แม่เหล็กหมดพลังแม่เหล็กแล้ว จึงดูดเหล็กไม่ได้อีก",
+      "3. เหล็กทั้งหมดเปลี่ยนไปเป็นกำมะถันแล้วเพราะปฏิกิริยาเคมี",
+      "4. เหล็กละลายในอากาศทำให้ไม่ติดแม่เหล็ก"
+    ],
+    "answer": 1,
+    "hint": "อย่าสรุปจาก 'สี' ของผงเพียงอย่างเดียว แต่ให้พิจารณาสมบัติทางกายภาพของแต่ละสารในสารผสม"
+  },
+  {
+    "id": 4,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_technique",
+    "tag_skill": "L4",
+    "tag_misconception": "stronger_heat_faster_better",
+    "title": "ข้อท้าทายที่ 4. นักเรียนระเหยแห้งน้ำเกลือด้วยเปลวไฟแรงเกินไป พบว่าเกลือกระเด็นออกจากจาน ทำให้ได้เกลือน้อยกว่าที่ควรจะเป็น สาเหตุเกิดจากอะไร",
+    "image": "",
+    "options": [
+      "1. ความร้อนทำให้เกลือระเหยกลายเป็นแก๊สหายไปพร้อมน้ำ",
+      "2. เกลือเกิดปฏิกิริยาเคมีกับน้ำร้อนจนสลายตัวหายไป",
+      "3. ความร้อนที่รุนแรงทำให้น้ำเดือดรุนแรง เกิดฟองอากาศแตกตัว เกลือถูกพากระเด็นออกไปพร้อมน้ำ",
+      "4. เกลือแข็งตัวเป็นก้อนใหญ่แล้วเกาะใต้จานจนมองไม่เห็น"
+    ],
+    "answer": 3,
+    "hint": "สังเกตว่าเกลือไม่ได้หายไปเพราะเปลี่ยนสถานะ แต่หายไปทางกายภาพ คิดว่าอะไรเกิดขึ้นกับ 'น้ำ' เมื่อถูกความร้อนแรงเกินไป"
+  },
+  {
+    "id": 5,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sublimation_condensation",
+    "tag_skill": "L3",
+    "tag_misconception": "cold_surface_cools_iodine_only",
+    "title": "ข้อท้าทายที่ 5. ทำไมการระเหิดไอโอดีนจึงต้องใช้จานเคลือบหรือผิวเย็นคลุมไว้ด้านบน",
+    "image": "",
+    "options": [
+      "1. เพื่อให้ไอโอดีนละลายกลับเป็นของเหลวในจานเคลือบ",
+      "2. เพื่อให้ไอไอโอดีนที่ลอยขึ้นสัมผัสพื้นผิวเย็นแล้วควบแน่นกลับเป็นของแข็งเกาะไว้ ไม่กระจายไปในอากาศ",
+      "3. เพื่อเพิ่มอุณหภูมิในการระเหิดให้เร็วขึ้น",
+      "4. เพื่อดูดสีม่วงของไอไอโอดีนออกจากอากาศ"
+    ],
+    "answer": 2,
+    "hint": "ไอไอโอดีนที่ลอยขึ้นจะกระจายไปในอากาศถ้าไม่มีอะไรกั้นไว้ ให้คิดว่าพื้นผิวเย็นช่วยให้เกิดการเปลี่ยนสถานะอย่างไร"
+  },
+  {
+    "id": 6,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_dissolved_solids_challenge",
+    "tag_skill": "L4",
+    "tag_misconception": "filter_traps_all_solids",
+    "title": "ข้อท้าทายที่ 6. นักเรียนกรองน้ำปนทรายและเกลือด้วยกระดาษกรอง ได้น้ำใสใส แต่เมื่อชิมพบว่ายังเค็ม อธิบายได้ว่าเกิดอะไรขึ้น",
+    "image": "",
+    "options": [
+      "1. กระดาษกรองผิดปกติทำให้กรองเกลือได้ไม่หมด",
+      "2. เกลือยังไม่ละลายหมด จึงผ่านลงไปได้บางส่วน",
+      "3. น้ำไม่ได้เค็มจริง แต่เป็นความรู้สึกของผู้ชิม",
+      "4. เกลือละลายเป็นอนุภาคโมเลกุลขนาดเล็กกว่ารูพรุนของกระดาษกรอง จึงผ่านลงมาพร้อมน้ำ"
+    ],
+    "answer": 4,
+    "hint": "แยกให้ออกว่ากระดาษกรองดัก 'ของแข็งที่ไม่ละลาย' ได้ แต่ดัก 'สารที่ละลายน้ำ' ไม่ได้ เพราะอะไร"
+  },
+  {
+    "id": 7,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "sublimation_room_temperature",
+    "tag_skill": "L2",
+    "tag_misconception": "naphthalene_evaporates_from_liquid",
+    "title": "ข้อท้าทายที่ 7. ลูกเหม็นที่วางไว้ในตู้เสื้อผ้าค่อย ๆ มีขนาดเล็กลงจนหายไปในที่สุด โดยไม่พบของเหลวใด ๆ ในบริเวณนั้น อธิบายได้ว่าเกิดอะไรขึ้น",
+    "image": "",
+    "options": [
+      "1. ลูกเหม็นระเหิดเปลี่ยนจากของแข็งไปเป็นแก๊สโดยตรงที่อุณหภูมิห้อง",
+      "2. ลูกเหม็นหลอมเหลวเป็นของเหลวแล้วระเหยไป",
+      "3. ลูกเหม็นถูกแมลงหรือสิ่งมีชีวิตขนาดเล็กกินหมด",
+      "4. ลูกเหม็นละลายในความชื้นของอากาศจนหมดไป"
+    ],
+    "answer": 1,
+    "hint": "สังเกตว่าไม่พบของเหลวใด ๆ เกิดขึ้นในบริเวณนั้น สิ่งนี้บอกอะไรเกี่ยวกับการเปลี่ยนสถานะของลูกเหม็น"
+  },
+  {
+    "id": 8,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_surface_area",
+    "tag_skill": "L4",
+    "tag_misconception": "depth_affects_evaporation",
+    "title": "ข้อท้าทายที่ 8. บ่อเกลือในการทำเกลือจากน้ำทะเลมักสร้างเป็นบ่อตื้นและกว้าง เหตุใดจึงออกแบบเช่นนั้น",
+    "image": "",
+    "options": [
+      "1. เพื่อให้เกลือไม่ละลายในน้ำทะเลเมื่อตากแดด",
+      "2. เพื่อให้แสงแดดส่องลึกถึงก้นบ่อทำให้เกลือเกิดขึ้นเร็วขึ้น",
+      "3. เพื่อเพิ่มพื้นที่ผิวสัมผัสระหว่างน้ำกับอากาศ ทำให้น้ำระเหยได้เร็วขึ้น",
+      "4. เพื่อให้เกลือตกตะกอนที่ก้นบ่อได้เร็วขึ้น"
+    ],
+    "answer": 3,
+    "hint": "คิดถึงปัจจัยที่ส่งผลต่อการระเหย นอกจากอุณหภูมิแล้ว ยังมีปัจจัยใดที่เกี่ยวข้องกับรูปทรงของภาชนะ"
+  },
+  {
+    "id": 9,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "multi_step_separation_flour",
+    "tag_skill": "L4",
+    "tag_misconception": "flour_dissolves_in_water",
+    "title": "ข้อท้าทายที่ 9. นักเรียนได้รับสารผสม 3 ชนิดคือ ผงเหล็ก ผงแป้ง และผงเกลือ ต้องการแยกทั้งหมดออกจากกัน ลำดับวิธีการที่ถูกต้องที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เติมน้ำละลายทั้งหมดก่อน แล้วจึงกรองและใช้แม่เหล็ก",
+      "2. ใช้แม่เหล็กดึงผงเหล็กออก เติมน้ำละลายเกลือ (แป้งไม่ละลายแต่แขวนลอย) กรองได้แป้ง แล้วระเหยแห้งน้ำเกลือได้เกลือ",
+      "3. ระเหิดทั้งหมดพร้อมกันแล้วแยกตามสี",
+      "4. ระเหยแห้งก่อนแล้วค่อยกรองเพื่อได้เกลือ"
+    ],
+    "answer": 2,
+    "hint": "พิจารณาสมบัติของแป้งกับเกลือเมื่ออยู่ในน้ำ แป้ง 'ไม่ละลาย' แต่ 'แขวนลอย' ต่างจากเกลือที่ละลายหมด สิ่งนี้ช่วยให้ใช้การกรองได้อย่างไร"
+  },
+  {
+    "id": 10,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "density_layering_four_substances",
+    "tag_skill": "L4",
+    "tag_misconception": "oil_always_bottom_layer",
+    "title": "ข้อท้าทายที่ 10. เทสารผสม 4 ชนิดคือ น้ำ น้ำมันพืช เศษไม้สน และเหรียญทองแดง ลงในแก้วสูงแล้วทิ้งไว้ให้นิ่ง เรียงลำดับชั้นจากบนลงล่างได้อย่างไร",
+    "image": "",
+    "options": [
+      "1. เหรียญทองแดง → น้ำ → น้ำมันพืช → เศษไม้สน",
+      "2. เศษไม้สน → น้ำ → น้ำมันพืช → เหรียญทองแดง",
+      "3. น้ำมันพืช → เศษไม้สน → น้ำ → เหรียญทองแดง",
+      "4. เศษไม้สน → น้ำมันพืช → น้ำ → เหรียญทองแดง"
+    ],
+    "answer": 4,
+    "hint": "เรียงสารตามความหนาแน่นจากน้อยไปมาก (ไม้สน ≈ 0.5, น้ำมัน ≈ 0.9, น้ำ ≈ 1.0, ทองแดง ≈ 8.9 กรัม/ลูกบาศก์เซนติเมตร) แล้วนึกว่าชั้นไหนอยู่บนหรือล่าง"
+  },
+  {
+    "id": 11,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "evaporation_quantity_comparison",
+    "tag_skill": "L4",
+    "tag_misconception": "more_solution_more_solute",
+    "title": "ข้อท้าทายที่ 11. นักเรียนเตรียมน้ำเกลือ 2 แก้ว แก้ว A มีน้ำเกลือ 100 มิลลิลิตร (มีเกลือละลาย 5 กรัม) แก้ว B มีน้ำเกลือ 200 มิลลิลิตร (มีเกลือละลาย 5 กรัม) เมื่อระเหยแห้งทั้งสองแก้วจนแห้งสนิท ปริมาณเกลือที่ได้เป็นอย่างไร",
+    "image": "",
+    "options": [
+      "1. ได้ปริมาณเกลือเท่ากันทั้งสองแก้ว เพราะปริมาณเกลือที่ละลายอยู่เท่ากัน",
+      "2. แก้ว A ได้เกลือมากกว่า เพราะน้ำน้อยกว่าจึงระเหยเร็วกว่า",
+      "3. แก้ว B ได้เกลือมากกว่า เพราะมีน้ำมากกว่า",
+      "4. ไม่สามารถสรุปได้ เพราะขึ้นกับอุณหภูมิในการระเหย"
+    ],
+    "answer": 1,
+    "hint": "อย่าสับสนระหว่าง 'ปริมาณน้ำ' กับ 'ปริมาณเกลือที่ละลาย' ให้โฟกัสที่ตัวเลขกรัมของเกลือที่ระบุไว้"
+  },
+  {
+    "id": 12,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "improvised_filtration",
+    "tag_skill": "L3",
+    "tag_misconception": "filtration_requires_special_filter_paper",
+    "title": "ข้อท้าทายที่ 12. นักเรียนต้องการกรองน้ำโคลนแต่ไม่มีกระดาษกรอง มีเพียงผ้าขาวบาง แก้วน้ำที่มีน้ำโคลน และแก้วเปล่า วิธีการที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. เทน้ำโคลนลงแก้วเปล่าโดยตรง โดยไม่ต้องใช้ผ้า",
+      "2. ต้มน้ำโคลนให้เดือดก่อน แล้วจึงเทลงแก้วเปล่า",
+      "3. คลุมผ้าขาวบางที่ปากแก้วน้ำ เทน้ำโคลนผ่านผ้าลงแก้วเปล่า",
+      "4. ตั้งน้ำโคลนทิ้งไว้จนแห้งสนิทแล้วจึงเก็บผงโคลนไปใช้"
+    ],
+    "answer": 3,
+    "hint": "หลักการของการกรองคือใช้สิ่งที่มีรูพรุนพอเหมาะดักของแข็ง ให้คิดว่าวัสดุใดที่มีรูพรุนในสิ่งของที่มีอยู่"
+  },
+  {
+    "id": 13,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "insoluble_powder_separation",
+    "tag_skill": "L4",
+    "tag_misconception": "all_white_powders_dissolve",
+    "title": "ข้อท้าทายที่ 13. นักเรียนพบผงขาว 2 ชนิดปนกันในจาน คือ ผงเกลือและผงแป้ง ต้องการแยกทั้งสองออกจากกัน วิธีที่เหมาะสมที่สุดคือข้อใด",
+    "image": "",
+    "options": [
+      "1. ใช้แม่เหล็กดึงผงแป้งออกจากผงเกลือ",
+      "2. เติมน้ำลงไป - แป้งไม่ละลายแต่แขวนลอย กรองได้แป้ง แล้วระเหยแห้งน้ำเกลือได้เกลือ",
+      "3. ระเหิดผงแป้งให้กลายเป็นไอหายไป เหลือเกลือ",
+      "4. ต้มให้แป้งหลอมเหลวแล้วกรองออก"
+    ],
+    "answer": 2,
+    "hint": "อย่าคิดว่าผงสีขาวทุกชนิดละลายน้ำเหมือนกัน ให้พิจารณาสมบัติเฉพาะของแป้ง (ไม่ละลายน้ำ แต่แขวนลอยได้) กับเกลือ (ละลายน้ำ)"
+  },
+  {
+    "id": 14,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "filtration_folding_technique",
+    "tag_skill": "L2",
+    "tag_misconception": "folding_paper_slows_filtration",
+    "title": "ข้อท้าทายที่ 14. ก่อนกรองน้ำโคลน นักเรียนต้องพับกระดาษกรองให้พอดีกับกรวยแก้ว เหตุใดจึงต้องพับให้พอดี",
+    "image": "",
+    "options": [
+      "1. เพื่อให้กระดาษกรองแน่นขึ้นและกรองได้ละเอียดขึ้น",
+      "2. เพื่อให้กระดาษกรองดูดน้ำได้ดีขึ้น",
+      "3. เพื่อให้น้ำกรองผ่านช้าลงเพื่อกรองละเอียดขึ้น",
+      "4. เพื่อให้กระดาษกรองสัมผัสผิวกรวยทั้งด้าน น้ำไหลผ่านได้ทั่วถึงและไม่รั่วซึมออกด้านข้าง"
+    ],
+    "answer": 4,
+    "hint": "คิดว่าถ้ากระดาษกรองไม่สัมผัสผิวกรวยทั้งด้าน จะเกิดช่องว่างระหว่างกระดาษกับกรวย ผลที่ตามมาคืออะไร"
+  },
+  {
+    "id": 15,
+    "domain": "CHEM",
+    "content": "การแยกสาร",
+    "tag_content": "magnetic_separation_efficiency",
+    "tag_skill": "L4",
+    "tag_misconception": "magnet_weakens_with_small_particles",
+    "title": "ข้อท้าทายที่ 15. นักเรียนใช้แม่เหล็กดึงเหล็กออกจากสารผสม 3 ครั้งติดต่อกัน แต่ยังพบอนุภาคเหล็กขนาดเล็กมากตกค้างอยู่ สาเหตุที่เป็นไปได้มากที่สุดและวิธีแก้คือข้อใด",
+    "image": "",
+    "options": [
+      "1. อนุภาคเหล็กขนาดเล็กมากอาจอยู่แทรกในสารอื่นที่ไม่ดึงดูดแม่เหล็ก ต้องคลุกเคล้าสารผสมให้ทั่วแล้วใช้แม่เหล็กซ้ำอีกครั้ง",
+      "2. แม่เหล็กไม่สามารถดูดเหล็กที่มีขนาดเล็กกว่า 1 มิลลิเมตรได้ ต้องเลิกพยายาม",
+      "3. อนุภาคเหล็กเปลี่ยนสภาพเป็นสารอื่นไปแล้วจึงไม่ติดแม่เหล็ก",
+      "4. ต้องเติมน้ำลงไปเพิ่ม เพื่อให้อนุภาคเหล็กลอยขึ้นมาให้แม่เหล็กดูดได้ง่ายขึ้น"
+    ],
+    "answer": 1,
+    "hint": "พิจารณาว่าอนุภาคเหล็กเล็ก ๆ อาจถูกสารอื่น 'ปิดบัง' อยู่ ทำให้แม่เหล็กเข้าถึงยาก ไม่ใช่เพราะแม่เหล็กไม่ทำงานกับเหล็กขนาดเล็ก"
+  }
+     ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+//    }
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+         // localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+ // เอาออก - เพื่อไม่แสดงเลขข้อ Claude 21-08-2569 document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+//Start จุดที่แก้ไข : โค้ดที่แก้ใหม่เพื่อไม่แสดงเลขข้อ แนะนำโดย Claude 21-08-2569
+      let displayTitle = q.title;
+      if (testMode === 'EXAM') {
+        displayTitle = displayTitle.replace(/^ข้อ(?:ท้าทายที่|ที่)\s*\d+\.\s*/, '');
+      }
+      document.getElementById('q-title').innerHTML = escapeHtml(displayTitle).replace(/\n/g, '<br>');
+//Stop จุดที่แก้ไข
+
+      // ===== [ เพิ่มใหม่: แสดง/ซ่อนรูปภาพประกอบโจทย์ตาม q.image 30/08/2569 ] =====
+      const qImage = document.getElementById('q-image');
+      if (q.image && q.image.trim() !== '') {
+        qImage.src = q.image;
+        qImage.classList.remove('hidden');
+      } else {
+        qImage.src = '';
+        qImage.classList.add('hidden');
+      }
+      // ================================
+
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในโจทย์และตัวเลือกทั้งหมด 30/08/2569 ] =====
+      renderMath(document.getElementById('question-box'));
+      // ================================
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = escapeHtml(q.hint).replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในคำใบ้ 30/08/2569 ] =====
+      renderMath(document.getElementById('hint-text'));
+      // ================================
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <!-- <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3> -->
+            <h3 class="text-lg font-bold text-gray-800 mb-2">${testMode === 'EXAM' ? '⏸️ พักสายตาสักครู่' : `ข้อที่ ${currentQ + 1}`}</h3>            
+
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: แปลง newline ดิบที่หลุดอยู่ในสตริงให้เป็น \n ที่ถูกต้อง ] =====
+    // ปัญหา: บางครั้ง AI คัดลอกโจทย์หลายบรรทัดมาใส่ใน "title"/"hint" โดยตัวอักษรขึ้นบรรทัดใหม่
+    // (newline จริงๆ) หลุดปนอยู่ในสตริง ซึ่ง JSON ไม่อนุญาตให้มี newline ดิบอยู่ในสตริง ทำให้ parse ล้มเหลว
+    // วิธีแก้: ไล่ทีละตัวอักษร ติดตามว่ากำลังอยู่ "ในเครื่องหมายคำพูด" หรือไม่ (โดยข้าม escape
+    // sequence ที่มีอยู่แล้วอย่างถูกต้อง เพื่อไม่ให้หลงนับ \" เป็นการปิดสตริง) ถ้าเจอ newline
+    // ขณะอยู่ในสตริง จะแปลงเป็น \n (escape ที่ถูกต้อง) แต่ถ้า newline อยู่นอกสตริง (เช่น
+    // การเว้นบรรทัดเพื่อจัดรูปแบบ JSON) จะปล่อยผ่านตามปกติ ไม่แตะต้อง
+    cleanJson = (function fixRawNewlinesInStrings(str) {
+      let result = '';
+      let inString = false;
+      let escapeNext = false;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (escapeNext) {
+          result += ch;
+          escapeNext = false;
+          continue;
+        }
+        if (ch === '\\') {
+          result += ch;
+          escapeNext = true;
+          continue;
+        }
+        if (ch === '"') {
+          inString = !inString;
+          result += ch;
+          continue;
+        }
+        if (inString && (ch === '\n' || ch === '\r')) {
+          result += (ch === '\n') ? '\\n' : '\\r';
+          continue;
+        }
+        result += ch;
+      }
+      return result;
+    })(cleanJson);
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ลบ trailing comma ก่อนปิดวงเล็บ ] =====
+    // ปัญหา: AI มักพิมพ์คอมม่าตัวสุดท้ายก่อนปิด array/object เช่น [{"id":1},{"id":2},]
+    // ซึ่งไม่ใช่ JSON ที่ถูกต้อง (JSON มาตรฐานห้ามมี comma ตัวสุดท้ายก่อน ] หรือ })
+    // ทำให้ JSON.parse() ล้มเหลวทันที วิธีแก้คือลบ comma ที่ตามด้วยช่องว่าง (ถ้ามี) แล้วตามด้วย ] หรือ } ทิ้ง
+    cleanJson = cleanJson.replace(/,(\s*[\]}])/g, '$1');
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ซ่อมแซม backslash ที่ AI ลืม escape คู่ ] =====
+    // ปัญหา: เวลา AI สร้างสูตร LaTeX เช่น \Delta, \circ, \text{} มักลืมใส่ backslash คู่
+    // ตาม JSON spec ทำให้ JSON.parse() ล้มเหลว (error) ทันที
+    // วิธีแก้: สแกนหา backslash ทีละตัว ถ้าเป็นคู่ที่ถูกต้องอยู่แล้ว (\\ หรือ escape
+    // มาตรฐานของ JSON เช่น \" \/ \b \f \n \r \t \u) จะปล่อยผ่านไม่แตะต้อง
+    // แต่ถ้าเป็น backslash เดี่ยวที่ตามด้วยอักษรอื่น (เช่น \D, \c, \t ที่จริงคือ LaTeX)
+    // จะเติม backslash คู่ให้อัตโนมัติ เพื่อให้ JSON.parse() อ่านผ่านได้
+    cleanJson = cleanJson.replace(/\\\\|\\["\\\/bfnrtu]|\\/g, (match) => {
+      return match.length === 2 ? match : '\\\\';
+    });
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

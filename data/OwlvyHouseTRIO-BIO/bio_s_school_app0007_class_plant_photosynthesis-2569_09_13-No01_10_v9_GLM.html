@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <!--- ฉับับเพิ่มฟังก์ชัน Login By Claude 18/08/2569 tpv6--->
+  <!--- เพิ่ม KaTeX สำหรับแสดงผลสูตรคณิตศาสตร์/วิทยาศาสตร์ (LaTeX) By Claude 30/08/2569 --->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWLVY TRIO+IQ-Ready Quiz APP Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ===== [ เพิ่มใหม่: KaTeX สำหรับ render สูตร LaTeX 30/08/2569 ] ===== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <!-- ================================ -->
+  <style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; width: 100% !important; max-width: 100% !important; min-height: 100vh; margin: 0 !important; }
+    .opt-btn { transition: all 0.2s ease-in-out; }
+    .opt-btn:hover { background-color: #eff6ff; border-color: #3b82f6; }
+    .opt-selected { background-color: #dbeafe !important; border-color: #2563eb !important; font-weight: 500; }
+    .modal-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+    .modal-box { background: white; padding: 1.5rem; border-radius: 1rem; max-width: 90vw; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+    .modal-hidden { display: none !important; } 
+    .progress-bar-bg { background-color: #e5e7eb; border-radius: 9999px; height: 8px; width: 100%; margin-bottom: 1rem; }
+    .progress-bar-fill { background-color: #2563eb; height: 8px; border-radius: 9999px; transition: width 0.3s ease; }
+  </style>
+</head>
+<body class="p-4 md:p-6 text-gray-800 w-full">
+
+  <!-- 1. LOGIN CARD -->
+  <div id="login-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 mt-6">
+      <div class="text-center mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text drop-shadow-sm">
+        OwlvyHouse  <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+ TRIO for EXAM
+      </h1>
+      
+      <div class="text-5xl mb-3">🦉</div>
+      <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase" id="badge-domain">DOMAIN</span>
+      <h2 id="app-title" class="text-xl font-bold text-gray-800 mt-2">เข้าสู่ระบบทำข้อสอบ</h2>
+      <p id="app-sub" class="text-xs text-gray-500 mt-1"></p>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล (Email)</label>
+        <input type="email" id="student-email" placeholder="example@email.com" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน (Password) เข้าสู่ Owlvy TRIO</label>
+        <input type="password" id="student-password" placeholder="รหัสผ่านที่ครูแจ้งไว้" class="w-full border border-gray-300 p-2.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+      </div>
+      
+      <p id="login-error" class="text-red-500 text-xs text-center hidden bg-red-50 p-2 rounded-lg border border-red-100"></p>
+<!--แก้ไขเพิ่มปุ่มทำ 2 Mode-->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+        <button onclick="testMode='PRACTICE'; verifyLogin('MAIN')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          📝 โหมดฝึกฝน (มีเฉลย/คำใบ้)
+        </button>
+        <button onclick="testMode='EXAM'; verifyLogin('MAIN')" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium py-3 rounded-xl shadow-md transition duration-200 text-sm">
+          🎯 โหมดทดสอบจริง (สอบจริง)
+        </button>
+      </div>
+<!--จุดปิดส่วนที่แก้ไข-->
+      <button onclick="openImportModal()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 text-xs">
+        📥 นำเข้าข้อสอบที่ AI สร้างให้ (Paste JSON)
+      </button>
+    </div>
+
+    <div class="mt-6 text-center">
+      <p class="text-xs text-gray-500 mb-2">สามารถค้นคว้าเพิ่มเติมได้จาก OwlvyHouseTeleBot 🦉</p>
+      <a href="https://t.me/OwlvyHouseTeleBot" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2.5 rounded-xl shadow-sm transition duration-200 text-xs">
+        🚀 ไปที่ OwlvyHouseTeleBot
+      </a>
+    </div>
+
+    <div class="mt-4 text-[11px] leading-relaxed text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-100">
+      <p class="font-semibold text-gray-500 mb-1">หมายเหตุ:</p>
+      ผู้จัดทำได้ตรวจสอบความถูกต้องของเนื้อหาและเฉลยอย่างรอบคอบแล้ว อย่างไรก็ตาม เนื่องจากข้อสอบมีจำนวนมาก อาจยังมีข้อผิดพลาดหรือข้อความที่คลุมเครือหลงเหลืออยู่บ้าง หากพบข้อผิดพลาด กรุณาแจ้งหมายเลขข้อ พร้อมรายละเอียดมายังผู้จัดทำ เพื่อดำเนินการตรวจสอบและแก้ไขในเวอร์ชันถัดไป ขอขอบคุณทุกความคิดเห็นที่ช่วยพัฒนาสื่อการเรียนรู้ให้มีคุณภาพยิ่งขึ้น
+    </div>
+  </div>
+
+  <!-- 2. QUIZ CARD -->
+  <div id="quiz-card" class="max-w-2xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-lg border border-gray-100 hidden">
+    
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-xs text-gray-500 font-medium">ความคืบหน้า</span>
+      <div class="flex items-center gap-3">
+        <!-- ปุ่มเปิด/ปิดเสียงโต้ตอบ -->
+        <button id="sound-toggle-btn" onclick="toggleSound()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200 transition flex items-center gap-1" title="เปิด/ปิดเสียง">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-status-text" class="hidden sm:inline">เปิดเสียง</span>
+        </button>
+        <span id="q-progress-text" class="text-xs text-blue-600 font-bold">0 / 0</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+       <div class="flex items-center gap-2">
+        <span class="text-lg">🦉</span>
+        <span id="display-info" class="font-semibold text-gray-700 text-sm"></span>
+      </div>
+      <div id="timer" class="text-red-500 font-mono font-bold text-sm bg-red-50 px-3 py-1 rounded-lg border border-red-100 hidden">
+        ⏱️ เวลา: 00:00
+      </div>
+    </div>    
+    
+    <div id="question-box" class="mb-6">
+      <h3 id="q-title" class="text-base font-medium text-gray-800 leading-relaxed mb-4 whitespace-pre-line"></h3>
+      <!-- ===== [ เพิ่มใหม่: รูปภาพประกอบโจทย์ (q.image) 30/08/2569 ] ===== -->
+      <img id="q-image" src="" alt="รูปประกอบข้อสอบ" class="w-full max-w-md mx-auto rounded-xl mb-4 border border-gray-100 hidden">
+      <!-- ================================ -->
+      <div id="q-options" class="space-y-2.5"></div>
+      <button id="hint-btn" onclick="showHint()" class="mt-4 text-xs text-purple-600 font-medium hover:text-purple-800">💡 แสดงคำใบ้ (Hint)</button>
+      <div id="hint-text" class="hidden mt-2 p-3 bg-purple-50 text-purple-700 text-xs rounded-lg border border-purple-100 whitespace-pre-line"></div>
+    </div>
+<p class="text-amber-700/70 text-[10px] sm:text-xs text-center italic mt-1.5 mb-0">* App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ</p>    
+    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+      <button id="prev-btn" onclick="prevQuestion()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl text-sm font-medium hidden">← ข้อก่อนหน้า</button>
+      <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium ml-auto">ข้อถัดไป →</button>
+      <button id="submit-btn" onclick="submitQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl text-sm font-medium ml-auto hidden shadow-md">ส่งคำตอบ ✨</button>
+    </div>
+  </div>
+
+   <!-- 3. RESULT CARD -->
+  <div id="result-card" class="max-w-2xl mx-auto bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 hidden">
+    <div class="flex justify-between items-center pb-4 border-b border-gray-100 mb-6 text-xs text-gray-400">
+      <span id="result-quiz-title">แบบทดสอบวิทยาศาสตร์</span>
+      <div class="flex gap-3">
+          <button onclick="handleBackButton()" class="hover:text-gray-600">✕</button>
+      </div>
+    </div>
+    <h2 class="text-xl font-bold text-gray-800 mb-6 text-left">สำเร็จแล้ว! จบการทำแบบทดสอบ</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">คะแนน</p>
+        <p id="stat-score" class="text-3xl font-bold text-gray-800">0/0</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
+        <p class="text-xs text-gray-500 mb-1">ความแม่นยำ</p>
+        <p id="stat-accuracy" class="text-3xl font-bold text-gray-800">0%</p>
+      </div>
+      <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left flex justify-between items-center">
+        <div class="space-y-1 text-sm text-gray-600">
+          <p>ถูก</p><p>ผิด</p><p>ข้าม</p>
+        </div>
+        <div class="space-y-1 text-sm font-bold text-gray-800 text-right">
+          <p id="stat-correct">0</p><p id="stat-wrong">0</p><p id="stat-skipped">0</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 mb-6 text-left">
+      <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2">
+        📊 วิเคราะห์ผลตามทักษะการคิด (Bloom's Taxonomy)
+      </h4>
+      <div id="skill-analysis-box" class="space-y-2 text-xs text-gray-600">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">✉️</span>
+        <div class="overflow-hidden">
+          <p class="text-xs text-gray-500">อีเมลผู้ทำข้อสอบ</p>
+          <p id="stat-email"
+ class="text-sm font-semibold text-gray-800 truncate">-</p>
+        </div>
+      </div>
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left flex items-center gap-3">
+        <span class="text-2xl">⏱️</span>
+        <div>
+          <p class="text-xs text-gray-500">เวลาที่ใช้ทำข้อสอบ</p>
+          <p id="stat-time" class="text-sm font-semibold text-gray-800">00:00:00</p>
+        </div>
+      </div>
+    </div>
+
+    <p id="status-text" class="text-xs text-gray-500 bg-gray-50 p-2.5 rounded-xl border border-gray-200 mb-6 text-center"></p>
+
+    <div class="mt-6 space-y-4">
+      <div class="bg-green-50 border border-green-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-green-700 mb-3 text-center">🔄 ทบทวนและฝึกหัด (ทำในแอป)</h4>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <button id="btn-retry" onclick="startQuiz('RETRY_WRONG')" class="text-orange-600 hover:text-orange-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-orange-100 hover:bg-orange-200">🔄 ทบทวนข้อผิด</button>
+          <button id="btn-extra" onclick="startQuiz('EXTRA')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs px-4 py-2.5 rounded-full transition bg-blue-100 hover:bg-blue-200">📚 แบบฝึกหัดเพิ่มเติม เน้นจุดสับสน</button>
+        </div>
+      </div>
+<!--เริ่มจุดที่แก้ไข การแสดงปุ่ม AI GEN-->
+           <!-- กล่อง AI เดิม (เพิ่ม id="ai-remedial-box") -->
+      <div id="ai-remedial-box" class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-4">
+        <h4 class="text-xs font-bold text-purple-700 mb-1 text-center">✨ AI: สั่งสร้างข้อสอบซ่อมเสริม (Export to AI)</h4>
+        <p class="text-[10px] text-purple-500 mb-3 text-center">* ใช้ได้หลังทำข้อสอบหลักเสร็จ (ต้องใส่รหัสครู)</p>
+        <div class="flex flex-wrap justify-center items-center gap-2">
+          <button onclick="requestAiRemedial(1)" class="flex-1 min-w-[140px] bg-purple-600 hover:bg-purple-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 1: ขยายเนื้อหา (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(2)" class="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 2: ฝึกครบทุกทักษะ (15 ข้อ)
+          </button>
+          <button onclick="requestAiRemedial(3)" class="flex-1 min-w-[140px] bg-pink-600 hover:bg-pink-700 text-white font-medium text-[11px] px-3 py-2.5 rounded-xl shadow-sm transition">
+            ✨ AI 3: ทักษะเฉพาะ (10 ข้อ)
+          </button>
+        </div>
+      </div>
+
+      <!-- 🟢 เพิ่มกล่องข้อความแจ้งเตือนนี้ขึ้นมาใหม่ -->
+      <div id="ai-notice-box" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mb-4 text-center">
+        <h4 class="text-xs font-bold text-slate-500 mb-1">🔒 ข้อสอบซ่อมเสริมจาก AI</h4>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          ฟังก์ชันนี้จะแสดงเฉพาะเมื่อทำแบบทดสอบใน <b>"โหมดทดสอบจริง"</b> เท่านั้น
+        </p>
+      </div>
+
+      <!-- กล่องสีเหลือง (Import JSON) จะอยู่ต่อจากนี้เหมือนเดิม -->
+      <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+        <h4 class="text-xs font-bold text-amber-700 mb-3 text-center">📥 นำเข้าข้อสอบ (Import from AI)</h4>
+        <div class="flex justify-center">
+          <button onclick="openImportModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-6 py-2.5 rounded-full shadow-sm transition">📥 วาง JSON ข้อสอบที่ได้จาก AI</button>
+        </div>
+      </div>
+<!--Start ปุ่ม Adaptive 19-08-2569-->
+<!-- ===== ปุ่ม Adaptive Learning (ลิงก์ฝังไว้ในปุ่ม) ===== -->
+      <!-- ===== ปุ่ม Adaptive Learning (กล่องแยก ไม่ใช่ส่วนหนึ่งของ Import JSON) ===== -->
+      <a href="https://share.gemini.google/tjhqSfkgofxi" target="_blank" rel="noopener noreferrer"
+         class="group flex items-center gap-4 bg-slate-800/80 hover:bg-slate-800 border border-purple-500/40 hover:border-purple-400 rounded-2xl p-4 sm:p-5 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 mt-4">
+          <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center overflow-hidden">
+              <span class="text-2xl absolute">🎓</span>
+              <img src="images/adaptive_symbol.png" alt="สัญลักษณ์ Adaptive Learning"
+                   class="relative w-full h-full object-contain" onerror="this.style.display='none'">
+          </div>
+          <div class="flex-grow min-w-0">
+              <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-purple-400 transition">Adaptive Learning</h4>
+              <p class="text-xs sm:text-sm text-slate-400 mt-0.5 leading-relaxed">แหล่งเรียนรู้แบบปรับระดับ — Learn • Analyze • Adapt • Improve (เปิดในแท็บใหม่)</p>
+          </div>
+          <span class="text-purple-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition shrink-0 inline-block">↗️</span>
+      </a>
+      <!--Stop ปุ่ม Adaptive 19-08-2569-->
+  <!--Stop ปุ่ม Adaptive 19-08-2569-->
+
+    </div>
+    
+    <div class="mt-6 pt-4 border-t border-gray-100">
+      <button onclick="backToLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm">
+        🏠 กลับสู่หน้าเข้าสู่ระบบ
+      </button>
+    </div>  
+  </div>
+
+  <!-- IMPORT JSON MODAL -->
+  <div id="import-modal" class="modal-bg modal-hidden">
+    <div class="modal-box" style="text-align: left;">
+      <h3 class="text-lg font-bold mb-2 text-gray-800">นำเข้าข้อสอบจาก AI</h3>
+      <p class="text-xs text-gray-500 mb-3">วางโค้ด JSON ที่ได้จาก ChatGPT/Gemini ลงในช่องด้านล่าง แล้วกด "เริ่มทำข้อสอบ"</p>
+      <textarea id="import-json-box" class="w-full h-48 border border-gray-300 p-3 rounded-xl text-xs font-mono focus:ring-2 focus:ring-blue-500 outline-none" placeholder="วางโค้ด JSON ตรงนี้..."></textarea>
+      <div class="flex gap-2 mt-4">
+        <button onclick="document.getElementById('import-modal').classList.add('modal-hidden')" class="flex-1 bg-gray-200 text-gray-700 p-2.5 rounded-xl text-sm font-medium hover:bg-gray-300">ยกเลิก</button>
+        <button onclick="loadAiQuestions()" class="flex-1 bg-blue-600 text-white p-2.5 rounded-xl text-sm font-medium hover:bg-blue-700">เริ่มทำข้อสอบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== [ WEB AUDIO API SYNTHESIZER SYSTEM ] =====
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new AudioContext();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      
+      try {
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(450, now);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'incorrect') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now); // A3
+          osc.frequency.setValueAtTime(174.61, now + 0.1); // F3
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'complete') {
+          const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.log("Audio play blocked/suppressed");
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      const text = document.getElementById('sound-status-text');
+      if (soundEnabled) {
+        icon.innerText = "🔊";
+        text.innerText = "เปิดเสียง";
+        playSound('click');
+      } else {
+        icon.innerText = "🔇";
+        text.innerText = "ปิดเสียง";
+      }
+    }
+
+    // ===== [ เพิ่มใหม่: ฟังก์ชัน render สูตร LaTeX ด้วย KaTeX 30/08/2569 ] =====
+    // เรียกใช้ทุกครั้งหลังใส่ข้อความ (โจทย์/ตัวเลือก/คำใบ้) ลงใน DOM แล้ว
+    // เพื่อแปลง $...$ หรือ $$...$$ ให้กลายเป็นสมการที่แสดงผลถูกต้อง
+    function renderMath(el) {
+      if (typeof renderMathInElement === 'function' && el) {
+        renderMathInElement(el, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      }
+    }
+    // ================================
+
+    // ===== [ เพิ่มใหม่: ฟังก์ชัน escapeHtml ป้องกัน < > & ทำลายโครงสร้าง HTML 30/08/2569 ] =====
+    // ปัญหา: โจทย์ที่ใช้ innerHTML (เพื่อให้ \n กลายเป็นขึ้นบรรทัดใหม่ <br> ได้) จะพังทันที
+    // ถ้าข้อความมีอักขระ < > & ปนอยู่ เช่น "5<x<10" หรือ "a>b" หรือ LaTeX ที่ใช้ & ในตาราง/เมทริกซ์
+    // เพราะ browser จะตีความ < ว่าเป็นการเปิดแท็ก HTML ทำให้ข้อความส่วนที่เหลือหายไปทั้งหมด
+    // วิธีแก้: แปลง & < > ให้เป็น HTML entity ก่อนเสมอ (ต้องแปลง & ก่อนเป็นอันดับแรก
+    // ไม่งั้นจะไปแปลง &lt; ที่เพิ่งสร้างซ้ำอีกที) โดยไม่แตะเครื่องหมาย $ หรือ backslash เลย
+    // จึงไม่กระทบการทำงานของ KaTeX แต่อย่างใด (พิสูจน์แล้วด้วยการทดสอบ DOM จริง)
+    function escapeHtml(str) {
+      if (typeof str !== 'string') return str;
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+    // ================================
+
+  // ===== [ วางโค้ดที่นี่เลยครับ ] =====
+    // 1. สร้างตัวแปร State หลัก
+    let hasMainResult = false;       // เช็คว่าเคยทำข้อสอบหลักจนเห็นหน้า Result แล้วหรือยัง
+    let activeSubSession = false;    // เช็คว่าตอนนี้กำลังทำแบบฝึกหัด "แทรก" อยู่หรือไม่ (เช่น AI, Extra, Retry)
+    let savedMainResultData = null;  // เก็บค่าผลคะแนนหลักชั่วคราว
+
+    // 2. ฟังก์ชันบันทึกค่าผลคะแนนหลัก (เรียกใช้ตอนทำข้อสอบหลักเสร็จ)
+    function saveMainResultState() {
+      savedMainResultData = {
+        score: document.getElementById('stat-score').innerText,
+        accuracy: document.getElementById('stat-accuracy').innerText,
+        correct: document.getElementById('stat-correct').innerText,
+        wrong: document.getElementById('stat-wrong').innerText,
+        skipped: document.getElementById('stat-skipped').innerText,
+        email: document.getElementById('stat-email').innerText,
+        time: document.getElementById('stat-time').innerText,
+        testMode: testMode 
+      };
+      hasMainResult = true;
+    }
+
+    // 3. ฟังก์ชันคืนค่าผลคะแนนหลัก
+    function restoreMainResultState() {
+      if (savedMainResultData) {
+        document.getElementById('stat-score').innerText = savedMainResultData.score;
+        document.getElementById('stat-accuracy').innerText = savedMainResultData.accuracy;
+        document.getElementById('stat-correct').innerText = savedMainResultData.correct;
+        document.getElementById('stat-wrong').innerText = savedMainResultData.wrong;
+        document.getElementById('stat-skipped').innerText = savedMainResultData.skipped;
+        document.getElementById('stat-email').innerText = savedMainResultData.email;
+        document.getElementById('stat-time').innerText = savedMainResultData.time;
+        const aiBox = document.getElementById('ai-remedial-box');
+
+        const noticeBox = document.getElementById('ai-notice-box');
+        if (savedMainResultData.testMode === 'EXAM') {
+          aiBox.classList.remove('hidden');   // โชว์ปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดสอบจริง
+          noticeBox.classList.add('hidden');
+        } else {
+          aiBox.classList.add('hidden');      // ซ่อนปุ่ม AI ถ้าข้อสอบหลักเป็นโหมดฝึกฝน
+          noticeBox.classList.remove('hidden');
+        }
+      }
+    }
+
+    // 4. ฟังก์ชันปุ่มกลับ (ใช้แทน backToLogin ในหน้า Result)
+    function handleBackButton() {
+      if (activeSubSession && hasMainResult) {
+        activeSubSession = false;
+        restoreMainResultState();
+        document.getElementById('quiz-card').classList.add('hidden');
+        document.getElementById('login-card').classList.add('hidden');
+        document.getElementById('result-card').classList.remove('hidden');
+      } else {
+        activeSubSession = false;
+        hasMainResult = false; 
+        savedMainResultData = null;
+        backToLogin();
+      }
+    }
+    // ===== [ สิ้นสุดโค้ดที่วางเพิ่ม ] 15-08-2569-store status scores=====
+
+    // ===== [ DATA TEMPLATE ] =====
+     const quizTitle= "bio_s_school_app0007_rtk_plant_photosynthesis-2569_09_13-No01_10";
+     const quizDomain= "BIO";
+     const quizContent= "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM"; 
+
+    const questions = [
+ {
+      "id": "q01",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "photosynthesis_gas_evidence",
+      "tag_skill": "L3",
+      "tag_misconception": "respiration_confused_with_photosynthesis",
+      "title": "ข้อที่ 1. นักเรียนวางกิ่งพืชน้ำ (ใบหยก) ในบีกเกอร์น้ำใส คลุมด้วยกรวยรับก๊าซที่ต่อท่อทดลอง แล้ววางกลางแดดจัด 2 ชั่วโมง เก็บก๊าซได้ปริมาณหนึ่ง เมื่อนำไม้ขีดไฟที่เผาให้เหลือเพียงถ่านแดงเสียบเข้าไปในท่อ พบว่าไฟลุกวาบขึ้นทันที ข้อสรุปใดสอดคล้องกับผลการทดลองมากที่สุด",
+      "image": "",
+      "options": [
+        "1. ก๊าซที่เก็บได้คือออกซิเจน ซึ่งเกิดจากการแยกตัวของน้ำโดยพลังงานแสงในกระบวนการสังเคราะห์ด้วยแสง",
+        "2. ก๊าซที่เก็บได้คือคาร์บอนไดออกไซด์ ซึ่งพืชหายใจปล่อยออกมามากที่สุดในช่วงกลางวัน",
+        "3. ก๊าซที่เก็บได้คือไอน้ำ ซึ่งระเหยออกจากใบเพราะความร้อนจากแสงแดด",
+        "4. ก๊าซที่เก็บได้คือไนโตรเจน ซึ่งละลายในน้ำอยู่แล้วและถูกดันออกเมื่อน้ำอุ่นขึ้น"
+      ],
+      "answer": 1,
+      "hint": "ลักษณะไม้ขีดที่ลุกวาบเป็นบ่อยังคุณสมบัติของก๊าซชนิดใด แล้วเชื่อมโยงว่าปฏิกิริยาใดของพืชที่ต้องอาศัยแสงและปล่อยก๊าซนี้ออกมา"
+    },
+    {
+      "id": "q02",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "stomata_gas_exchange",
+      "tag_skill": "L3",
+      "tag_misconception": "stomata_only_release_water",
+      "title": "ข้อที่ 2. นักเรียนลอกเยื่อผิวล่างของใบมาส่องกล้องจุลทรรศน์ พบเซลล์รูปจันทร์เสี้ยวจับคู่กันมีช่องเปิดระหว่างกลาง เมื่อนำต้นไม้ไปขาดน้ำหลายวัน เซลล์คู่นี้ยุบตัวจนช่องเปิดปิดลง ถ้าสภาพนี้ต่อเนื่องนานหลายวัน ผลต่อการสร้างอาหารของพืชจะเป็นอย่างไร",
+      "image": "",
+      "options": [
+        "1. การสร้างน้ำตาลจะเพิ่มขึ้น เพราะความชื้นภายในใบสูงขึ้นทำให้เซลล์เต่งตัวดี",
+        "2. การสร้างน้ำตาลจะลดลง เพราะคาร์บอนไดออกไซด์จากอากาศเข้าสู่ใบทางปากใบได้น้อยลง",
+        "3. ไม่มีผลต่อการสร้างน้ำตาล เพราะพืชดูดคาร์บอนไดออกไซด์ผ่านรากได้เท่ากัน",
+        "4. การสร้างน้ำตาลจะหยุดเพราะแสงแดดเข้าไม่ได้ผ่านปากใบที่ปิดสนิท"
+      ],
+      "answer": 2,
+      "hint": "ช่องเปิดระหว่างเซลล์จันทร์เสี้ยวคือทางเข้าออกของก๊าซ ลองคิดว่าวัตถุดิบตัวใดในการสังเคราะห์ด้วยแสงต้องเข้าทางนี้"
+    },
+    {
+      "id": "q03",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "leaf_source_sink_sugar",
+      "tag_skill": "L2",
+      "tag_misconception": "fruits_produce_own_food",
+      "title": "ข้อที่ 3. ชาวสวนมะม่วงพบว่าผลในกิ่งที่ถูกห่อกระดาษดำสนิทคลุมทั้งใบไว้หลายสัปดาห์ มีขนาดเล็กและรสฝาดกว่าผลในกิ่งปกติที่โดนแดด คำอธิบายใดสอดคล้องกับหลักการสังเคราะห์ด้วยแสงมากที่สุด",
+      "image": "",
+      "options": [
+        "1. ผลมะม่วงสร้างอาหารเองได้จากแสงโดยตรง แต่กระดาษดำบังแสงไม่ให้ผลสร้างอาหาร",
+        "2. รากไม่สามารถส่งน้ำขึ้นไปเลี้ยงกิ่งที่ถูกห่อได้ เพราะกระดาษดำขัดขวางแรงดึงดูดของการคายน้ำ",
+        "3. ใบที่ถูกบังแสงไม่สามารถสร้างน้ำตาลได้ จึงไม่มีอาหารลำเลียงมาเลี้ยงผลให้เติบโตเต็มที่",
+        "4. กระดาษดำดูดซับความร้อนจนกิ่งร้อนเกินไป ทำให้เอนไซม์ในผลทำงานผิดปกติ"
+      ],
+      "answer": 3,
+      "hint": "ผลต้องการน้ำตาลจากการลำเลียง และน้ำตาลสร้างที่ใบซึ่งต้องมีแสง คิดว่าใบที่ไม่ได้รับแสงจะทำหน้าที่นี้ได้หรือไม่"
+    },
+    {
+      "id": "q04",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "oxygen_bubble_production",
+      "tag_skill": "L2",
+      "tag_misconception": "bubbles_are_water_vapor",
+      "title": "ข้อที่ 4. นักเรียนสังเกตกิ่งพืชน้ำในบีกเกอร์ที่วางใต้หลอดไฟ พบฟองก๊าซเล็กๆ พุ่งออกจากปลายก้านและผิวใบเป็นระยะ เพื่อนอีกคนแย้งว่าฟองเหล่านั้นคือไอน้ำ คำอธิบายที่มีเหตุผลรองรับที่สุดคือข้อใด",
+      "image": "",
+      "options": [
+        "1. ไอน้ำที่ระเหยออกจากเซลล์ใบเมื่ออุณหภูมิบริเวณใบสูงขึ้นจากแสงไฟ",
+        "2. คาร์บอนไดออกไซด์ที่พืชผลิตขึ้นเป็นผลพลอยได้จากการสร้างอาหาร",
+        "3. อากาศที่ละลายอยู่ในน้ำถูกปลดปล่อยเพราะอุณหภูมิน้ำเพิ่มขึ้นเมื่อโดนไฟนาน",
+        "4. ออกซิเจนที่พืชสร้างได้จากการสังเคราะห์ด้วยแสง สะสมจนมีแรงดันพอจึงพุ่งออกทางปากใบ"
+      ],
+      "answer": 4,
+      "hint": "จำแนกให้ออกว่าฟองเกิดจากการเปลี่ยนสถานะของน้ำ หรือจากปฏิกิริยาที่พืชสร้างก๊าซใหม่จริง สังเกตว่าฟองเกิดเฉพาะเมื่อมีแสงหรือไม่"
+    },
+    {
+      "id": "q05",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "light_intensity_rate",
+      "tag_skill": "L3",
+      "tag_misconception": "distance_has_no_effect",
+      "title": "ข้อที่ 5. จากการทดลองนำกิ่งพืชน้ำวางห่างหลอดไฟเป็นระยะ แล้วนับฟองก๊าซต่อนาที ได้ข้อมูลดังนี้ ระยะ 50 ซม. = 2 ฟอง, 40 ซม. = 4 ฟอง, 30 ซม. = 6 ฟอง, 20 ซม. = 9 ฟอง, 10 ซม. = 13 ฟอง, 5 ซม. = 18 ฟอง ข้อสรุปใดตีความข้อมูลได้ถูกต้อง",
+      "image": "",
+      "options": [
+        "1. จำนวนฟองแปรผันตรงกับระยะห่างจากหลอดไฟ เมื่อไกลขึ้นฟองยิ่งเพิ่มขึ้น",
+        "2. ยิ่งวางใกล้แหล่งแสง อัตราการเกิดฟองยิ่งมาก เพราะความเข้มของแสงที่พืชได้รับสูงขึ้น",
+        "3. ระยะห่างไม่มีผลใดๆ จำนวนฟองขึ้นกับความหิวของพืชเป็นหลัก",
+        "4. ฟองเพิ่มขึ้นเพราะน้ำใกล้ไฟเดือด ทำให้เกิดฟองไอน้ำมากกว่าฟองก๊าซจากพืช"
+      ],
+      "answer": 2,
+      "hint": "อ่านแนวโน้มข้อมูลเป็นความสัมพันธ์ระหว่างสองปริมาณ แล้วเชื่อมโยงว่าระยะห่างส่งผลต่อความเข้มของแสงอย่างไร"
+    },
+    {
+      "id": "q06",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "dark_respiration_gas",
+      "tag_skill": "L2",
+      "tag_misconception": "photosynthesis_in_dark",
+      "title": "ข้อที่ 6. นักเรียนใช้ชุดทดลองเดิม (กิ่งพืชน้ำในน้ำใส) แต่ย้ายไปวางในกล่องมืดสนิท 1 ชั่วโมง พบว่าไม่มีฟองก๊าซเกิดขึ้นเลย ในช่วงเวลานี้กระบวนการใดของพืชยังดำเนินอยู่ และก๊าซใดมีแนวโน้มเพิ่มขึ้นในน้ำ",
+      "image": "",
+      "options": [
+        "1. การหายใจระดับเซลล์ยังดำเนินอยู่ พืชใช้ออกซิเจนและปล่อยคาร์บอนไดออกไซด์ ทำให้ CO2 ในน้ำเพิ่มขึ้น",
+        "2. การสังเคราะห์ด้วยแสงยังเกิดในอัตราต่ำมาก พืชจึงยังปล่อยออกซิเจนออกมาช้าๆ",
+        "3. พืชเข้าสู่สภาพพักตัว ทุกกระบวนการหยุดสนิทจนไม่มีการแลกเปลี่ยนก๊าซใดเลย",
+        "4. พืชหันไปใช้การหมักแทน จึงปล่อยแอลกอฮอล์ออกมาแทนก๊าซออกซิเจน"
+      ],
+      "answer": 1,
+      "hint": "แยกให้ออกว่ากระบวนการใดต้องใช้แสง และกระบวนการใดเกิดได้ตลอดเวลา แล้วดูว่าก๊าซใดถูกผลิตหรือใช้ไปในแต่ละกระบวนการ"
+    },
+    {
+      "id": "q07",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "co2_limiting_factor",
+      "tag_skill": "L2",
+      "tag_misconception": "light_is_only_factor",
+      "title": "ข้อที่ 7. นักเรียนเติมผงเบกกิ้งโซดา (โซเดียมไบคาร์บอเนต) ลงในน้ำที่แช่กิ่งพืชน้ำ แล้ววางใต้หลอดไฟเช่นเดิม พบว่าจำนวนฟองก๊าซต่อนาทีเพิ่มขึ้นอย่างชัดเจนเมื่อเทียบกับก่อนเติม คำอธิบายที่ถูกต้องคือข้อใด",
+      "image": "",
+      "options": [
+        "1. สารละลายเบกกิ้งโซดาทำให้น้ำเย็นลง พืชจึงสร้างอาหารได้มีประสิทธิภาพขึ้น",
+        "2. โซเดียมในเบกกิ้งโซดาเป็นธาตุอาหารหลักที่พืชต้องใช้ในการสร้างน้ำตาลโดยตรง",
+        "3. ฟองที่เพิ่มขึ้นเป็นฟองจากเบกกิ้งโซดาเองที่ลอยขึ้นเองตามธรรมชาติ ไม่เกี่ยวกับกิจกรรมของพืช",
+        "4. เบกกิ้งโซดาเพิ่มคาร์บอนไดออกไซด์ละลายในน้ำ ซึ่งเป็นวัตถุดิบสำคัญที่เคยขาดแคลนของการสังเคราะห์ด้วยแสง"
+      ],
+      "answer": 4,
+      "hint": "สูตรของเบกกิ้งโซดามีธาตุคาร์บอนเป็นองค์ประกอบ คิดว่ามันให้วัตถุดิบชนิดใดแก่ปฏิกิริยาการสร้างน้ำตาลของพืช"
+    },
+    {
+      "id": "q08",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "experimental_variables",
+      "tag_skill": "L2",
+      "tag_misconception": "dependent_independent_confusion",
+      "title": "ข้อที่ 8. นักเรียนออกแบบทดลองศึกษาผลของระยะห่างจากหลอดไฟต่อการสร้างฟองก๊าซของพืชน้ำ โดยใช้กิ่งพืชชนิดเดียวกัน ขนาดใกล้เคียงกัน น้ำปริมาณเท่ากัน และอุณหภูมิห้องเท่ากัน ในการทดลองนี้ 'ตัวแปรตาม' คือข้อใด",
+      "image": "",
+      "options": [
+        "1. ระยะห่างระหว่างหลอดไฟกับกิ่งพืชน้ำ",
+        "2. ชนิดและขนาดของกิ่งพืชน้ำที่ใช้",
+        "3. จำนวนฟองก๊าซที่เกิดขึ้นต่อหนึ่งนาที",
+        "4. ปริมาณน้ำและอุณหภูมิภายในห้องทดลอง"
+      ],
+      "answer": 3,
+      "hint": "ตัวแปรต้นคือสิ่งที่เราตั้งใจเปลี่ยน ตัวแปรควบคุมคือสิ่งที่รักษาคงที่ แล้วถามตัวเองว่าสิ่งใดคือสิ่งที่เรารอวัดผล"
+    },
+    {
+      "id": "q09",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "destarch_iodine_test",
+      "tag_skill": "L3",
+      "tag_misconception": "darkness_destroys_chlorophyll",
+      "title": "ข้อที่ 9. ครูนำต้นถั่วไปวางในตู้มืดสนิท 48 ชั่วโมง จึงตัดใบหนึ่งใบออกมาต้มในน้ำร้อน ต้มต่อในแอลกอฮอล์ แล้วหยดสารละลายไอโอดีน พบว่าสีของใบไม่เปลี่ยนเป็นสีน้ำเงินเข้ม ข้อสรุปใดอธิบายผลนี้ได้ถูกต้อง",
+      "image": "",
+      "options": [
+        "1. แป้งที่เคยสะสมถูกใช้หมดระหว่างอยู่ในที่มืด และไม่มีแสงให้สร้างแป้งเพิ่ม จึงตรวจไม่พบแป้งในใบ",
+        "2. ความมืดทำลายคลอโรฟิลล์ในใบ ทำให้ไอโอดีนเปลี่ยนสีไม่ได้",
+        "3. ไอโอดีนเสื่อมสภาพจากความร้อนขณะต้ม จึงไม่เกิดปฏิกิริยากับแป้งที่ยังอยู่ในใบ",
+        "4. ใบถั่วไม่เคยสร้างแป้งเลย เพราะถั่วเก็บอาหารไว้ที่เมล็ดเท่านั้น"
+      ],
+      "answer": 1,
+      "hint": "การอยู่ในที่มืดทำให้ใบไม่สร้างอาหารใหม่ และแป้งเดิมถูกใช้ไป สังเกตด้วยว่าไอโอดีนใช้ตรวจจับสารชนิดใด"
+    },
+    {
+      "id": "q10",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "variegated_leaf_test",
+      "tag_skill": "L3",
+      "tag_misconception": "light_alone_makes_starch",
+      "title": "ข้อที่ 10. ครูนำใบด่าง (บริเวณเขียวสลับเหลืองขาว) มาปิดบางส่วนด้วยฟอยด์ ตากแดด 6 ชั่วโมง จากนั้นต้มใบและหยดไอโอดีน บริเวณใดของใบที่มีแนวโน้มเปลี่ยนเป็นสีน้ำเงินเข้ม",
+      "image": "",
+      "options": [
+        "1. บริเวณสีเหลืองที่ถูกฟอยด์ปิด เพราะบริเวณนี้เก็บน้ำไว้มากที่สุด",
+        "2. บริเวณสีเขียวที่ไม่ถูกฟอยด์ปิด เพราะมีทั้งคลอโรฟิลล์และได้รับแสง",
+        "3. บริเวณสีเขียวที่ถูกฟอยด์ปิด เพราะคลอโรฟิลล์เข้มข้นที่สุด",
+        "4. ทุกบริเวณเปลี่ยนสีเท่ากัน เพราะแป้งกระจายอยู่ทั่วทั้งใบอยู่แล้ว"
+      ],
+      "answer": 2,
+      "hint": "การเปลี่ยนเป็นสีน้ำเงินบอกว่ามีแป้ง ลองคิดว่าต้องมีเงื่อนไขสองอย่างพร้อมกันคือคลอโรฟิลล์และแสง บริเวณใดครบทั้งสองเงื่อนไข"
+    },
+    {
+      "id": "q11",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "chlorophyll_extraction",
+      "tag_skill": "L2",
+      "tag_misconception": "iodine_tests_chlorophyll",
+      "title": "ข้อที่ 11. ในการทดสอบแป้งในใบ นักเรียนต้มใบในน้ำเดือดก่อน แล้วจึงต้มต่อในแอลกอฮอล์ที่จั่วอยู่ในอ่างน้ำร้อน (ไม่ต้มแอลกอฮอล์บนเปลวไฟโดยตรง) จนใบซีดขาว เหตุใดจึงต้องทำขั้นตอนต้มในแอลกอฮอล์",
+      "image": "",
+      "options": [
+        "1. เพื่อย่อยแป้งในใบให้กลายเป็นน้ำตาลกลูโคสก่อนทดสอบด้วยไอโอดีน",
+        "2. เพื่อทำให้แป้งในใบเข้มข้นขึ้น จึงตรวจพบได้ง่ายและรวดเร็วขึ้น",
+        "3. เพื่อฆ่าเชื้อจุลินทรีย์บนผิวใบ ป้องกันการรบกวนปฏิกิริยาของไอโอดีน",
+        "4. เพื่อสลายคลอโรฟิลล์สีเขียวออกจากใบ ทำให้มองเห็นการเปลี่ยนสีของไอโอดีนได้ชัดเจน"
+      ],
+      "answer": 4,
+      "hint": "สีเขียวของใบอาจปกปิดการเปลี่ยนสีของไอโอดีน คิดว่าขั้นตอนนี้ช่วยกำจัดสิ่งใดออกไปจากใบ"
+    },
+    {
+      "id": "q12",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "plant_animal_gas_balance",
+      "tag_skill": "L3",
+      "tag_misconception": "plants_respire_only_at_night",
+      "title": "ข้อที่ 12. นักเรียนจัดหลอดแก้ว 2 หลอด ใส่น้ำ หอยขมากา และพืชน้ำชนิดเดียวกัน ปิดสนิททั้งคู่ หลอด A วางในที่มีแสงสว่าง หลอด B วางในที่มืดสนิท หลังผ่านไป 2 วัน หอยในหลอด B ตายแต่หอยในหลอด A ยังมีชีวิต คำอธิบายใดถูกต้อง",
+      "image": "",
+      "options": [
+        "1. หอยในหลอด B ตายเพราะอุณหภูมิต่ำเกินไป ทำให้ร่างกายหยุดทำงาน",
+        "2. หอยในหลอด B ตายเพราะพืชปล่อยคาร์บอนไดออกไซด์ออกมามากเกินไปเมื่อไม่มีแสง",
+        "3. ในที่มืดพืชและหอยหายใจใช้ออกซิเจนร่วมกันจนหมดไป แต่ในที่สว่างพืชผลิตออกซิเจนชดเชยให้หอย",
+        "4. ในหลอด A พืชดูดสารพิษจากน้ำออกไป ทำให้หอยอยู่รอดได้ยาวนานกว่า"
+      ],
+      "answer": 3,
+      "hint": "เปรียบเทียบว่าในที่มืดทั้งพืชและสัตว์ทำกระบวนการใดเหมือนกัน ส่วนในที่สว่างพืชทำอะไรเพิ่มเติมเพื่อชดเชยก๊าซที่ใช้ไป"
+    },
+    {
+      "id": "q13",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "btb_co2_indicator",
+      "tag_skill": "L3",
+      "tag_misconception": "btb_detects_oxygen",
+      "title": "ข้อที่ 13. นักเรียนใส่หอยขมากาตัวเดียวลงในหลอดที่มีน้ำผสมสารบรอมไทมอลบลู (BTB) สีฟ้า ปิดสนิทแล้ววางในที่สว่าง หลังผ่านไปหลายชั่วโมง พบว่าน้ำเปลี่ยนเป็นสีเหลือง ผลนี้บ่งชี้ว่าอะไร",
+      "image": "",
+      "options": [
+        "1. หอยหายใจปล่อยคาร์บอนไดออกไซด์สะสมในน้ำจนเป็นกรด BTB จึงเปลี่ยนเป็นสีเหลือง",
+        "2. แสงสว่างทำปฏิกิริยาเคมีกับ BTB โดยตรง ทำให้สารละลายซีดจางเป็นสีเหลือง",
+        "3. หอยผลิตออกซิเจนออกมาเองได้ ทำให้น้ำเป็นเบสและเปลี่ยนสีไปทางเหลือง",
+        "4. หอยกินจุลินทรีย์ในน้ำจนหมด ทำให้องค์ประกอบสารสีใน BTB เปลี่ยนไป"
+      ],
+      "answer": 1,
+      "hint": "BTB เปลี่ยนเป็นเหลืองเมื่อสารละลายเป็นกรดจากก๊าซชนิดใดสะสม แล้วคิดว่าหอยทำกระบวนการใดตลอดเวลา"
+    },
+    {
+      "id": "q14",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "btb_color_interpretation",
+      "tag_skill": "L2",
+      "tag_misconception": "yellow_means_alkaline",
+      "title": "ข้อที่ 14. นักเรียนหยดสาร BTB ลงในน้ำจากหลอดทดลอง 4 หลอด พบว่าหลอด C มีสีเหลือง ขณะที่หลอดอื่นเป็นสีฟ้า ข้อสรุปเกี่ยวกับหลอด C ได้ว่าอย่างไร",
+      "image": "",
+      "options": [
+        "1. น้ำในหลอด C มีออกซิเจนละลายอยู่มากที่สุด",
+        "2. น้ำในหลอด C มีคาร์บอนไดออกไซด์ละลายสะสมมากจนเป็นกรด",
+        "3. น้ำในหลอด C บริสุทธิ์จนไม่มีก๊าซชนิดใดละลายอยู่เลย",
+        "4. น้ำในหลอด C มีอุณหภูมิสูงกว่าหลอดอื่นจนสารเปลี่ยนสี"
+      ],
+      "answer": 2,
+      "hint": "จำคู่สีของ BTB กับสภาพความเป็นกรด-เบส แล้วเชื่อมโยงว่าก๊าซใดละลายน้ำแล้วทำให้สารละลายเป็นกรด"
+    },
+    {
+      "id": "q15",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "co2_uptake_in_light",
+      "tag_skill": "L3",
+      "tag_misconception": "photosynthesis_releases_co2",
+      "title": "ข้อที่ 15. นักเรียนนำหลอดที่มีน้ำ BTB สีเหลือง (มีคาร์บอนไดออกไซด์สูง) ใส่กิ่งพืชน้ำลงไปแล้ววางกลางแดดจัด หลังผ่านไป 3 ชั่วโมง สีของสารละลายค่อยๆ กลับเป็นสีฟ้า เหตุการณ์นี้อธิบายได้ว่าอย่างไร",
+      "image": "",
+      "options": [
+        "1. พืชปล่อยคาร์บอนไดออกไซด์เพิ่มขึ้นในที่สว่าง ทำให้ความเป็นเบสของน้ำสูงขึ้น",
+        "2. พืชดูดสารสีของ BTB ไปใช้เป็นวัตถุดิบในการสร้างน้ำตาล สีจึงกลับเป็นฟ้า",
+        "3. แสงแดดทำให้ BTB เสื่อมสภาพกลายเป็นสีฟ้า โดยไม่เกี่ยวข้องกับกิจกรรมของพืช",
+        "4. พืชนำคาร์บอนไดออกไซด์ในน้ำไปใช้สร้างน้ำตาลจนความเป็นกรดลดลง BTB จึงกลับเป็นสีฟ้า"
+      ],
+      "answer": 4,
+      "hint": "สีฟ้าบ่งชี้ว่าความเป็นกรดลดลง คิดว่าพืชในที่สว่างดึงก๊าซชนิดใดจากน้ำไปใช้ในปฏิกิริยาใด"
+    },
+    {
+      "id": "q16",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "night_oxygen_decline",
+      "tag_skill": "L3",
+      "tag_misconception": "plants_produce_oxygen_at_night",
+      "title": "ข้อที่ 16. ตู้ปลาที่มีทั้งปลาทองและพืชน้ำถูกวางริมหน้าต่างที่มีแสงแดดเข้าเฉพาะกลางวัน ผู้เลี้ยงสังเกตว่าช่วงก่อนรุ่งสางปลามักว่ายน้ำขึ้นมาหายใจที่ผิวน้ำบ่อยกว่าช่วงบ่าย เหตุผลที่สอดคล้องที่สุดคือข้อใด",
+      "image": "",
+      "options": [
+        "1. เพราะก่อนรุ่งสางอุณหภูมิน้ำต่ำที่สุด ออกซิเจนจึงละลายออกจากน้ำหมดไป",
+        "2. เพราะตลอดคืนทั้งปลาและพืชหายใจใช้ออกซิเจนร่วมกัน โดยไม่มีการสังเคราะห์ด้วยแสงมาผลิตออกซิเจนชดเชย",
+        "3. เพราะพืชปล่อยคาร์บอนไดออกไซด์มากที่สุดในเวลากลางวัน ทำให้ปลาต้องหนีขึ้นผิวน้ำตอนเช้ามืด",
+        "4. เพราะปลากินอาหารเยอะในช่วงเย็น จึงต้องการออกซิเจนเพิ่มขึ้นเฉพาะช่วงกลางคืน"
+      ],
+      "answer": 2,
+      "hint": "ตลอดคืนไม่มีแสงเลย ทั้งพืชและปลายังต้องใช้ก๊าซชนิดใดร่วมกัน และไม่มีกระบวนการใดผลิตก๊าซนั้นชดเชย"
+    },
+    {
+      "id": "q17",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "daily_light_variation",
+      "tag_skill": "L3",
+      "tag_misconception": "constant_rate_all_day",
+      "title": "ข้อที่ 17. นักเรียนนำกิ่งพืชน้ำไปแช่ในตู้ริมหน้าต่างแล้วนับฟองก๊าซ ได้ผลดังนี้ เวลา 09:00 น. = 12 ฟอง/นาที, เวลา 13:00 น. = 28 ฟอง/นาที, เวลา 17:00 น. = 9 ฟอง/นาที ข้อสรุปใดตีความข้อมูลได้เหมาะสมที่สุด",
+      "image": "",
+      "options": [
+        "1. พืชสร้างอาหารได้ดีที่สุดในช่วงแดดอ่อน เพราะแดดจัดทำลายคลอโรฟิลล์ในใบ",
+        "2. ฟองก๊าซเกิดจากการคายน้ำ ซึ่งมีปริมาณมากที่สุดในช่วงเวลาเที่ยง",
+        "3. ความเข้มของแสงที่แตกต่างกันตามช่วงเวลาส่งผลโดยตรงต่ออัตราการสังเคราะห์ด้วยแสง",
+        "4. จำนวนฟองขึ้นอยู่กับความหิวของพืช ซึ่งมากที่สุดช่วงเที่ยงเพราะไม่ได้สร้างอาหารทั้งคืน"
+      ],
+      "answer": 3,
+      "hint": "เทียบช่วงเวลากับความเข้มของแสงแดดในแต่ละช่วง แล้วเชื่อมโยงกับอัตราการเกิดฟองที่นับได้"
+    },
+    {
+      "id": "q18",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "light_requirement_bubbles",
+      "tag_skill": "L2",
+      "tag_misconception": "stored_light_in_leaves",
+      "title": "ข้อที่ 18. ถ้านักเรียนย้ายตู้ทดลองในข้อเดิมไปวางในห้องมืดสนิทตั้งแต่เวลา 20:00 น. และคอยนับฟองต่อเนื่องอีก 3 ชั่วโมง แนวโน้มของจำนวนฟองก๊าซจะเป็นอย่างไร",
+      "image": "",
+      "options": [
+        "1. เพิ่มขึ้นเรื่อยๆ เพราะพืชนำแป้งสำรองมาเปลี่ยนเป็นก๊าซปล่อยออกมาแทน",
+        "2. ลดลงจนไม่มีฟองเกิดขึ้น เพราะขาดพลังงานแสงที่จำเป็นต่อปฏิกิริยาการสร้างอาหาร",
+        "3. คงที่เท่าเดิม เพราะอุณหภูมิในห้องมืดไม่ต่างจากเดิมมากนัก",
+        "4. เพิ่มขึ้นชั่วขณะแล้วจึงคงที่ เพราะพืชยังใช้แสงที่สะสมไว้ในใบได้อีกระยะหนึ่ง"
+      ],
+      "answer": 2,
+      "hint": "แหล่งพลังงานที่ขับเคลื่อนการสร้างน้ำตาลคืออะไร ถ้าตัดแหล่งนั้นออก ฟองที่เคยเห็นจะเป็นอย่างไร"
+    },
+    {
+      "id": "q19",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "limiting_factor_analysis",
+      "tag_skill": "L4",
+      "tag_misconception": "more_light_always_helps",
+      "title": "ข้อที่ 19. นักเรียนปรับความสว่างของหลอดไฟให้เพิ่มขึ้นเรื่อยๆ พบว่าจำนวนฟองเพิ่มขึ้นในช่วงแรก แต่เมื่อแสงสว่างมากถึงระดับหนึ่ง จำนวนฟองกลับคงที่ไม่เพิ่มขึ้นอีก ขณะที่ตรวจพบว่าน้ำมีคาร์บอนไดออกไซด์ต่ำมาก ข้อสรุปใดเหมาะสมที่สุด",
+      "image": "",
+      "options": [
+        "1. ปัจจัยจำกัดในขณะนั้นคือคาร์บอนไดออกไซด์ที่มีน้อยเกินไป การเพิ่มแสงต่อไปจึงไม่ช่วยให้อัตราเพิ่มขึ้น",
+        "2. พืชไม่ชอบแสงจัด เมื่อแสงมากเกินไปพืชจะหยุดสร้างอาหารทันทีเพื่อป้องกันตัว",
+        "3. เอนไซม์ทั้งหมดถูกแสงจ้าทำลาย ทำให้ปฏิกิริยาเดินต่อไม่ได้อีก",
+        "4. อัตราการสังเคราะห์ด้วยแสงขึ้นกับจำนวนฟองก๊าซเป็นตัวกำหนด ไม่ได้ขึ้นกับแสงหรือ CO2"
+      ],
+      "answer": 1,
+      "hint": "เมื่อปัจจัยหนึ่งอุดมสมบูรณ์แล้วแต่ผลไม่เพิ่มขึ้น ให้มองหาวัตถุดิบอีกตัวที่อาจขาดแคลนอยู่ในระบบ"
+    },
+    {
+      "id": "q20",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "mutual_gas_exchange",
+      "tag_skill": "L2",
+      "tag_misconception": "animals_harm_plant_gas",
+      "title": "ข้อที่ 20. ในตู้ปลาที่มีปลาและพืชน้ำอยู่ร่วมกันในช่วงที่มีแสงสว่าง ความสัมพันธ์ด้านการแลกเปลี่ยนก๊าซระหว่างปลากับพืชเป็นอย่างไร",
+      "image": "",
+      "options": [
+        "1. ปลาปล่อยออกซิเจนจากเหงือกให้พืชใช้ ส่วนพืชปล่อยคาร์บอนไดออกไซด์ให้ปลา",
+        "2. พืชใช้ออกซิเจนของปลาในการสร้างอาหาร ส่วนปลาใช้คาร์บอนไดออกไซด์ของพืชในการหายใจ",
+        "3. ปลาคายน้ำออกมาเพิ่มความชื้นให้พืช ส่วนพืชปล่อยแร่ธาตุให้ปลากิน",
+        "4. ปลาปล่อยคาร์บอนไดออกไซด์จากการหายใจ ซึ่งพืชใช้เป็นวัตถุดิบสร้างน้ำตาล และพืชปล่อยออกซิเจนคืนให้ปลา"
+      ],
+      "answer": 4,
+      "hint": "สัตว์หายใจปล่อยก๊าซอะไร และพืชต้องการก๊าซนั้นเป็นวัตถุดิบหรือไม่ แล้วกลับกันพืชให้ก๊าซอะไรตอบแทน"
+    },
+    {
+      "id": "q21",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "light_intensity_oxygen_yield",
+      "tag_skill": "L3",
+      "tag_misconception": "oxygen_yield_independent_of_light",
+      "title": "ข้อที่ 21. นักเรียนจัดหลอด 2 หลอด ใส่พืชน้ำชนิดเดียวกันและขนาดเท่ากัน หลอด A วางใต้หลอดไฟแสงจ้า หลอด B วางใต้หลอดไฟแสงอ่อนมาก ทิ้งไว้ 6 ชั่วโมง แล้ววัดปริมาณออกซิเจนละลายในน้ำ สามารถเปรียบเทียบผลได้ว่าอย่างไร",
+      "image": "",
+      "options": [
+        "1. หลอด A มีออกซิเจนละลายมากกว่า เพราะอัตราการสังเคราะห์ด้วยแสงสูงกว่าจึงผลิตออกซิเจนได้มากกว่า",
+        "2. หลอด B มีออกซิเจนมากกว่า เพราะพืชประหยัดออกซิเจนเมื่ออยู่ในแสงอ่อน",
+        "3. ทั้งสองหลอดมีออกซิเจนเท่ากัน เพราะพืชผลิตออกซิเจนเท่ากันเสมอไม่ว่าแสงจะเข้มแค่ไหน",
+        "4. หลอด A มีออกซิเจนน้อยกว่า เพราะแสงจ้าทำลายออกซิเจนที่ละลายในน้ำ"
+      ],
+      "answer": 1,
+      "hint": "ความเข้มของแสงสัมพันธ์โดยตรงกับอัตราการผลิตก๊าซชนิดใด ก๊าซนั้นจึงสะสมในน้ำมากหรือน้อยต่างกัน"
+    },
+    {
+      "id": "q22",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "control_group_design",
+      "tag_skill": "L4",
+      "tag_misconception": "control_needs_all_components",
+      "title": "ข้อที่ 22. นักเรียนต้องการพิสูจน์ว่าการเปลี่ยนสีของน้ำ BTB ในหลอดที่มีพืชน้ำวางอยู่ใต้แสง เกิดจากกิจกรรมของพืชจริง ควรจัด 'หลอดควบคุม' ใดจึงเหมาะสมที่สุด",
+      "image": "",
+      "options": [
+        "1. หลอดที่มีพืชน้ำและน้ำ BTB เหมือนกันแต่วางในที่มืดสนิท",
+        "2. หลอดที่มีน้ำ BTB เท่ากันแต่ไม่มีพืช วางใต้แสงสว่างเช่นเดียวกับหลอดทดลอง",
+        "3. หลอดที่มีพืชน้ำและน้ำเปล่า แต่ไม่หยดสาร BTB ลงไป",
+        "4. หลอดที่มีหอยขมากาและน้ำ BTB วางใต้แสงจ้าแทนพืช"
+      ],
+      "answer": 2,
+      "hint": "หลอดควบคุมควรเหมือนหลอดทดลองทุกอย่าง ยกเว้นตัดปัจจัยที่ต้องการพิสูจน์ออกไปเพียงอย่างเดียว"
+    },
+    {
+      "id": "q23",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "controlled_variables",
+      "tag_skill": "L2",
+      "tag_misconception": "variable_control_unimportant",
+      "title": "ข้อที่ 23. ในการทดลองหลายหลอดเปรียบเทียบระยะห่างของหลอดไฟ นักเรียนเลือกใช้กิ่งพืชน้ำชนิดเดียวกัน ขนาดและจำนวนใบใกล้เคียงกันทุกหลอด เหตุผลสำคัญของการกระทำนี้คือข้อใด",
+      "image": "",
+      "options": [
+        "1. เพื่อประหยัดงบประมาณในการจัดซื้อพืชน้ำจำนวนมาก",
+        "2. เพื่อให้ฟองก๊าซที่เกิดขึ้นมีขนาดใหญ่เท่ากันทุกหลอด",
+        "3. เพื่อให้พืชแต่ละหลอดแข่งขันกันตามสภาพธรรมชาติ",
+        "4. เพื่อควบคุมตัวแปรอื่นให้คงที่ จะได้สรุปได้ว่าผลที่เห็นเกิดจากระยะห่างของแสงจริง"
+      ],
+      "answer": 4,
+      "hint": "ถ้าพืชแต่ละหลอดต่างชนิดหรือต่างขนาดกัน เราจะสรุปได้อย่างไรว่าผลมาจากระยะไฟ นี่คือหลักการควบคุมสิ่งใด"
+    },
+    {
+      "id": "q24",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "respiration_continuous_claim",
+      "tag_skill": "L4",
+      "tag_misconception": "photosynthesis_replaces_respiration",
+      "title": "ข้อที่ 24. นักเรียนคนหนึ่งสรุปว่า 'พืชสร้างออกซิเจนเฉพาะกลางวัน และหายใจเฉพาะกลางคืน' จากการสังเกตฟองก๊าซที่เกิดเฉพาะเวลามีแสง ข้อประเมินใดถูกต้อง",
+      "image": "",
+      "options": [
+        "1. สรุปถูกต้อง เพราะแสงแดดกระตุ้นให้พืชหยุดการหายใจชั่วคราว",
+        "2. สรุปถูกต้อง เพราะกลางวันพืชไม่ต้องใช้พลังงานจึงไม่ต้องหายใจ",
+        "3. สรุปไม่ถูกต้อง พืชหายใจตลอดเวลา แต่กลางวันการสังเคราะห์ด้วยแสงเร็วกว่าการหายใจมาก ออกซิเจนสุทธิจึงเพิ่มขึ้น",
+        "4. สรุปไม่ถูกต้อง เพราะพืชไม่มีการหายใจตั้งแต่กำเนิด อาศัยแสงแทนการหายใจ"
+      ],
+      "answer": 3,
+      "hint": "พิจารณาว่าการหายใจต้องใช้แสงหรือไม่ และเหตุใดกลางวันเราจึงเห็นออกซิเจนสุทธิเพิ่มขึ้น"
+    },
+    {
+      "id": "q25",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "starch_storage_reason",
+      "tag_skill": "L2",
+      "tag_misconception": "glucose_stored_as_is",
+      "title": "ข้อที่ 25. ใบพืชสร้างกลูโคสได้ในเวลากลางวัน แต่มักพบแป้งสะสมในใบแทน สาเหตุที่พืชเปลี่ยนน้ำตาลกลูโคสไปเก็บในรูปแป้งเพราะเหตุใด",
+      "image": "",
+      "options": [
+        "1. เพราะแป้งละลายน้ำได้ดีกว่ากลูโคส ลำเลียงไปทั่วต้นได้สะดวก",
+        "2. เพราะแป้งละลายน้ำยากและอยู่ตัว เก็บพลังงานได้มากโดยไม่รบกวนสมดุลน้ำภายในเซลล์",
+        "3. เพราะแป้งมีสีน้ำเงินช่วยดูดกลืนแสงเพิ่มให้ใบสร้างอาหารต่อได้",
+        "4. เพราะกลูโคสเป็นพิษต่อเซลล์พืช ต้องเปลี่ยนเป็นแป้งทันทีที่สร้างได้"
+      ],
+      "answer": 2,
+      "hint": "เปรียบเทียบคุณสมบัติการละลายน้ำและการเก็บรักษาของกลูโคสกับแป้ง ว่าแบบใดเหมาะกับการสะสมในเซลล์"
+    },
+    {
+      "id": "q26",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "palisade_chloroplasts",
+      "tag_skill": "L1",
+      "tag_misconception": "all_leaf_layers_equal",
+      "title": "ข้อที่ 26. นักเรียนตัดใบไม้ขวางแล้วนับคลอโรพลาสต์ต่อเซลล์ในแต่ละบริเวณ จากบริเวณต่อไปนี้ บริเวณใดน่าจะพบคลอโรพลาสต์หนาแน่นที่สุด",
+      "image": "",
+      "options": [
+        "1. เยื่อหนังผิวบนของใบ ซึ่งเป็นชั้นแรกที่แสงตกกระทบ",
+        "2. เนื้อเยื่อรูปฟองใต้ผิวล่าง ซึ่งมีช่องว่างอากาศมาก",
+        "3. เยื่อหนังผิวล่างของใบ ซึ่งมีปากใบเรียงชิดกัน",
+        "4. เนื้อเยื่อรูปเสาใต้ผิวบนของใบ ซึ่งเรียงตัวชิดกันและรับแสงก่อนชั้นอื่น"
+      ],
+      "answer": 4,
+      "hint": "ชั้นเนื้อเยื่อใต้ผิวบนของใบเรียงตัวชิดกันเป็นรูปเสาและได้รับแสงก่อนชั้นอื่น คิดว่าชั้นใดลงทุนสร้างครัวเซลล์มากที่สุด"
+    },
+    {
+      "id": "q27",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "root_no_chlorophyll",
+      "tag_skill": "L2",
+      "tag_misconception": "roots_can_photosynthesize",
+      "title": "ข้อที่ 27. นักเรียนปลูกต้นถั่วในที่มืดสนิทหลายวัน พบว่าใบเหลืองซีดแต่รากยังเจริญปกติ แม้จะฉายแสงไฟให้เฉพาะบริเวณราก รากก็ไม่สามารถสร้างอาหารได้ เหตุใดจึงเป็นเช่นนั้น",
+      "image": "",
+      "options": [
+        "1. เพราะเซลล์รากไม่มีคลอโรพลาสต์ที่บรรจุคลอโรฟิลล์ แม้ได้รับแสงก็สร้างอาหารไม่ได้",
+        "2. เพราะรากอยู่ในดินจนแสงส่องไม่ถึงเท่านั้น ถ้าล้างดินออกก็สร้างอาหารได้ทันที",
+        "3. เพราะรากใช้พลังงานจากปุ๋ยและแร่ธาตุแทนพลังงานแสงโดยตรง",
+        "4. เพราะรากหายใจเร็วมากจนใช้อาหารหมดก่อนจะมีเหลือสะสม"
+      ],
+      "answer": 1,
+      "hint": "แสงเป็นเพียงเงื่อนไขหนึ่ง อีกเงื่อนไขคือโมเลกุลสีเขียวในออร์แกเนลล์เฉพาะ คิดว่าเซลล์รากมีสิ่งนั้นหรือไม่"
+    },
+    {
+      "id": "q28",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "xylem_water_for_photosynthesis",
+      "tag_skill": "L1",
+      "tag_misconception": "phloem_transports_water",
+      "title": "ข้อที่ 28. น้ำที่รากดูดขึ้นไปมีบทบาทสำคัญต่อการสังเคราะห์ด้วยแสง น้ำถูกลำเลียงถึงใบด้วยโครงสร้างใด และถูกใช้เพื่อสิ่งใด",
+      "image": "",
+      "options": [
+        "1. ผ่านท่อลำเลียงอาหาร (โฟลเอม) เพื่อนำไปรวมกับคาร์บอนไดออกไซด์สร้างโปรตีน",
+        "2. ผ่านเซลล์การ์ดรูปจันทร์เสี้ยวที่ปากใบ ซึ่งดูดน้ำจากอากาศเข้าใบโดยตรง",
+        "3. ผ่านท่อลำเลียงน้ำ (ไซเลม) จากรากขึ้นสู่ใบ เพื่อใช้เป็นวัตถุดิบร่วมกับคาร์บอนไดออกไซด์สร้างน้ำตาล",
+        "4. ผ่านเนื้อเยื่อรูปฟองของใบที่ดูดความชื้นจากอากาศเก็บไว้ใช้สร้างอาหาร"
+      ],
+      "answer": 3,
+      "hint": "แยกท่อลำเลียงสองชนิดให้ออก ท่อที่ขึ้นน้ำจากรากสู่ใบกับท่อที่ลงอาหารจากใบ แล้วดูว่าน้ำไปรวมกับสารใดในปฏิกิริยา"
+    },
+    {
+      "id": "q29",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "light_dark_btb_compare",
+      "tag_skill": "L3",
+      "tag_misconception": "no_light_no_gas_change",
+      "title": "ข้อที่ 29. นักเรียนจัดหลอด 2 หลอด แต่ละหลอดใส่น้ำ BTB สีฟ้าและกิ่งพืชน้ำเท่ากัน หลอด D วางในที่สว่าง หลอด E ห่อฟอยด์ปิดสนิท หลัง 24 ชั่วโมง สีของน้ำในหลอดทั้งสองจะเป็นอย่างไร",
+      "image": "",
+      "options": [
+        "1. ทั้งสองหลอดเป็นสีฟ้าเท่ากัน เพราะพืชไม่มีผลต่อก๊าซในน้ำทั้งที่มีและไม่มีแสง",
+        "2. หลอด D ยังคงเป็นสีฟ้า ส่วนหลอด E เปลี่ยนเป็นสีเหลือง เพราะในแสงพืชใช้ CO2 แต่ในที่มืดพืชหายใจปล่อย CO2 สะสม",
+        "3. หลอด D เปลี่ยนเป็นสีเหลือง ส่วนหลอด E คงเป็นสีฟ้า เพราะแสงทำให้เกิดกรดในน้ำ",
+        "4. ทั้งสองหลอดเปลี่ยนเป็นสีเหลืองเท่ากัน เพราะพืชปล่อยคาร์บอนไดออกไซด์ตลอดเวลาเสมอ"
+      ],
+      "answer": 2,
+      "hint": "หลอดที่มีแสง พืชใช้ก๊าซอะไรจนความเป็นกรดลด ส่วนหลอดมืดพืชทำเฉพาะกระบวนการใดที่ปล่อยก๊าซตรงข้ามกัน"
+    },
+    {
+      "id": "q30",
+      "domain": "BIO",
+      "content": "พืช/การสังเคราะห์แสงของพืช ชุดที่2_GLM",
+      "tag_content": "reliability_repeat_trials",
+      "tag_skill": "L4",
+      "tag_misconception": "single_trial_conclusive",
+      "title": "ข้อที่ 30. นักเรียนสรุปจากการนับฟองเพียงครั้งเดียวว่า 'พืชน้ำปล่อยก๊าซเฉพาะเมื่อมีแสง' เพื่อนขีดฆ่าข้อสรุปนี้และแนะนำให้ปรับปรุงการทดลอง ข้อเสนอแนะใดจะทำให้ข้อสรุปน่าเชื่อถือที่สุด",
+      "image": "",
+      "options": [
+        "1. ทำซ้ำการทดลองหลายครั้ง พร้อมจัดหลอดเทียบเคียงที่ไม่มีพืชวางใต้แสงเช่นเดียวกัน เพื่อตัดอิทธิพลจากปัจจัยอื่น",
+        "2. เพิ่มกำลังไฟของหลอดไฟให้สว่างขึ้นอีกหลายเท่า แล้วนับฟองครั้งเดียวก็เพียงพอ",
+        "3. เปลี่ยนจากพืชน้ำเป็นปลาเล็กแทน เพื่อเปรียบเทียบการปล่อยก๊าซของสัตว์",
+        "4. นับฟองเฉพาะในนาทีแรกทันทีที่เปิดไฟ แล้วสรุปผลจากตัวเลขนั้นครั้งเดียว"
+      ],
+      "answer": 1,
+      "hint": "ผลจากการทดลองครั้งเดียวอาจเกิดจากความบังเอิญหรือสิ่งรบกวน การทำซ้ำและมีหลอดเทียบเคียงช่วยตัดปัญหานี้อย่างไร"
+    }
+];
+
+    const extraQuestions = [
+
+     ];  
+
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec";
+
+   // 🆕 เพิ่มใหม่: URL ของ Web App (doGet) สำหรับตรวจสอบ Login — ใช้ URL เดียวกับ GAS_WEB_APP_URL เพราะ doGet/doPost อยู่ใน Apps Script โปรเจกต์เดียวกัน
+
+    const LOGIN_GAS_URL = "https://script.google.com/macros/s/AKfycbxJQgY4yd1B3uIE5KRXT9t_jChA0qzRYagrijkgdw27jsj7ASBKEZtPcmM15kjQGXjh/exec"; // ⚠️ ต้องแทนที่ด้วย URL จริงหลัง Deploy doGet
+
+    let activeQuestions = [];
+    let currentQ = 0;
+    let userAnswers = {};
+    let mainUserAnswers = {}; 
+    let startTime, timerInterval;
+    let quizMode = 'MAIN';
+    let testMode = 'PRACTICE'; // 🟢 เพิ่มบรรทัดนี้ (PRACTICE = ฝึกฝน, EXAM = สอบจริง)
+
+    // 🆕 เพิ่มใหม่: เก็บข้อมูลผู้ใช้ที่ผ่านการตรวจสอบ Login แล้ว (ไม่ผูกกับ UI ใดๆ ไม่แสดง Level ให้เห็น)
+    let currentUser = { name: "", role: "", mainLevel: "", level: "" };
+
+    document.getElementById('badge-domain').innerText = quizDomain || "DOMAIN";
+    document.getElementById('app-title').innerText = quizTitle || "ชื่อแบบทดสอบ";
+    document.getElementById('app-sub').innerText = `หมวดวิชา: ${quizContent || "ไม่ระบุ"} (${questions.length} ข้อ)`;
+    document.getElementById('result-quiz-title').innerText = `${quizTitle || "แบบทดสอบ"} (${quizDomain || "วิชา"})`;
+
+    // 🆕 ดึงอีเมลที่จำไว้จากครั้งก่อน มาใส่ในช่องอีเมลอัตโนมัติ (ไม่ดึงรหัสผ่าน)
+   // const savedEmail = localStorage.getItem('lastStudentEmail');
+    //if (savedEmail) {
+      //document.getElementById('student-email').value = savedEmail;
+//    }
+
+    // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
+    async function verifyLogin(mode) {
+      playSound('click');
+      const errorBox = document.getElementById('login-error');
+      const email = document.getElementById('student-email').value.trim();
+      const password = document.getElementById('student-password').value.trim();
+
+
+      errorBox.classList.add('hidden');
+
+      if (!email || !password) {
+        errorBox.innerText = "⚠️ กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน";
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+        return;
+      }
+
+      errorBox.innerText = "⏳ กำลังตรวจสอบสิทธิ์...";
+      errorBox.classList.remove('hidden');
+      errorBox.classList.remove('text-red-500');
+      errorBox.classList.add('text-blue-500');
+
+      try {
+        const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.found) {
+          currentUser = {
+            name: data.name || "",
+            role: data.role || "",
+            mainLevel: data.mainLevel || "",
+            level: data.level || ""
+          };
+         // localStorage.setItem('lastStudentEmail', email); // 🆕 จำอีเมลไว้ในเครื่อง (ไม่จำรหัสผ่าน)
+          errorBox.classList.add('hidden');
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          startQuiz(mode);
+        } else {
+          errorBox.innerText = "⚠️ อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+          errorBox.classList.remove('text-blue-500');
+          errorBox.classList.add('text-red-500');
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+        }
+      } catch (err) {
+        errorBox.innerText = "⚠️ เชื่อมต่อระบบตรวจสอบสิทธิ์ไม่ได้ กรุณาลองใหม่";
+        errorBox.classList.remove('text-blue-500');
+        errorBox.classList.add('text-red-500');
+        errorBox.classList.remove('hidden');
+        playSound('incorrect');
+      }
+    }
+
+//แก้ไข 14-08-2569 ตามคำแนะนำ GLM
+  
+      function startQuiz(mode, customQuestions = null) {
+      playSound('click');
+      quizMode = mode;
+      let qList = [];
+      const errorBox = document.getElementById('login-error');
+
+//เริ่ม-แทรก score status 15-08-2569
+    // ===== [ เพิ่มส่วนนี้เข้าไป ] =====
+      if (mode === 'MAIN') {
+        activeSubSession = false;
+        hasMainResult = false;
+        savedMainResultData = null;
+      } else if (mode === 'RETRY_WRONG' || mode === 'EXTRA' || mode === 'AI_GEN') {
+        activeSubSession = true;
+      }
+      // ================================
+
+
+//จบ-
+
+      if (mode === 'MAIN') {
+        qList = questions;
+        if (!qList || qList.length === 0) {
+          errorBox.innerText = "⚠️ ยังไม่มีข้อมูลข้อสอบในระบบ";
+          errorBox.classList.remove('hidden');
+          return;
+        }
+        
+        // 🆕 แก้ไข: ไม่อ่านชื่อ/ชั้นเรียนจาก input แล้ว (ถูกลบออกจาก Login Card)
+        // ใช้ข้อมูลจาก currentUser ที่ผ่านการตรวจสอบ Login แล้วแทน
+        if (!currentUser || !currentUser.name) {
+          errorBox.innerText = "⚠️ กรุณาเข้าสู่ระบบก่อนเริ่มทำข้อสอบ";
+          errorBox.classList.remove('hidden');
+          playSound('incorrect');
+          return; 
+        }
+        
+        errorBox.classList.add('hidden');
+        
+        document.getElementById('display-info').innerText = currentUser.name;
+        document.getElementById('timer').classList.remove('hidden');
+        startTimer();
+      } 
+      
+      // 🟢 จุดแก้ไขที่ 2: ปรับตรรกะการดึงข้อทบทวน ให้ชัดเจน
+      else if (mode === 'RETRY_WRONG') {
+        qList = questions.filter(q => {
+          const ans = mainUserAnswers[q.id];
+          return ans === undefined || ans !== q.answer; // ดึงข้อที่ไม่ได้ตอบ หรือตอบผิด
+        });
+        
+        if (qList.length === 0) {
+          alert("🎉 คุณทำได้เต็ม 100% ไม่มีข้อที่ผิดให้ทำซ้ำครับ!");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ทำซ้ำข้อที่ผิด (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'EXTRA') {
+        qList = extraQuestions;
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ไม่มีแบบฝึกหัดเพิ่มเติมในระบบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `แบบฝึกหัดเพิ่มเติม (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      } 
+      
+      else if (mode === 'AI_GEN') {
+        qList = customQuestions; 
+        if (!qList || qList.length === 0) {
+          alert("⚠️ ข้อมูล JSON ไม่ถูกต้อง หรือไม่มีข้อสอบ");
+          return;
+        }
+        document.getElementById('display-info').innerText = `ข้อสอบซ่อมเสริมจาก AI (${qList.length} ข้อ)`;
+        document.getElementById('timer').classList.add('hidden');
+      }
+
+      // โคลนข้อมูลมาก่อน
+      let tempQuestions = JSON.parse(JSON.stringify(qList)); 
+      
+      // สุ่มลำดับข้อสอบ (Shuffle)
+      for (let i = tempQuestions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempQuestions[i], tempQuestions[j]] = [tempQuestions[j], tempQuestions[i]];
+      }
+      activeQuestions = tempQuestions;
+
+      // 🟢 จุดที่มีอยู่แล้วและถูกต้อง: เคลียร์ค่า userAnswers ทุกครั้งที่เริ่มชุดใหม่
+      userAnswers = {}; 
+      currentQ = 0;
+
+      document.getElementById('login-card').classList.add('hidden');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.remove('hidden');
+
+      renderQuestion();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = String(Math.floor(diff / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `⏱️ เวลา: ${m}:${s}`;
+      }, 1000);
+    }
+//แก้ปัญหา MODE EXAM  มี 2 เสียง 14-08-2569
+    function renderQuestion() {
+      const q = activeQuestions[currentQ];
+      const progress = ((currentQ + 1) / activeQuestions.length) * 100;
+      document.getElementById('progress-bar').style.width = `${progress}%`;
+      
+      document.getElementById('q-progress-text').innerText = `${currentQ + 1} / ${activeQuestions.length}`;
+      
+ // เอาออก - เพื่อไม่แสดงเลขข้อ Claude 21-08-2569 document.getElementById('q-title').innerHTML = q.title.replace(/\n/g, '<br>');
+//Start จุดที่แก้ไข : โค้ดที่แก้ใหม่เพื่อไม่แสดงเลขข้อ แนะนำโดย Claude 21-08-2569
+      let displayTitle = q.title;
+      if (testMode === 'EXAM') {
+        displayTitle = displayTitle.replace(/^ข้อ(?:ท้าทายที่|ที่)\s*\d+\.\s*/, '');
+      }
+      document.getElementById('q-title').innerHTML = escapeHtml(displayTitle).replace(/\n/g, '<br>');
+//Stop จุดที่แก้ไข
+
+      // ===== [ เพิ่มใหม่: แสดง/ซ่อนรูปภาพประกอบโจทย์ตาม q.image 30/08/2569 ] =====
+      const qImage = document.getElementById('q-image');
+      if (q.image && q.image.trim() !== '') {
+        qImage.src = q.image;
+        qImage.classList.remove('hidden');
+      } else {
+        qImage.src = '';
+        qImage.classList.add('hidden');
+      }
+      // ================================
+
+      document.getElementById('hint-text').classList.add('hidden');
+
+      // 🟢 เพิ่มส่วนนี้: ซ่อนปุ่ม Hint ถ้าเป็นโหมดสอบจริง
+      const hintBtn = document.getElementById('hint-btn');
+      if (testMode === 'EXAM') {
+        hintBtn.classList.add('hidden');
+      } else {
+        hintBtn.classList.remove('hidden');
+      }
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+
+      //จุดเริ่ม จุดแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+      q.options.forEach((optText, optIdx) => {
+        const optNum = optIdx + 1;
+        const btn = document.createElement('button');
+        btn.className = `opt-btn w-full text-left p-3 border border-gray-200 rounded-xl text-sm ${userAnswers[q.id] === optNum ? 'opt-selected' : ''}`;
+        btn.innerText = optText;
+        
+        btn.onclick = () => {
+          // 🟢 แก้ไขส่วนนี้: ถ้าเป็น EXAM ให้เล่นแค่เสียงคลิก ถ้าเป็น PRACTICE ถึงเล่นเสียง ถูก/ผิด
+          if (testMode === 'EXAM') {
+            playSound('click');
+          } else {
+            if (optNum === q.answer) {
+              playSound('correct');
+            } else {
+              playSound('incorrect');
+            }
+          }
+          userAnswers[q.id] = optNum;
+          renderQuestion();
+        };
+        optsContainer.appendChild(btn);
+      });
+      //จุดสิ้นสุดการแก้ไขเรื่องเสียงตอบสนองตัวเลือกถูกผิด
+
+      document.getElementById('prev-btn').classList.toggle('hidden', currentQ === 0);
+      document.getElementById('next-btn').classList.toggle('hidden', currentQ === activeQuestions.length - 1);
+      document.getElementById('submit-btn').classList.toggle('hidden', currentQ !== activeQuestions.length - 1);
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในโจทย์และตัวเลือกทั้งหมด 30/08/2569 ] =====
+      renderMath(document.getElementById('question-box'));
+      // ================================
+    }
+
+    function showHint() {
+      playSound('click');
+      const q = activeQuestions[currentQ];
+      document.getElementById('hint-text').innerHTML = escapeHtml(q.hint).replace(/\n/g, '<br>');
+      document.getElementById('hint-text').classList.remove('hidden');
+
+      // ===== [ เพิ่มใหม่: render สูตร LaTeX ในคำใบ้ 30/08/2569 ] =====
+      renderMath(document.getElementById('hint-text'));
+      // ================================
+    }
+
+    function prevQuestion() { 
+      playSound('click');
+      if (currentQ > 0) { currentQ--; renderQuestion(); } 
+    }
+    
+    function nextQuestion() { 
+      playSound('click');
+      if (currentQ < activeQuestions.length - 1) { 
+        currentQ++; 
+        if ((currentQ + 1) % 10 === 0 && currentQ !== activeQuestions.length - 1) {
+          showReminderPopup();
+        }
+        renderQuestion(); 
+      } 
+    }
+
+    function showReminderPopup() {
+      const popup = `
+        <div class="modal-bg" id="reminder-modal">
+          <div class="modal-box">
+            <div class="text-3xl mb-3">⚠️</div>
+            <!-- <h3 class="text-lg font-bold text-gray-800 mb-2">ข้อที่ ${currentQ + 1}</h3> -->
+            <h3 class="text-lg font-bold text-gray-800 mb-2">${testMode === 'EXAM' ? '⏸️ พักสายตาสักครู่' : `ข้อที่ ${currentQ + 1}`}</h3>            
+
+            <p class="text-sm text-gray-600 mb-4">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</p>
+            <button onclick="playSound('click'); document.getElementById('reminder-modal').remove()" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium">รับทราบ</button>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', popup);
+    }
+
+    function submitQuiz() {
+      clearInterval(timerInterval);
+
+      let correct = 0, wrong = 0, skipped = 0;
+
+      activeQuestions.forEach(q => {
+        if (!userAnswers[q.id]) skipped++;
+        else if (userAnswers[q.id] === q.answer) correct++;
+        else wrong++;
+      });
+
+      const total = activeQuestions.length;
+      const percent = Math.round((correct / total) * 100);
+
+      playSound('complete');
+
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('result-card').classList.remove('hidden');
+      
+      document.getElementById('stat-score').innerText = `${correct}/${total}`;
+      document.getElementById('stat-accuracy').innerText = `${percent}%`;
+      document.getElementById('stat-correct').innerText = correct;
+      document.getElementById('stat-wrong').innerText = wrong;
+      document.getElementById('stat-skipped').innerText = skipped;
+
+      const skillTotals = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillCorrects = { L1: 0, L2: 0, L3: 0, L4: 0 };
+      const skillNames = {
+        L1: "การจดจำ (Remember)",
+        L2: "ความเข้าใจ (Understand)",
+        L3: "การประยุกต์ใช้ (Apply)",
+        L4: "การวิเคราะห์ (Analyze)"
+      };
+
+      activeQuestions.forEach(q => {
+        const skill = q.tag_skill ? q.tag_skill.toUpperCase() : null;
+        if (skill && skillTotals.hasOwnProperty(skill)) {
+          skillTotals[skill]++;
+          if (userAnswers[q.id] === q.answer) {
+            skillCorrects[skill]++;
+          }
+        }
+      });
+
+      let skillHtml = '';
+      let hasSkillData = false;
+      for (const skill in skillTotals) {
+        if (skillTotals[skill] > 0) {
+          hasSkillData = true;
+          const correct2 = skillCorrects[skill];
+          const total2 = skillTotals[skill];
+          const percent2 = Math.round((correct2 / total2) * 100);
+          let colorClass = "text-green-600";
+          if (percent2 < 50) colorClass = "text-red-600";
+          else if (percent2 < 80) colorClass = "text-orange-600";
+
+          skillHtml += `
+            <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+              <span><b>${skill}</b> ${skillNames[skill]}</span>
+              <span class="font-bold ${colorClass}">${correct2}/${total2} ข้อ (${percent2}%)</span>
+            </div>
+          `;
+        }
+      }
+      document.getElementById('skill-analysis-box').innerHTML = hasSkillData
+        ? skillHtml
+        : '<p class="text-gray-400 text-center">ไม่มีข้อมูลทักษะในชุดข้อสอบนี้</p>';
+
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+      
+      document.getElementById('stat-email').innerText = document.getElementById('student-email').value || "ไม่ระบุอีเมล";
+      document.getElementById('stat-time').innerText = durationFormatted;
+      
+      let statusText = "";
+      
+         // 🟢 แก้ไขส่วนนี้ให้เช็คทั้ง quizMode และ testMode
+      if (quizMode === 'MAIN' && testMode === 'EXAM') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "กำลังส่งข้อมูลลง Google Sheet...";
+        saveToSheet(correct, total, percent);
+      } else if (quizMode === 'MAIN' && testMode === 'PRACTICE') {
+        mainUserAnswers = {...userAnswers}; 
+        statusText = "โหมดฝึกฝน: ไม่บันทึกคะแนนสู่ระบบ";
+      } else if (quizMode === 'RETRY_WRONG') {
+        statusText = "ไม่มีการบันทึกผลสำหรับการทำซ้ำเฉพาะข้อที่ผิด";
+      } else if (quizMode === 'EXTRA') {
+        statusText = "ไม่มีการบันทึกผลสำหรับแบบฝึกหัดเพิ่มเติม";
+      } else if (quizMode === 'AI_GEN') {
+        statusText = "ไม่มีการบันทึกผลสำหรับข้อสอบ AI Gen";
+      }
+
+      document.getElementById('status-text').innerText = statusText;
+//เก็ยสถานะ
+  if (!activeSubSession) {
+        saveMainResultState(); // บันทึกคะแนนหลักเก็บไว้
+      }
+// 🟢 เพิ่มโค้ดบล็อกนี้เข้าไปท้ายสุดของฟังก์ชัน เพื่อซ่อน/แสดง กล่อง AI
+      const aiBox = document.getElementById('ai-remedial-box');
+      const noticeBox = document.getElementById('ai-notice-box');
+      
+ if (quizMode === 'MAIN') {
+  if (testMode === 'EXAM') {
+    aiBox.classList.remove('hidden');
+    noticeBox.classList.add('hidden');
+  } else {
+    aiBox.classList.add('hidden');
+    noticeBox.classList.remove('hidden');
+  }
+}
+// ถ้าเป็น RETRY_WRONG / EXTRA / AI_GEN: ไม่ต้องแตะ aiBox/noticeBox
+// เพราะสถานะที่ถูกต้อง (มาจากข้อสอบหลัก) ถูกตั้งไว้แล้ว และจะไม่ถูกเขียนทับผิดๆ
+    } // ปิดฟังก์ชัน submitQuiz
+
+    function saveToSheet(score, total, percent) {
+      // 🆕 แก้ไข: ดึงชื่อ/ชั้นเรียนจาก currentUser (มาจาก Google Sheet ตอน Login) แทนการอ่านจาก input ที่ถูกลบไปแล้ว
+      const name = currentUser.name;
+      const email = document.getElementById('student-email').value.trim(); 
+      const studentClass = currentUser.level;
+      const totalTimeSec = Math.floor((new Date() - startTime) / 1000);
+
+      const hours = String(Math.floor(totalTimeSec / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalTimeSec % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalTimeSec % 60).padStart(2, '0');
+      const durationFormatted = `${hours}:${minutes}:${seconds}`;
+
+      const payload = {
+        timestamp: new Date().toLocaleString("th-TH"),
+        studentClass: studentClass,
+        studentName: name,
+        subjectCategory: quizDomain,
+        quizTitle: quizTitle,
+        score: Number(score),
+        totalQuestions: Number(total),
+        percentage: String(percent), 
+        timeSpent: durationFormatted  
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        document.getElementById('status-text').innerText = "บันทึกผลลง Google Sheet เรียบร้อยแล้ว!";
+        document.getElementById('status-text').classList.replace('text-gray-500', 'text-green-600');
+      }).catch(() => {
+        document.getElementById('status-text').innerText = "บันทึกเรียบร้อย";
+      });
+    }
+
+    function backToLogin() {
+      playSound('click');
+      document.getElementById('result-card').classList.add('hidden');
+      document.getElementById('quiz-card').classList.add('hidden');
+      document.getElementById('login-card').classList.remove('hidden');
+      clearInterval(timerInterval);
+      // 🆕 แก้ไข: เคลียร์ข้อมูลผู้ใช้และรหัสผ่านที่ค้างอยู่ เมื่อกลับมาหน้า Login
+      currentUser = { name: "", role: "", mainLevel: "", level: "" };
+      document.getElementById('student-password').value = "";
+    }
+
+    function requestAiRemedial(groupMode = 1) {
+      playSound('click');
+      const password = prompt("🔒 ฟังก์ชันนี้สำหรับครู/ผู้ดูแล\nกรุณาใส่รหัสผ่านเพื่อใช้งาน AI Gen:");
+      if (password !== "sesame") {
+        alert("❌ รหัสผ่านไม่ถูกต้อง หรือคุณไม่มีสิทธิ์เข้าถึงฟังก์ชันนี้");
+        playSound('incorrect');
+        return;
+      }
+
+      let wrongList = [];
+      let contentCounts = {}; 
+      let skillCounts = {};   
+
+      questions.forEach(q => {
+        if (mainUserAnswers[q.id] !== q.answer) {
+          wrongList.push(`- โจทย์: ${q.title.replace(/\n/g, ' ')} | ทักษะ: ${q.tag_skill || 'ไม่ระบุ'} | จุดเข้าใจผิด: ${q.tag_misconception || 'ไม่ระบุ'} | หัวข้อ: ${q.tag_content || 'ไม่ระบุ'}`);
+          
+          if (q.tag_content) {
+            contentCounts[q.tag_content] = (contentCounts[q.tag_content] || 0) + 1;
+          }
+          if (q.tag_skill) {
+            skillCounts[q.tag_skill] = (skillCounts[q.tag_skill] || 0) + 1;
+          }
+        }
+      });
+
+      if (wrongList.length === 0 && Object.keys(mainUserAnswers).length > 0) {
+        alert("🎉 คุณทำได้เต็ม 100% ไม่จำเป็นต้องทำข้อสอบซ่อมเสริมครับ!");
+        return;
+      }
+      if (Object.keys(mainUserAnswers).length === 0) {
+        const statusEl = document.getElementById('status-text');
+        statusEl.innerText = "⚠️ การขอข้อสอบจาก AI ก็ต่อเมื่อทำแบบทดสอบหลักแล้วเท่านั้น";
+        statusEl.className = "text-xs font-semibold text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 mb-6 text-center animate-pulse";
+        playSound('incorrect');
+        return;
+      }
+
+      let topContents = Object.keys(contentCounts).sort((a, b) => contentCounts[b] - contentCounts[a]).slice(0, 3);
+      let topSkill = Object.keys(skillCounts).sort((a, b) => skillCounts[b] - skillCounts[a])[0] || 'L3';
+
+      const statusEl = document.getElementById('status-text');
+      statusEl.innerText = `🤖 ระบบได้สร้างคำสั่ง (Prompt) สำหรับกลุ่ม ${groupMode} ให้คุณแล้ว กรุณาคัดลอก`;
+      statusEl.className = "text-xs font-semibold text-purple-600 bg-purple-50 p-2.5 rounded-xl border border-purple-200 mb-6 text-center animate-pulse";
+
+      let remedialPrompt = "";
+      let modalTitle = "";
+
+      if (groupMode === 1) {
+        modalTitle = "กลุ่ม 1: เน้นขยายเนื้อหา (15 ข้อ)";
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนและการวิเคราะห์จุดอ่อนของผู้เรียน
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิดในข้อต่อไปนี้:
+ ${wrongList.join('\n')}
+
+**ภารกิจของคุณ:**
+1. วิเคราะห์ว่าผู้เรียน "เข้าใจผิด" ในเนื้อหาส่วนใด
+2. สร้างข้อสอบซ่อมเสริมชุดใหม่จำนวน 15 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ขยายตัวเนื้อหาหรือลงรายละเอียดเนื้อหา" ในส่วนที่ผู้เรียนข้อด้อยเป็นหลัก เพื่อให้เข้าใจแนวคิดที่ลึกซึ้งยิ่งขึ้น
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 2) {
+        modalTitle = "กลุ่ม 2: หมุนรูปแบบทักษะ Bloom (15 ข้อ)";
+        let contentStr = topContents.length > 0 ? topContents.join(', ') : "ไม่มีข้อมูลหัวข้อที่ผิด ให้สุ่มจากเนื้อหาทั้งหมด";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการออกข้อสอบที่หลากหลายทักษะ
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยหัวข้อ (Tag Content) ที่ผิดมากที่สุด 3 อันดับคือ: ${contentStr}
+
+**ภารกิจของคุณ:**
+1. นำ 3 หัวข้อดังกล่าวมาสร้างข้อสอบ โดยเปลี่ยนรูปแบบของเนื้อหา แต่ยังคงเนื้อหาเดิม กระจายให้ครบ 4 ทักษะ (L1=จำ, L2=เข้าใจ, L3=ประยุกต์, L4=วิเคราะห์)
+2. แต่ละหัวข้อสร้าง 4 ข้อ (รวม 12 ข้อ) ส่วนอีก 3 ข้อที่เหลือ ให้สุ่มสร้างจากเนื้อหาอื่นๆ ให้ครบ 15 ข้อ
+3. ถ้ามีหัวข้อไม่ถึง 3 ให้สุ่มสร้างเพิ่มให้ครบ 15 ข้อ โดยกระจาย 4 ทักษะ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา (เช่น filtration, separation_methods) เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      } else if (groupMode === 3) {
+        modalTitle = "กลุ่ม 3: ฝึกทักษะเฉพาะจุด (10 ข้อ)";
+        
+        remedialPrompt = `คุณเป็นผู้เชี่ยวชาญด้านการสอนเพื่อพัฒนาทักษะการคิดวิเคราะห์
+ผู้เรียนทำข้อสอบเรื่อง "${quizContent}" แล้วตอบผิด โดยทักษะ (Tag Skill) ที่ผิดมากที่สุดคือ: ${topSkill}
+
+**ภารกิจของคุณ:**
+1. สร้างข้อสอบซ่อมเสริมจำนวน 10 ข้อ แบบปรนัย 4 ตัวเลือก ที่เน้น "ทักษะ ${topSkill}" เป็นหลัก
+2. หาก ${topSkill} คือ L3 (ประยุกต์ใช้/คำนวณ) โจทย์ต้องเน้นการคำนวณหรือการประยุกต์จริงๆ หากเป็น L4 ต้องเน้นการวิเคราะห์สถานการณ์จริงๆ
+
+**ข้อกำหนดการตอบกลับ (STRICT FORMAT):**
+- ตอบกลับเป็น "JSON Array" เท่านั้น ห้ามมีข้อความนำหน้า ห้ามใส่ \`\`\`json ครอบ
+- **คำอธิบายฟิลด์ (ห้ามเปลี่ยนชื่อฟิลด์ และห้ามเว้นว่าง):**
+  - "domain": ต้องเป็น "${quizDomain}"
+  - "content": ต้องเป็น "${quizContent}"
+  - "tag_content": ชื่อหัวข้อเนื้อหา เป็นภาษาอังกฤษ snake_case
+  - "tag_skill": ระดับทักษะ ต้องเป็น "L1", "L2", "L3" หรือ "L4" เท่านั้น (หากภารกิจนี้เน้น ${topSkill} ให้ใส่ "${topSkill}" ลงไป)
+  - "tag_misconception": ความเข้าใจผิดทางวิทยาศาสตร์ที่ตัวเลือกหลอกนั้นดักอยู่ เป็นภาษาอังกฤษ snake_case
+- โครงสร้าง JSON ต้องเป็นแบบนี้เป๊ะ:
+[{"id": 1, "domain": "${quizDomain}", "content": "${quizContent}", "tag_content": "ใส่หัวข้อเนื้อหา", "tag_skill": "ใส่ L1-L4", "tag_misconception": "ใส่จุดเข้าใจผิด", "title": "คำถาม...", "image": "", "options": ["1. ...", "2. ...", "3. ...", "4. ..."], "answer": 1, "hint": "คำใบ้..."}]
+- เลข answer ต้องเป็น 1, 2, 3 หรือ 4 เท่านั้น`;
+      }
+
+      const modalHtml = `
+        <div class="modal-bg" id="remedial-modal">
+          <div class="modal-box" style="text-align: left;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">คัดลอก Prompt สำหรับ ${modalTitle}</h3>
+            <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">1. คัดลอกข้อความด้านล่างนี้ (Ctrl+C)<br>2. ไปวางในช่องแชทของ AI<br>3. เมื่อ AI ตอบกลับเป็นโค้ด JSON มา ให้ก็อปปี้ JSON นั้น<br>4. กลับมากดปุ่ม "นำเข้าข้อสอบ AI" ในแอปนี้ แล้ววาง JSON ลงไป</p>
+            <textarea id="remedial-prompt-box" style="width: 100%; height: 250px; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.75rem; color: #4b5563; outline: none; resize: none; font-family: monospace;" readonly>${remedialPrompt}</textarea>
+            <button onclick="playSound('click'); document.getElementById('remedial-modal').remove()" style="width: 100%; margin-top: 1rem; background: #6b21a8; color: white; font-weight: 500; padding: 0.75rem; border-radius: 0.5rem; border: none; cursor: pointer;">ปิดหน้าต่างนี้</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      const textBox = document.getElementById('remedial-prompt-box');
+      textBox.focus();
+      textBox.select();
+    }
+
+    function openImportModal() {
+      playSound('click');
+      document.getElementById('import-modal').classList.remove('modal-hidden');
+      document.getElementById('import-json-box').value = '';
+      document.getElementById('import-json-box').focus();
+    }
+
+ function loadAiQuestions() {
+  playSound('click');
+  const jsonStr = document.getElementById('import-json-box').value.trim();
+
+  // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ดักกรณีวาง Prompt แทนคำตอบ AI ] =====
+  const promptMarkers = ["ภารกิจของคุณ", "STRICT FORMAT", "ห้ามมีข้อความนำหน้า", "คุณเป็นผู้เชี่ยวชาญ"];
+  const looksLikePrompt = promptMarkers.some(marker => jsonStr.includes(marker));
+  if (looksLikePrompt) {
+    alert(
+      "⚠️ นี่คือ \"คำสั่ง (Prompt)\" ที่แอปสร้างให้ ไม่ใช่ข้อสอบที่ AI ตอบกลับมา!\n\n" +
+      "ขั้นตอนที่ถูกต้อง:\n" +
+      "1. คัดลอกคำสั่งนี้ไปวางในแชทของ AI ภายนอก (เช่น ChatGPT, Gemini)\n" +
+      "2. รอให้ AI ตอบกลับมาเป็นโค้ด JSON\n" +
+      "3. คัดลอก \"คำตอบของ AI\" (ไม่ใช่คำสั่งนี้) มาวางในช่องนี้อีกครั้ง"
+    );
+    playSound('incorrect');
+    return;
+  }
+  // ================================
+
+  try {
+    // ===== [ แก้ไขบรรทัดนี้ใหม่15-08-2569 ] =====
+    const firstBracket = jsonStr.indexOf('[');
+    const lastBracket = jsonStr.lastIndexOf(']');
+    let cleanJson = "";
+    if (firstBracket !== -1 && lastBracket !== -1) {
+      cleanJson = jsonStr.substring(firstBracket, lastBracket + 1);
+    } else {
+      cleanJson = jsonStr.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    }
+    // ================================
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แปลงคำพูดโค้งเป็นคำพูดตรง ] =====
+    cleanJson = cleanJson.replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'");
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: แปลง newline ดิบที่หลุดอยู่ในสตริงให้เป็น \n ที่ถูกต้อง ] =====
+    // ปัญหา: บางครั้ง AI คัดลอกโจทย์หลายบรรทัดมาใส่ใน "title"/"hint" โดยตัวอักษรขึ้นบรรทัดใหม่
+    // (newline จริงๆ) หลุดปนอยู่ในสตริง ซึ่ง JSON ไม่อนุญาตให้มี newline ดิบอยู่ในสตริง ทำให้ parse ล้มเหลว
+    // วิธีแก้: ไล่ทีละตัวอักษร ติดตามว่ากำลังอยู่ "ในเครื่องหมายคำพูด" หรือไม่ (โดยข้าม escape
+    // sequence ที่มีอยู่แล้วอย่างถูกต้อง เพื่อไม่ให้หลงนับ \" เป็นการปิดสตริง) ถ้าเจอ newline
+    // ขณะอยู่ในสตริง จะแปลงเป็น \n (escape ที่ถูกต้อง) แต่ถ้า newline อยู่นอกสตริง (เช่น
+    // การเว้นบรรทัดเพื่อจัดรูปแบบ JSON) จะปล่อยผ่านตามปกติ ไม่แตะต้อง
+    cleanJson = (function fixRawNewlinesInStrings(str) {
+      let result = '';
+      let inString = false;
+      let escapeNext = false;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (escapeNext) {
+          result += ch;
+          escapeNext = false;
+          continue;
+        }
+        if (ch === '\\') {
+          result += ch;
+          escapeNext = true;
+          continue;
+        }
+        if (ch === '"') {
+          inString = !inString;
+          result += ch;
+          continue;
+        }
+        if (inString && (ch === '\n' || ch === '\r')) {
+          result += (ch === '\n') ? '\\n' : '\\r';
+          continue;
+        }
+        result += ch;
+      }
+      return result;
+    })(cleanJson);
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ลบ trailing comma ก่อนปิดวงเล็บ ] =====
+    // ปัญหา: AI มักพิมพ์คอมม่าตัวสุดท้ายก่อนปิด array/object เช่น [{"id":1},{"id":2},]
+    // ซึ่งไม่ใช่ JSON ที่ถูกต้อง (JSON มาตรฐานห้ามมี comma ตัวสุดท้ายก่อน ] หรือ })
+    // ทำให้ JSON.parse() ล้มเหลวทันที วิธีแก้คือลบ comma ที่ตามด้วยช่องว่าง (ถ้ามี) แล้วตามด้วย ] หรือ } ทิ้ง
+    cleanJson = cleanJson.replace(/,(\s*[\]}])/g, '$1');
+    // ================================
+
+    // ===== [ เพิ่มใหม่ 30/08/2569: ซ่อมแซม backslash ที่ AI ลืม escape คู่ ] =====
+    // ปัญหา: เวลา AI สร้างสูตร LaTeX เช่น \Delta, \circ, \text{} มักลืมใส่ backslash คู่
+    // ตาม JSON spec ทำให้ JSON.parse() ล้มเหลว (error) ทันที
+    // วิธีแก้: สแกนหา backslash ทีละตัว ถ้าเป็นคู่ที่ถูกต้องอยู่แล้ว (\\ หรือ escape
+    // มาตรฐานของ JSON เช่น \" \/ \b \f \n \r \t \u) จะปล่อยผ่านไม่แตะต้อง
+    // แต่ถ้าเป็น backslash เดี่ยวที่ตามด้วยอักษรอื่น (เช่น \D, \c, \t ที่จริงคือ LaTeX)
+    // จะเติม backslash คู่ให้อัตโนมัติ เพื่อให้ JSON.parse() อ่านผ่านได้
+    cleanJson = cleanJson.replace(/\\\\|\\["\\\/bfnrtu]|\\/g, (match) => {
+      return match.length === 2 ? match : '\\\\';
+    });
+    // ================================
+
+    const parsedQs = JSON.parse(cleanJson);
+
+    if (!Array.isArray(parsedQs) || parsedQs.length === 0) {
+      alert("รูปแบบ JSON ไม่ถูกต้อง หรือไม่มีข้อสอบใน Array");
+      playSound('incorrect');
+      return;
+    }
+
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: ตรวจ field จำเป็นก่อนเริ่ม ] =====
+    const invalidIndex = parsedQs.findIndex(q =>
+      !q.title || typeof q.title !== 'string' ||
+      !Array.isArray(q.options) || q.options.length === 0 ||
+      typeof q.answer !== 'number'
+    );
+    if (invalidIndex !== -1) {
+      alert(`⚠️ ข้อที่ ${invalidIndex + 1} ใน JSON ขาดข้อมูลจำเป็น (title/options/answer)`);
+      playSound('incorrect');
+      return;
+    }
+    // ================================
+
+    document.getElementById('import-modal').classList.add('modal-hidden');
+    // ===== [ เพิ่มส่วนนี้เข้าไป -15-08-269 ] =====
+    activeSubSession = true;
+    // ================================
+    startQuiz('AI_GEN', parsedQs);
+
+  } catch (e) {
+    // ===== [ เพิ่มส่วนนี้เข้าไป 15-08-2569: แสดงบริบท error ] =====
+    let contextMsg = "";
+    const match = e.message.match(/position (\d+)/);
+    if (match) {
+      const pos = parseInt(match[1], 10);
+      const rawStr = document.getElementById('import-json-box').value.trim();
+      const start = Math.max(0, pos - 60);
+      const end = Math.min(rawStr.length, pos + 60);
+      contextMsg = `\n\n📍 บริเวณที่มีปัญหา:\n...${rawStr.substring(start, end)}...`;
+    }
+    alert(
+      "เกิดข้อผิดพลาดในการอ่าน JSON: " + e.message + contextMsg +
+      "\n\n💡 สาเหตุที่พบบ่อย:\n1. มีเครื่องหมายคำพูดโค้ง (\" \") ปนมาจากการ copy\n" +
+      "2. ข้อความคำถาม/ตัวเลือกมี \" อยู่ในเนื้อหาโดยไม่ escape\n" +
+      "3. AI ตอบไม่ครบ/ถูกตัดกลางคัน กรุณาคัดลอกใหม่ให้ครบทั้งก้อน"
+    );
+    playSound('incorrect');
+  }
+}
+
+  </script>
+</body>
+</html>

@@ -1297,7 +1297,23 @@
     //if (savedEmail) {
       //document.getElementById('student-email').value = savedEmail;
 //    }
-
+ // ═══════════ ⬇️ วางส่วนใหม่ตรงนี้ ⬇️ ═══════════
+    async function fetchJsonWithRetry(url, retries = 2) {
+      for (let i = 0; i <= retries; i++) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 20000);
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timer);
+          const data = await res.json();
+          return data;
+        } catch (err) {
+          if (i === retries) throw err;
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+    }
+    // ═══════════ ⬆️ จบส่วนที่วางใหม่ ⬆️ ═══════════
     // 🆕 เพิ่มใหม่: ฟังก์ชันตรวจสอบ Login ก่อนเริ่มทำข้อสอบ (แทนที่การกรอกชื่อ/เลือกชั้นเรียนเอง)
     async function verifyLogin(mode) {
       playSound('click');
@@ -1322,9 +1338,7 @@
 
       try {
         const url = `${LOGIN_GAS_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-
+        const data = await fetchJsonWithRetry(url);
         if (data.found) {
           currentUser = {
             name: data.name || "",
@@ -2028,7 +2042,11 @@
     playSound('incorrect');
   }
 }
-
+    // ═══════════ ⬇️ Warm-up: ปลุก GAS ตั้งแต่เปิดหน้าเว็บ ⬇️ ═══════════
+    window.addEventListener('DOMContentLoaded', () => {
+      fetch(LOGIN_GAS_URL + '?warmup=1').catch(() => {});
+    });
+    // ═══════════ ⬆️ จบส่วนที่วางใหม่ ⬆️ ═══════════
   </script>
 </body>
 </html>

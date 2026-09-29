@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แบบจำลองการระบายน้ำ อ.แกลง ระยอง → อ่าวไทย</title>
+<style>
+:root{--bg:#0b1620;--tx:#e6eef5;--mu:#8fa6b8;--ac:#4cc3ff;--bad:#ff6b5e;--ok:#5be3a0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:13px/1.4 "Noto Sans Thai",system-ui,sans-serif;overflow:hidden}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+#pn{position:absolute;left:8px;top:8px;width:min(310px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;background:rgba(14,26,38,.9);border:1px solid #24384a;border-radius:10px;padding:10px;box-sizing:border-box}
+#pn.h .b{display:none}
+h1{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center}
+button{background:#17303f;color:var(--tx);border:1px solid #2b4a5e;border-radius:6px;padding:4px 8px;font:inherit;cursor:pointer}
+button:hover{background:#1f4155}
+.row{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0}
+.sl{margin:5px 0}.sl label{display:flex;justify-content:space-between;color:var(--mu)}.sl input{width:100%}
+.kv{display:grid;grid-template-columns:1fr auto;gap:2px 8px;margin-top:6px}.kv span:nth-child(odd){color:var(--mu)}.kv span:nth-child(even){text-align:right;font-weight:600}
+canvas.s{width:100%;background:#0e1c28;border-radius:6px;margin-top:6px}
+small{color:var(--mu);display:block;margin-top:6px}
+</style></head><body>
+<canvas id="cv"></canvas>
+<div id="pn"><h1>💧 ระบายน้ำ อ.แกลง → อ่าวไทย <button id="tg">ซ่อน</button></h1>
+<div class="b">
+<div class="row" id="views"></div>
+<div class="row" id="pres"></div>
+<div id="sls"></div>
+<div class="row"><button id="pl">⏸ หยุดเวลา</button></div>
+<div style="display:flex;gap:10px;align-items:center;margin-top:6px"><canvas id="mn" width="56" height="56"></canvas><div id="mt" style="font-weight:600"></div></div>
+<div class="kv" id="kv"></div>
+<canvas class="s" id="pf" width="290" height="130"></canvas>
+<canvas class="s" id="tn" width="290" height="240"></canvas><div id="tt" style="margin-top:4px;font-weight:600"></div><small>* วิเคราะห์ที่สถานการณ์เลวร้าย: ฝนตกต่อเนื่องจนน้ำนิ่ง + น้ำทะเลขึ้นสูงสุด · แถบ = ช่วงเวลาระบายเมื่อปรับปัจจัยนั้นตั้งแต่ดีที่สุดถึงแย่ที่สุด (ปัจจัยอื่นคงเดิม) · เขียว=ระบายเร็วกว่าปัจจุบัน แดง=ช้ากว่า</small><small>โปรไฟล์ด้านข้างตามลำน้ำ (ซ้าย=ต้นน้ำ/เหนือ, ขวา=ทะเล) · ลาก=หมุน, ล้อเมาส์/บีบนิ้ว=ซูม, Shift+ลาก/สองนิ้ว=เลื่อน</small>
+<small>⚠ แบบจำลองเชิงแนวคิด (ภูมิประเทศสมมติจากลักษณะลุ่มน้ำประแส ไม่ใช่ข้อมูล DEM จริง) ความสูงขยายแนวตั้ง ~ตามสเกล เพื่อการเรียนรู้/สื่อสาร ไม่ใช้พยากรณ์จริง</small>
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),clamp=(v,a,b)=>Math.min(b,Math.max(a,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const S={rain:25,rel:60,slope:1,wind:9,dir:200,age:14.8,speed:3,C:.5,n:1,pump:0},V=.12,ZM=5.3,NX=80,NZ=130,PER=29.53;
+let Qs=60,age=S.age,playing=true,SL=0,tide=0,surge=0,amp=.5,onsh=0,Hup=35;
+const riverX=z=>1.3*Math.sin(z*.45)+.5*Math.sin(z*1.1+1);
+const tt=z=>clamp((z+8)/13.5,0,1),bedF=z=>Hup*Math.pow(1-tt(z),1.7);
+function grnd(x,z){const t=tt(z),dx=Math.abs(x-riverX(z)),bed=bedF(z);
+ let g=bed+Math.min(dx/.5,1)*1.3+Math.max(0,dx-.5)*(.15+2.5*(1-t)*(1-t))+.9*Math.pow(Math.max(0,dx-2.5),2)*(1-t)*S.slope+.4*(1-t)*Math.sin(x*1.7+z*.9)*Math.min(dx,1);
+ const s=clamp((z-4.6)/1.4,0,1);return g*(1-s)+(-.5-(z-4.6))*s}
+const dnF=Q=>(.35+.9*Math.pow(Q/100,.55))*Math.pow(S.slope,-.15)*Math.pow(S.n,.6);
+const dnAt=z=>dnF(Qs*(.3+.7*tt(z)));
+function riverStage(z){const rise=Math.max(0,SL-dnAt(ZM)),Lb=3/Math.pow(S.slope,.7);return bedF(z)+dnAt(z)+rise*Math.exp(-(ZM-z)/Lb)}
+function stage(z){if(z<=ZM)return riverStage(z);const k=clamp((z-ZM)/.8,0,1),e=k*k*(3-2*k);return lerp(riverStage(ZM),SL,e)}
+const bw=z=>{const n=bedF(z)+dnAt(z);return clamp((riverStage(z)-n)/(dnAt(z)+.3),0,1)};
+// scene
+const cv=$('cv'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1620);scene.fog=new THREE.Fog(0x0b1620,45,90);
+scene.add(new THREE.HemisphereLight(0xbfd8ff,0x33402a,.9));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(-8,14,-6);scene.add(dl);
+const cam=new THREE.PerspectiveCamera(42,1,.1,200);
+const cs={th:-.7,ph:1.0,r:30,t:new THREE.Vector3(0,1.5,.5)};
+function setCam(){const{th,ph,r,t}=cs;cam.position.set(t.x+r*Math.sin(ph)*Math.sin(th),t.y+r*Math.cos(ph),t.z+r*Math.sin(ph)*Math.cos(th));cam.lookAt(t)}
+const VIEWS={'เฉียง 3D':[-.7,1,30,0,1.5,.5],'ด้านข้าง':[-Math.PI/2,1.49,32,0,2,0],'มุมบน':[0,.05,30,0,0,0],'ปากแม่น้ำ':[-.5,1.2,10,riverX(5),.3,5],'ต้นน้ำ':[.6,1.2,14,riverX(-5),3,-5]};
+Object.entries(VIEWS).forEach(([n,v])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{cs.th=v[0];cs.ph=v[1];cs.r=v[2];cs.t.set(v[3],v[4],v[5]);setCam()};$('views').appendChild(b)});
+// terrain + water
+const geo=new THREE.PlaneGeometry(10,16,NX,NZ);geo.rotateX(-Math.PI/2);const P=geo.attributes.position,N=P.count;
+const G=new Float32Array(N),DX=new Float32Array(N),VX=new Float32Array(N),VZ=new Float32Array(N);for(let i=0;i<N;i++){VX[i]=P.getX(i);VZ[i]=P.getZ(i)}
+geo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(N*3),3));
+const terr=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({vertexColors:true}));scene.add(terr);
+const wgeo=geo.clone();wgeo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(N*3),3));
+const wm=new THREE.Mesh(wgeo,new THREE.MeshLambertMaterial({vertexColors:true,transparent:true,opacity:.82}));scene.add(wm);
+const houses=[],hg=new THREE.BoxGeometry(.22,.28,.22);
+for(let i=0;i<18;i++){const m=new THREE.Mesh(hg,new THREE.MeshLambertMaterial({color:0xf0d9a8}));const z=2.4+((i*37)%23)/10,sd=i%2?1:-1;m.userData={z,dx:sd*(.8+((i*13)%17)/9)};scene.add(m);houses.push(m)}
+function label(txt,col){const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.font='bold 26px sans-serif';x.fillStyle='rgba(8,16,24,.72)';x.fillRect(0,8,256,48);x.fillStyle=col||'#fff';x.textAlign='center';x.fillText(txt,128,42);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));sp.scale.set(3.2,.8,1);sp.renderOrder=9;scene.add(sp);return sp}
+const LB={up:label('ต้นน้ำ/อ่างเก็บน้ำ (เหนือ)','#ffd27a'),town:label('อ.แกลง (ชุมชน)','#fff'),mouth:label('ปากน้ำประแส','#7fe3ff'),sea:label('อ่าวไทย (ทะเล)','#7fb6ff')};
+let lowN=1;
+function rebuild(){Hup=35*S.slope;const C=geo.attributes.color;lowN=0;
+ for(let i=0;i<N;i++){const x=P.getX(i),z=P.getZ(i),g=grnd(x,z);G[i]=g;DX[i]=Math.abs(x-riverX(z));P.setY(i,g*V);
+  if(g>.05&&DX[i]>.5&&g<6&&z<5.4)lowN++;
+  let c;if(g<0)c=[.09,.2,.28];else if(g<3)c=[.22+g*.03,.42,.2];else if(g<12)c=[.35+g*.01,.36,.2];else c=[.4+Math.min(g,45)*.006,.4+Math.min(g,45)*.006,.36+Math.min(g,45)*.005];
+  C.setXYZ(i,c[0],c[1],c[2])}
+ P.needsUpdate=true;C.needsUpdate=true;geo.computeVertexNormals();
+ houses.forEach(m=>{const x=riverX(m.userData.z)+m.userData.dx;m.position.set(x,grnd(x,m.userData.z)*V+.14,m.userData.z)});
+ LB.up.position.set(riverX(-7.3),Hup*V+1.2,-7.3);LB.town.position.set(riverX(3.2)+.2,grnd(riverX(3.2),3.2)*V+1.6,3.2);LB.mouth.position.set(riverX(ZM),1.3,ZM);LB.sea.position.set(0,1.2,7.2)}
+const WC=wgeo.attributes.color,WP=wgeo.attributes.position;let floodPct=0,maxD=0;
+const rowSt=new Float32Array(NZ+1);
+function updWater(){for(let j=0;j<=NZ;j++)rowSt[j]=stage(-8+j*16/NZ);let cnt=0;maxD=0;
+ for(let i=0;i<N;i++){const j=Math.round((P.getZ(i)+8)*NZ/16),lv=rowSt[j],g=G[i],d=lv-g;
+  if(d>.03){WP.setY(i,lv*V);const land=g>.05&&DX[i]>.5;
+   if(land){const k=clamp(d/2.5,0,1);WC.setXYZ(i,lerp(.85,.8,k),lerp(.62,.2,k),lerp(.3,.15,k));if(g<6&&P.getZ(i)<5.4){cnt++;maxD=Math.max(maxD,d)}}
+   else{const k=clamp(d/4,0,1);WC.setXYZ(i,lerp(.35,.1,k),lerp(.75,.4,k),lerp(.95,.75,k))}}
+  else{WP.setY(i,g*V-.06);WC.setXYZ(i,.1,.3,.5)}}
+ floodPct=100*cnt/lowN;WP.needsUpdate=true;WC.needsUpdate=true}
+// particles: river flow
+const NP=650,pg=new THREE.BufferGeometry(),pa=new Float32Array(NP*3),pz=new Float32Array(NP),pu=new Float32Array(NP);
+for(let k=0;k<NP;k++){pz[k]=-8+Math.random()*15.5;pu[k]=(Math.random()-.5)*.8}
+pg.setAttribute('position',new THREE.BufferAttribute(pa,3));scene.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0xffffff,size:.09})));
+function flow(dt){for(let k=0;k<NP;k++){let z=pz[k];const t=tt(z),Qz=Qs*(.3+.7*t);
+  let v=(.5+.4*Math.sqrt(Qz/50))*(.5+.6*Math.sqrt(S.slope)*(1-t))*(1-.85*bw(Math.min(z,ZM)));
+  v*=(1-.25*onsh*S.wind/20)/S.n;if(z>ZM)v*=.45;z+=Math.max(.03,v)*dt;if(z>7.4){z=-8+Math.random()*.5}pz[k]=z;
+  const zz=Math.min(z,ZM),sp=z>ZM?1+(z-ZM)*1.4:1;pa[k*3]=riverX(zz)+pu[k]*sp;pa[k*3+1]=stage(z)*V+.04;pa[k*3+2]=z}pg.attributes.position.needsUpdate=true}
+// wind + rain
+const NW=110,wga=new Float32Array(NW*6),wgm=new THREE.BufferGeometry();wgm.setAttribute('position',new THREE.BufferAttribute(wga,3));
+const wpos=[];for(let i=0;i<NW;i++)wpos.push([(Math.random()-.5)*14,2.5+Math.random()*4,(Math.random()-.5)*20]);
+const wmat=new THREE.LineBasicMaterial({color:0xcfe6ff,transparent:true,opacity:.6});scene.add(new THREE.LineSegments(wgm,wmat));
+const NR=300,rga=new Float32Array(NR*6),rgm=new THREE.BufferGeometry(),rp=[];rgm.setAttribute('position',new THREE.BufferAttribute(rga,3));
+for(let i=0;i<NR;i++)rp.push([(Math.random()-.5)*11,Math.random()*9,(Math.random()-.5)*17]);
+const rl=new THREE.LineSegments(rgm,new THREE.LineBasicMaterial({color:0x7fb0ff,transparent:true,opacity:.6}));scene.add(rl);
+function weather(dt){const th=S.dir*Math.PI/180,wx=-Math.sin(th),wz=Math.cos(th),sp=S.wind*.35;
+ for(let i=0;i<NW;i++){const p=wpos[i];p[0]+=wx*sp*dt;p[2]+=wz*sp*dt;if(Math.abs(p[0])>7||Math.abs(p[2])>10){p[0]=-wx*6.5+(Math.random()-.5)*8;p[2]=-wz*9.5+(Math.random()-.5)*8}
+  const L=.25+S.wind*.06;wga.set([p[0],p[1],p[2],p[0]-wx*L,p[1],p[2]-wz*L],i*6)}
+ wgm.attributes.position.needsUpdate=true;wmat.opacity=clamp(S.wind/15,.05,.7);
+ const n=Math.round(NR*S.rain/100);for(let i=0;i<NR;i++){const p=rp[i];p[1]-=14*dt;if(p[1]<0)p[1]=9;const o=i*6,vis=i<n;rga.set(vis?[p[0],p[1],p[2],p[0]+wx*.05,p[1]+.35,p[2]+wz*.05]:[0,0,0,0,0,0],o)}
+ rgm.attributes.position.needsUpdate=true}
+// orbit controls
+const ptr=new Map();let lastD=0;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);lastD=0});
+cv.addEventListener('pointerup',e=>ptr.delete(e.pointerId));cv.addEventListener('pointercancel',e=>ptr.delete(e.pointerId));
+function pan(dx,dy){const k=cs.r*.0016,c=Math.cos(cs.th),s=Math.sin(cs.th);cs.t.x+=-c*dx*k-s*dy*k;cs.t.z+=s*dx*k-c*dy*k}
+cv.addEventListener('pointermove',e=>{if(!ptr.has(e.pointerId))return;const o=ptr.get(e.pointerId),dx=e.clientX-o[0],dy=e.clientY-o[1];
+ if(ptr.size===1){if(e.shiftKey||e.buttons===2)pan(dx,dy);else{cs.th-=dx*.006;cs.ph=clamp(cs.ph-dy*.006,.05,1.52)}}
+ else{const a=[...ptr.values()],pts=a.map(p=>p.slice());ptr.set(e.pointerId,[e.clientX,e.clientY]);const b=[...ptr.values()],d=Math.hypot(b[0][0]-b[1][0],b[0][1]-b[1][1]);
+  if(lastD)cs.r=clamp(cs.r*lastD/d,4,70);lastD=d;pan(dx/2,dy/2)}
+ ptr.set(e.pointerId,[e.clientX,e.clientY]);setCam()});
+cv.addEventListener('wheel',e=>{e.preventDefault();cs.r=clamp(cs.r*(1+e.deltaY*.001),4,70);setCam()},{passive:false});cv.addEventListener('contextmenu',e=>e.preventDefault());
+// UI
+const defs=[['rain','ฝนตกในลุ่มน้ำ',0,100,1,'มม./ชม.'],['rel','ระบายจากอ่างเก็บน้ำ',0,300,5,'ลบ.ม./วิ'],['slope','ความลาดชันภูมิประเทศ',.3,2,.05,'×'],['wind','ความเร็วลม',0,25,1,'ม./วิ'],['dir','ลมพัดมาจากทิศ',0,360,5,'°'],['age','อายุดวงจันทร์ (ข้างขึ้น/แรม)',0,29.5,.1,'วัน'],['C','พื้นที่ดาดแข็ง/ดินอิ่มน้ำ (น้ำท่า)',.2,.9,.05,''],['n','ทางน้ำอุดตัน/ผักตบชวา (ความขรุขระ)',.5,2.5,.1,'×'],['pump','สถานีสูบ/ประตูระบายน้ำ',0,200,5,'ลบ.ม./วิ'],['speed','ความเร็วเวลาจำลอง',0,12,1,'ชม./วิ']];
+defs.forEach(([k,l,a,b,s,u])=>{const d=document.createElement('div');d.className='sl';d.innerHTML=`<label><span>${l}</span><b id="v_${k}"></b></label><input type="range" id="i_${k}" min="${a}" max="${b}" step="${s}">`;$('sls').appendChild(d);
+ const i=d.querySelector('input');i.oninput=()=>{S[k]=+i.value;if(k==='age')age=S.age;if(k==='slope')rebuild();sync();analyze()}});
+function dirName(d){return['เหนือ','ตอ.เฉียงเหนือ','ตะวันออก','ตอ.เฉียงใต้','ใต้','ตต.เฉียงใต้','ตะวันตก','ตต.เฉียงเหนือ'][Math.round(d/45)%8]}
+function sync(){defs.forEach(([k,,,,,u])=>{const i=$('i_'+k);if(document.activeElement!==i)i.value=S[k];$('v_'+k).textContent=(k==='dir'?S[k]+'° ('+dirName(S[k])+')':(+S[k]).toFixed(k==='C'?2:(k==='slope'||k==='age'||k==='n')?1:0)+' '+u)})}
+const PRE={'ปกติ (ฤดูแล้ง)':{rain:2,rel:15,slope:1,wind:4,dir:0,age:7.4},'ฝนหนัก':{rain:60,rel:120,slope:1,wind:8,dir:200,age:7.4},'ฝน+ลมพัดเข้าฝั่ง+น้ำเกิด':{rain:60,rel:150,slope:1,wind:20,dir:180,age:14.8},'ฝนหนัก+ลมออกทะเล':{rain:60,rel:150,slope:1,wind:20,dir:0,age:14.8},'เมืองขยาย+ทางน้ำอุดตัน':{rain:60,rel:120,slope:1,wind:8,dir:200,age:7.4,C:.85,n:2.2},'เสริมสถานีสูบ':{rain:60,rel:120,slope:1,wind:20,dir:180,age:14.8,C:.85,n:1,pump:150}};
+Object.entries(PRE).forEach(([n,p])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{const sl=S.slope;Object.assign(S,{C:.5,n:1,pump:0},p);age=S.age;if(sl!==S.slope)rebuild();sync();analyze()};$('pres').appendChild(b)});
+$('pl').onclick=()=>{playing=!playing;$('pl').textContent=playing?'⏸ หยุดเวลา':'▶ เดินเวลา'};
+$('tg').onclick=()=>{$('pn').classList.toggle('h');$('tg').textContent=$('pn').classList.contains('h')?'แสดง':'ซ่อน'};
+const kvs=['Q','stg','sl','tide','sur','eff','fl','md','slp','td','tr','vf','cap'],kl=['อัตราไหล/ระบายในแม่น้ำ','ระดับน้ำที่ อ.แกลง (สูงจากท้องน้ำ)','ระดับน้ำทะเลที่ปากน้ำ (รวมลม)','น้ำขึ้นน้ำลง (ดวงจันทร์)','คลื่นลมหนุน (ลม)','ประสิทธิภาพการระบายออกทะเล','พื้นที่น้ำท่วมผิวดิน','ความลึกท่วมสูงสุด','ความลาดชันเฉลี่ยลำน้ำ','⏱ เวลาระบายน้ำท่วมให้แห้ง*','⏱ เวลาน้ำไหลต้นน้ำ→ทะเล*','ปริมาตรน้ำท่วมขัง*','ความสามารถระบายออกทะเล*'];
+$('kv').innerHTML=kvs.map((k,i)=>`<span>${kl[i]}</span><span id="k_${k}">-</span>`).join('');
+const mc=$('mn').getContext('2d');
+function moon(){const c=mc,cx=28,cy=28,r=24,ph=age/PER*2*Math.PI,k=Math.cos(ph);c.clearRect(0,0,56,56);c.fillStyle='#26323f';c.beginPath();c.arc(cx,cy,r,0,7);c.fill();
+ c.save();if(ph>Math.PI){c.translate(2*cx,0);c.scale(-1,1)}c.fillStyle='#f4efd2';c.beginPath();c.arc(cx,cy,r,-Math.PI/2,Math.PI/2,false);c.ellipse(cx,cy,Math.abs(k)*r,r,0,Math.PI/2,-Math.PI/2,k>0);c.fill();c.restore()
+ const a=age;const nm=(a<.8||a>28.7)?'วันดับ (แรม 15 ค่ำ)':Math.abs(a-14.77)<.8?'วันเพ็ญ (ขึ้น 15 ค่ำ)':a<14.77?'ข้างขึ้น '+Math.round(a)+' ค่ำ':'ข้างแรม '+Math.round(a-14.77)+' ค่ำ';
+ $('mt').innerHTML=nm+'<br><span style="color:'+(amp>.7?'var(--bad)':'var(--ok)')+'">'+(amp>.7?'น้ำเกิด (น้ำขึ้นสูง-ลงต่ำมาก)':amp<.4?'น้ำตาย (น้ำขึ้นลงน้อย)':'น้ำขึ้นลงปานกลาง')+'</span>'}
+const pc=$('pf').getContext('2d');
+function profile(){const W=290,H=130,c=pc,ymin=-2,ymax=Hup+3,X=z=>(z+8)/16*W,Y=m=>H-6-(m-ymin)/(ymax-ymin)*(H-12);c.clearRect(0,0,W,H);
+ const zs=[];for(let z=-8;z<=8.01;z+=.2)zs.push(z);
+ c.beginPath();c.moveTo(X(-8),Y(stage(-8)));zs.forEach(z=>c.lineTo(X(z),Y(Math.max(stage(z),grnd(riverX(Math.min(z,ZM)),z)))));c.lineTo(X(8),H);c.lineTo(X(-8),H);c.fillStyle='rgba(76,195,255,.75)';c.fill();
+ c.beginPath();c.moveTo(X(-8),H);zs.forEach(z=>c.lineTo(X(z),Y(grnd(riverX(Math.min(z,ZM)),z))));c.lineTo(X(8),H);c.fillStyle='#5d4a32';c.fill();
+ c.beginPath();zs.forEach((z,i)=>{const y=Y(grnd(riverX(Math.min(z,ZM))+.5,z));i?c.lineTo(X(z),y):c.moveTo(X(z),y)});c.strokeStyle='#8fbf6a';c.setLineDash([3,3]);c.stroke();c.setLineDash([]);
+ c.strokeStyle='#fff';c.lineWidth=1.5;c.beginPath();zs.forEach((z,i)=>{const y=Y(stage(z));i?c.lineTo(X(z),y):c.moveTo(X(z),y)});c.stroke();c.lineWidth=1;
+ c.fillStyle='#cfe';c.font='10px sans-serif';c.fillText('ขาว=ระดับน้ำ · เขียวประ=ตลิ่ง · น้ำตาล=ท้องน้ำ',4,11)}
+const GC={},CELL=350*344;
+function gArr(){const key=S.slope.toFixed(3);if(!GC[key]){Hup=35*S.slope;const a=new Float32Array(N);for(let i=0;i<N;i++)a[i]=grnd(VX[i],VZ[i]);GC[key]=a}return GC[key]}
+function evalModel(p){const sv=Object.assign({},S),sQ=Qs,sL=SL,sH=Hup;Object.assign(S,p);const Ga=gArr();Hup=35*S.slope;
+ const Qt=12+9*S.rain*S.C+S.rel;Qs=Qt;SL=.55+.35*Math.cos(4*Math.PI*S.age/PER)-.0035*S.wind*S.wind*Math.cos(S.dir*Math.PI/180);
+ for(let j=0;j<=NZ;j++)rowSt[j]=stage(-8+j*16/NZ);let vol=0;
+ for(let i=0;i<N;i++){const g=Ga[i];if(g>.05&&DX[i]>.5&&g<6&&VZ[i]<5.4){const d=rowSt[Math.round((VZ[i]+8)*NZ/16)]-g;if(d>.03)vol+=d*CELL}}
+ const dnM=dnAt(ZM),eff=clamp(1-Math.max(0,SL-dnM)/(dnM+1.5),.05,1),Qcap=250*Math.sqrt(S.slope)/S.n,Rd=Qcap*eff+S.pump,net=Math.max(Rd-(12+S.rel),5);
+ const bwm=(bw(ZM)+bw(3)+bw(1))/3,v=Math.max(.15,Math.pow(dnAt(0),2/3)*Math.sqrt(.00078*S.slope)/(.035*S.n)*(1-.6*bwm));
+ const o={eff,Qcap,Qt,vol,T:vol>2e5?Math.min(999,vol/net/3600):0,tr:45000/v/3600};Object.assign(S,sv);Qs=sQ;SL=sL;Hup=sH;return o}
+let AN=null;
+const FAC=[['ฝนตกหนัก','rain',5,100],['ระบายจากอ่างฯ','rel',0,300],['ความลาดชัน','slope',.5,1.8],['ความเร็วลม','wind',0,25],['ลมเข้า/ออกฝั่ง','dir',0,180],['น้ำเกิด/น้ำตาย','age',7.4,14.8],['ดาดแข็ง/ดินอิ่มน้ำ','C',.2,.9],['ทางน้ำอุดตัน','n',.6,2.2],['สถานีสูบ/ประตูน้ำ','pump',0,150]];
+function analyze(){const cur=evalModel({});const rows=FAC.map(([nm,k,a,b])=>{const x=evalModel({[k]:a}),y=evalModel({[k]:b});return{nm,tl:Math.min(x.T,y.T),th:Math.max(x.T,y.T),el:Math.min(x.eff,y.eff),eh:Math.max(x.eff,y.eff)}});
+ rows.sort((p,q)=>(q.th-q.tl)-(p.th-p.tl));AN={cur,rows};drawTornado()}
+function drawTornado(){const c=$('tn').getContext('2d'),{cur,rows}=AN,W=290,x0=92,x1=284,mx=Math.max(10,cur.T*1.05,...rows.map(r=>r.th)),X=t=>x0+(x1-x0)*t/mx;c.clearRect(0,0,W,240);
+ c.font='10px sans-serif';c.fillStyle='#cfe';c.fillText('ผลของปัจจัยต่อเวลาระบายน้ำท่วม (ชม.) สูงสุด '+mx.toFixed(0),4,11);
+ rows.forEach((r,i)=>{const y=20+i*24;c.fillStyle='#e6eef5';c.fillText(r.nm,4,y+11);c.fillStyle='#8fa6b8';c.fillText('η '+(r.el*100).toFixed(0)+(r.eh-r.el>.005?'–'+(r.eh*100).toFixed(0):'')+'%',4,y+21);
+  const a=X(r.tl),b=X(r.th),m=clamp(X(cur.T),a,b);c.fillStyle='#3fcf8e';c.fillRect(a,y+3,Math.max(1,m-a),13);c.fillStyle='#ff6b5e';c.fillRect(m,y+3,Math.max(0,b-m),13);
+  c.fillStyle='#fff';c.fillText(r.th-r.tl<.05?'ไม่มีผล':r.tl.toFixed(0)+'–'+r.th.toFixed(0),Math.min(b+3,W-44),y+13)});
+ c.strokeStyle='#fff';c.beginPath();c.moveTo(X(cur.T),14);c.lineTo(X(cur.T),238);c.stroke();
+ const t=rows[0];$('tt').textContent='ปัจจัยที่กระทบมากสุดตอนนี้: '+(t.th-t.tl>.05?t.nm+' (เปลี่ยนเวลาระบาย '+t.tl.toFixed(0)+'–'+t.th.toFixed(0)+' ชม.)':'ไม่มีน้ำท่วมขัง — ปัจจัยต่างๆ ยังไม่ส่งผลต่อเวลาระบาย')}
+let fc=0;
+function readouts(){const zt=3.2,dT=stage(zt)-bedF(zt),bank=1.3,slopeK=Hup/45;
+ const dnM=dnAt(ZM),rise=Math.max(0,SL-dnM),eff=clamp(1-rise/(dnM+1.5),.05,1),Qz=Qs;
+ const set=(k,t,bad)=>{const e=$('k_'+k);e.textContent=t;e.style.color=bad?'var(--bad)':''};
+ set('Q',Qz.toFixed(0)+' ลบ.ม./วิ  (ออกทะเล ~'+(Qz*eff).toFixed(0)+')');set('stg',dT.toFixed(2)+' ม. (ตลิ่ง '+bank+' ม.)',dT>bank);
+ set('sl',SL.toFixed(2)+' ม. ร.ท.ก.');set('tide',(tide>=0?'+':'')+tide.toFixed(2)+' ม. (แอมพลิจูด '+amp.toFixed(2)+')');set('sur',(surge>=0?'+':'')+surge.toFixed(2)+' ม. '+(onsh>.2?'(ลมหนุนเข้าฝั่ง)':onsh<-.2?'(ลมช่วยดันออก)':''),surge>.5);
+ set('eff',(eff*100).toFixed(0)+' %',eff<.6);set('fl',floodPct.toFixed(1)+' % ของที่ลุ่มต่ำ',floodPct>5);set('md',maxD.toFixed(2)+' ม.',maxD>.5);set('slp',slopeK.toFixed(2)+' ม./กม. (ต้นน้ำชันกว่า)');if(AN){const c=AN.cur,f=h=>h>=720?'> 30 วัน':h>=48?(h/24).toFixed(1)+' วัน':h.toFixed(1)+' ชม.';set('td',c.T>0?f(c.T):'ไม่มีน้ำท่วมขัง',c.T>72);set('tr',f(c.tr));set('vf',(c.vol/1e6).toFixed(1)+' ล้าน ลบ.ม.');set('cap',(c.Qcap*c.eff+S.pump).toFixed(0)+' ลบ.ม./วิ',c.Qcap*c.eff+S.pump<c.Qt)}}
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+ const dh=playing?dt*S.speed:0;if(playing){age=(age+dh/24)%PER;S.age=age}
+ const Qt=12+4.5*S.rain+S.rel,tau=8/Math.sqrt(S.slope);Qs=S.speed===0||!playing?Qt:Qs+(Qt-Qs)*(1-Math.exp(-dh/tau));
+ amp=.55+.35*Math.cos(4*Math.PI*age/PER);tide=amp*Math.sin(2*Math.PI*age*24/24.84);
+ onsh=-Math.cos(S.dir*Math.PI/180);surge=.0035*S.wind*S.wind*onsh;SL=tide+surge;
+ updWater();flow(dt);weather(dt);R.render(scene,cam);
+ if(++fc%6===0){readouts();moon();profile();sync()}if(fc%60===1)analyze();requestAnimationFrame(loop)}
+resize();rebuild();sync();setCam();requestAnimationFrame(loop);
+</script></body></html>

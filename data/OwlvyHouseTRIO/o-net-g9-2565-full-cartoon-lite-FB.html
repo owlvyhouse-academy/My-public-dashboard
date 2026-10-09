@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O-NET วิทยาศาสตร์ มัธยม 3 ปีการศึกษา 2565</title>
+<meta property="og:title" content="O-NET วิทย์ ม.3 ปี 65 - ลองทำ ฉบับการ์ตูน">
+<meta property="og:description" content="ทำครบ จบในที่เดียว มีเฉลยละเอียด จาก Owlvy House">
+<meta property="og:image" content="https://owlvy-trio-rx.web.app/g9-2565-full-01-32-lite.png">
+<meta property="og:url" content="https://owlvy-trio-rx.web.app/o-net-g9-2565-full-cartoon-lite">
+<meta property="og:type" content="website">
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0J7ER1GJBW"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0J7ER1GJBW');
+</script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: 'var(--c-50)',
+                            100: 'var(--c-100)',
+                            500: 'var(--c-500)',
+                            600: 'var(--c-600)',
+                            700: 'var(--c-700)',
+                            900: 'var(--c-900)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+    /* Glass Panel Styling */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+    .dark .glass-panel {
+        background: rgba(15, 23, 42, 0.88);
+    }
+
+    /* 1. Wood Signboard 3D */
+    .wooden-card {
+        background: linear-gradient(180deg, #d97706 0%, #b45309 80%, #78350f 100%);
+        border: 4px solid #fef3c7;
+        box-shadow: 0 8px 0 #451a03, 0 15px 20px rgba(0,0,0,0.3);
+        border-radius: 1.5rem;
+        position: relative;
+    }
+    
+    /* 2. Gamified Option Pill Buttons */
+    .pill-btn {
+        transition: transform 0.1s, border-color 0.2s, background-color 0.2s;
+        box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+    }
+    .pill-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    }
+    .pill-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+    }
+
+    /* 3. Speech Bubble & Mascot Decor */
+    .speech-bubble {
+        position: relative;
+        background: #ffffff;
+        border: 3px solid #f59e0b;
+        border-radius: 1.25rem;
+    }
+    .speech-bubble::after {
+        content: '';
+        position: absolute;
+        bottom: -12px;
+        left: 20px;
+        border-width: 12px 12px 0;
+        border-style: solid;
+        border-color: #ffffff transparent;
+        display: block;
+        width: 0;
+    }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-30 glass-panel shadow-sm px-4 py-3 flex justify-between items-center border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center space-x-3 cursor-pointer select-none" id="owlvyLogoBtn" onclick="handleLogoClick()">
+            <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center text-xl shadow-lg shadow-brand-500/20 active:scale-95 transition">
+                🦉
+            </div>
+            <div>
+                <h1 class="font-bold text-base md:text-lg leading-tight text-slate-900 dark:text-white" id="appTitleText">O-NET วิทยาศาสตร์ มัธยม 3 ปีการศึกษา 2565</h1>
+                <p class="text-xs text-brand-600 dark:text-brand-400 font-medium" id="appSubtitleText">เฉลยและวิเคราะห์ข้อสอบ O-NET วิทยาศาสตร์ ม.3 ปีการศึกษา 2565</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition" title="เปลี่ยนธีม">
+                <i class="fa-solid fa-sun dark:hidden text-amber-500"></i>
+                <i class="fa-solid fa-moon hidden dark:block text-brand-400"></i>
+            </button>
+            <button id="teacherModeBadge" onclick="openTeacherPanel()" class="hidden px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm flex items-center gap-1">
+                <i class="fa-solid fa-chalkboard-user"></i> โหมดผู้สอน
+            </button>
+            <!-- AI Companion Trigger -->
+            <button onclick="openOwlvyDrawer()" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs md:text-sm font-semibold flex items-center gap-2 shadow-md transition">
+                <span>🦉 ครู Owlvy</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MANDATORY NOTICE BANNER (ทุกหน้า) -->
+    <div class="bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 text-xs font-medium py-1.5 px-4 text-center border-b border-amber-200 dark:border-amber-900/50">
+        * App นี้มีการสุ่มข้อระหว่างการทดสอบ เลขข้อจึงอาจไม่เรียงตามลำดับ
+    </div>
+
+    <!-- MAIN VIEWPORT -->
+    <main class="container mx-auto max-w-4xl px-4 py-6 flex-grow">
+        <!-- WELCOME SCREEN -->
+        <section id="screenWelcome" class="block space-y-6">
+            <div class="glass-panel rounded-3xl p-6 md:p-8 text-center space-y-6 shadow-xl border border-slate-200 dark:border-slate-800">
+                <div class="inline-flex p-4 rounded-2xl bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 text-4xl mb-2">
+                    ⚡
+                </div>
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/60 text-brand-700 dark:text-brand-300 text-xs font-bold mb-3" id="welcomeDomainBadge">
+                        MULTI • O-NET วิทยาศาสตร์ ม.3
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white" id="startScreenTitle">
+                        O-NET วิทยาศาสตร์ มัธยม 3 ปีการศึกษา 2565
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2" id="welcomeContent">
+                        แบบทดสอบวัดความรู้ O-NET วิทยาศาสตร์ มัธยมศึกษาปีที่ 3 ครบถ้วนตามต้นฉบับ
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-left max-w-2xl mx-auto py-2">
+                    <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50">
+                        <p class="text-xs text-slate-400">จำนวนข้อสอบ</p>
+                        <p class="text-lg font-bold text-brand-600 dark:text-brand-400" id="totalQCount">32 ข้อ</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50">
+                        <p class="text-xs text-slate-400">รูปแบบการสอบ</p>
+                        <p class="text-lg font-bold text-slate-800 dark:text-slate-200">สุ่มสลับโจทย์</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50 col-span-2 md:col-span-1">
+                        <p class="text-xs text-slate-400">ระดับความยาก</p>
+                        <p class="text-lg font-bold text-amber-500">O-NET มัธยมต้น</p>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="startQuiz()" class="w-full md:w-auto px-10 py-4 rounded-2xl bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-lg shadow-lg shadow-brand-500/30 transition flex items-center justify-center gap-3 mx-auto">
+                        <i class="fa-solid fa-play"></i> เริ่มทำแบบทดสอบ
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ SCREEN -->
+        <section id="screenQuiz" class="hidden space-y-4">
+            <!-- Periodic Caution Alert Banner Slot -->
+            <div id="cautionBannerSlot"></div>
+
+            <!-- Dynamic Quiz Card Container -->
+            <div id="quizContainer" class="space-y-4"></div>
+        </section>
+
+        <!-- RESULT SCREEN -->
+        <section id="screenResult" class="hidden space-y-6">
+            <div id="resultCard" class="glass-panel rounded-3xl p-6 md:p-8 space-y-6 shadow-xl border border-slate-200 dark:border-slate-800"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-4 text-center text-xs text-slate-400 dark:text-slate-600 border-t border-slate-200 dark:border-slate-800 flex justify-center items-center gap-2">
+        <span>Owlvy House Adaptive Quiz V.4 Engine</span>
+        <span>•</span>
+        <button onclick="openPinModal()" title="ผู้สอนเข้าสู่ระบบ" class="hover:text-brand-600 transition">
+            <i class="fa-solid fa-lock"></i>
+        </button>
+    </footer>
+
+    <!-- AI COMPANION DRAWER ENGINE -->
+    <div id="owlvyDrawerBackdrop" onclick="closeOwlvyDrawer()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300 ease-in-out cursor-pointer"></div>
+    
+    <aside id="owlvyDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white dark:bg-slate-900 z-[100] shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between border-l border-slate-200 dark:border-slate-800">
+        <div class="p-4 bg-brand-600 text-white flex justify-between items-center shadow-md">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-lg">🦉</div>
+                <div>
+                    <h3 class="font-bold text-sm">ครู Owlvy - AI Companion</h3>
+                    <p class="text-[10px] text-brand-100">Socratic Adaptive Tutor</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeOwlvyDrawer()" class="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 flex items-center justify-center transition text-white text-lg font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="owlvyChatBody" class="p-4 flex-grow overflow-y-auto space-y-3 text-xs md:text-sm">
+            <div class="p-3 rounded-xl bg-brand-50 dark:bg-brand-950/60 border border-brand-100 dark:border-brand-900/50 text-brand-900 dark:text-brand-200">
+                สวัสดีครับ! ครู Owlvy ยินดีให้คำแนะนำและติวสอบเข้มข้นในชุดแบบทดสอบ O-NET วิทยาศาสตร์ ม.3 นี้ครับ มีข้อสงสัยสอบถามได้เลยนะครับ 😊
+            </div>
+        </div>
+
+        <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 space-y-2">
+            <div class="flex gap-2">
+                <input type="text" id="owlvyQueryInput" onkeypress="if(event.key==='Enter') handleAskCompanion()" placeholder="ถามครู Owlvy..." class="flex-grow px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <button onclick="handleAskCompanion()" class="px-4 py-2 rounded-lg bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- PIN MODAL (TEACHER ACCESS) -->
+    <div id="pinModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl space-y-4 w-full max-w-sm shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl">🔒</div>
+            <h3 class="font-bold text-lg text-slate-900 dark:text-white">กรอกรหัส PIN ผู้สอน</h3>
+            <input id="pinInput" type="password" onkeypress="if(event.key==='Enter') verifyPin()" placeholder="PIN..." class="w-full text-center tracking-widest border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-xl p-3 text-lg font-mono focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <div class="flex gap-2">
+                <button onclick="verifyPin()" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-sm hover:bg-brand-700 transition">ยืนยัน</button>
+                <button onclick="closePinModal()" class="flex-1 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-300 transition">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEACHER PANEL (LIVE CODE EDITOR & API CONFIG) -->
+    <div id="teacherPanel" class="fixed inset-0 bg-white dark:bg-slate-900 z-[120] hidden flex flex-col p-4 md:p-6 overflow-hidden">
+        <div class="flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800">
+            <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                <i class="fa-solid fa-code text-brand-600"></i> โหมดผู้สอน: แก้ไขโค้ดภาพ & โจทย์
+            </h3>
+            <button onclick="closeTeacherPanel()" class="px-4 py-1.5 rounded-lg bg-rose-500 text-white font-bold text-xs hover:bg-rose-600 transition">ปิด</button>
+        </div>
+        <div class="flex-grow overflow-y-auto py-4 space-y-4 text-xs">
+            <!-- API KEY CONFIG -->
+            <div class="p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
+                <label class="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1"><i class="fa-solid fa-key"></i> Gemini API Key (apiKey)</label>
+                <input type="password" id="apiKeyInput" oninput="apiKey = this.value" placeholder="AIzaSy..." class="w-full px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-800 dark:bg-slate-900 dark:text-white font-mono">
+            </div>
+
+            <!-- LIVE EDIT LIST -->
+            <div id="editorList" class="space-y-4"></div>
+
+            <!-- AI IMAGE GENERATION TAB -->
+            <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 space-y-2">
+                <label class="font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1"><i class="fa-solid fa-wand-magic-sparkles"></i> สร้างภาพไดอะแกรมใหม่ด้วย Gemini AI Engine</label>
+                <select id="aiImageTargetSelect" class="w-full p-2.5 rounded-lg border border-indigo-300 dark:border-indigo-800 dark:bg-slate-900 dark:text-white text-xs"></select>
+                <div class="flex gap-2">
+                    <input type="text" id="aiImagePromptInput" placeholder="อธิบายภาพที่ต้องการ..." class="flex-grow p-2.5 rounded-lg border border-indigo-300 dark:border-indigo-800 dark:bg-slate-900 dark:text-white">
+                    <button onclick="generateAiDiagram()" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition whitespace-nowrap">สร้างภาพ</button>
+                </div>
+                <div id="aiImagePreview" class="pt-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE -->
+    <script>
+        /* ============================================================
+           1) DATA SCHEMA & CONSTANTS
+           ============================================================ */
+        const quizTitle   = "O-NET วิทยาศาสตร์ มัธยม 3 ปีการศึกษา 2565";
+        const quizDomain  = "MULTI";
+        const quizContent = "เฉลยและวิเคราะห์ข้อสอบ O-NET วิทยาศาสตร์ ม.3 ปีการศึกษา 2565";
+        let apiKey        = "";
+
+        const questions = [
+  {
+    "id": 1,
+    "id2": "o-net2565_g9_0001",
+    "domain": "BIO",
+    "content": "สายใยอาหารและการเปลี่ยนแปลงของประชากรสิ่งมีชีวิต",
+    "tag_content": "สายใยอาหาร",
+    "tag_skill": "L2",
+    "tag_misconception": "เข้าใจว่าการลดจำนวนผู้ล่าไม่ส่งผลต่อสิ่งมีชีวิตอื่นในระบบนิเวศ หรือคิดว่าเมื่อผู้ล่าลดลง เหยื่อจะลดลงตามไปด้วย",
+    "title": "1. ในพื้นที่หนึ่งชาวนาหารายได้เสริมด้วยการจับงูสิงขายพบว่ามีรายได้ดี จึงชักชวนเพื่อนบ้านหลายครอบครัวช่วยกันจับงูสิงขายเป็นอาชีพรองกับการทำนา จนงูสิงในพื้นที่มีจำนวนลดลง สถานการณ์ใดในระบบนิเวศมีความเป็นไปได้มากที่สุด",
+    "image": "https://lh3.googleusercontent.com/d/1tvPkW7P-vvFZZ-CzYtsA_0sIUu1Z0Mrg",
+    "options": [
+      "1. ①นกผู้ล่าสูญพันธุ์",
+      "2. ②ต้นข้าวให้ผลผลิตมากขึ้น",
+      "3. ③หนูนามีจำนวนเพิ่มมากขึ้น",
+      "4. ④ ชาวนาเพาะเลี้ยงงูเพื่อขาย"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "ลองนึกถึงสายใยอาหาร: งูสิงเป็นผู้ล่า แล้วมันกินสัตว์ชนิดใดที่อยู่ในนาข้าว เมื่อผู้ล่าลดลง จำนวนเหยื่อของมันจะเปลี่ยนไปอย่างไร",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 2,
+    "id2": "o-net2565_g9_0002",
+    "domain": "BIO",
+    "content": "กล้องจุลทรรศน์และกำลังขยาย",
+    "tag_content": "กล้องจุลทรรศน์",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่ากำลังขยายของภาพเท่ากับกำลังขยายของเลนส์ใกล้วัตถุอย่างเดียว / คิดว่ากำลังขยายสูงขึ้นแล้วจะเห็นเซลล์ได้จำนวนมากขึ้น / คิดว่าถ้ามองไม่เห็นนิวเคลียสแสดงว่าเซลล์ไม่มีนิวเคลียส",
+    "title": "2. จากภาพถ่ายจากกล้องจุลทรรศน์แบบใช้แสงซึ่งใช้เลนส์ใกล้วัตถุที่มีกำลังขยาย 10X ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1qCtz2idSVg5BlDw6jTJal-PIKMcKCWUg",
+    "options": [
+      "1. ①เซลล์ในภาพเป็นเซลล์สัตว์",
+      "2. ②ภาพนี้ถูกขยายขนาดขึ้น 10 เท่าเมื่อเปรียบเทียบกับวัตถุจริง",
+      "3. ③ถ้าปรับเลนส์ใกล้วัตถุให้เป็น 40X จะปรากฏจำนวนเซลล์ในภาพลดลง",
+      "4. ④ จากภาพไม่สามารถเห็นนิวเคลียส เนื่องจากเซลล์ในภาพไม่มีนิวเคลียส"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "กำลังขยายรวม = กำลังขยายเลนส์ใกล้วัตถุ × กำลังขยายเลนส์ใกล้ตา และเมื่อเพิ่มกำลังขยาย พื้นที่ที่มองเห็นในภาพจะกว้างขึ้นหรือแคบลง",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nข้อ 1 ไม่ถูกต้อง: เซลล์ในภาพคือปากใบพืช (Stomata) และเซลล์คุม (Guard cell) ซึ่งเป็นเซลล์พืช ไม่ใช่เซลล์สัตว์\n\nข้อ 2 ไม่ถูกต้อง: กำลังขยายรวมของกล้องจุลทรรศน์หาได้จาก (กำลังขยายเลนส์ใกล้วัตถุ × กำลังขยายเลนส์ใกล้ตา ซึ่งปกติคือ 10X) ดังนั้นกำลังขยายรวมจึงเป็น 10×10=100 เท่า ไม่ใช่ 10 เท่า\n\nข้อ 3 ถูกต้อง: เมื่อเพิ่มกำลังขยายให้สูงขึ้น (จาก 10X เป็น 40X) ขนาดของภาพจะใหญ่ขึ้น ทำให้มองเห็นพื้นที่แคบลง ส่งผลให้จำนวนเซลล์ที่ปรากฏในภาพตาลดลง\n\nข้อ 4 ไม่ถูกต้อง: เซลล์คุมและเซลล์เอปิเดอร์มิสในภาพมีนิวเคลียส แต่สาเหตุที่มองไม่ค่อยชัดเจนหรือไม่ได้ระบุเด่นชัดในภาพขาวดำกำลังขยายต่ำ ไม่ใช่เพราะไม่มีนิวเคลียส",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 3,
+    "id2": "o-net2565_g9_0003",
+    "domain": "BIO",
+    "content": "การสังเคราะห์ด้วยแสงและการทดสอบแป้ง",
+    "tag_content": "การสังเคราะห์ด้วยแสง",
+    "tag_skill": "L3",
+    "tag_misconception": "สับสนระหว่างตัวแปรต้น ตัวแปรตาม และตัวแปรควบคุม (คิดว่าผลที่วัดได้คือตัวแปรควบคุม) / คิดว่าตัวแปรต้นมีเพียงเรื่องแสง ไม่นับปริมาณ CO2 / คิดว่าพืชบางชนิดไม่สร้างแป้งแม้ได้รับแสงและ CO2 เพียงพอ",
+    "title": "3. นำต้นมะลิ เก็บไว้ในที่มืดเป็นเวลา 72 ชั่วโมง หลังจากนั้น เลือกทำการทดลองกับใบที่มีขนาดใกล้เคียงกัน 3 ใบ ใบที่ 1 หุ้มด้วยถุงกระดาษทึบแสง ใบที่ 2 หุ้มด้วยถุงพลาสติกใส ใบที่ 3 หุ้มด้วยถุงพลาสติกใสที่บรรจุสารโซเดียมไฮดรอกไซด์ (โซดาไฟ) 20 กรัม หลังจากนั้นให้ต้นพืชได้รับแสงเป็นเวลา 12 ชั่วโมง เมื่อนำใบพืชทั้งสามใบมาทำการทดสอบหาแป้งในใบโดยใช้สารละลายไอโอดีน ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/11JPcSKqZuI_Z4QBHK8vnwzs1LM4isBdO",
+    "options": [
+      "1. ①ตัวแปรควบคุมของการทดลองนี้คือการสังเคราะห์ด้วยแสงของใบมะลิ",
+      "2. ②ตัวแปรต้นของการทดลองนี้มีสองตัวแปรคือ การได้รับแสงและการไม่ได้รับแสงของใบมะลิ",
+      "3. ③โซเดียมไฮดรอกไซด์ทำปฏิกิริยากับแก๊สคาร์บอนไดออกไซด์จึงทำให้พืชสังเคราะห์ด้วยแสงได้ลดลง",
+      "4. ④ถ้าเปลี่ยนต้นมะลิเป็นต้นแก้ว ผลการทดสอบด้วยสารละลายไอโอดีนจะไม่พบแป้งในทุกใบที่ทำการศึกษา"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "พิจารณาว่าโซเดียมไฮดรอกไซด์ดูดซับสารใดในถุงที่ 3 และสารนั้นเป็นวัตถุดิบของการสังเคราะห์ด้วยแสงหรือไม่ รวมทั้งแยกให้ออกว่าอะไรคือสิ่งที่ผู้ทดลองจัดให้แตกต่างกัน อะไรคือผลที่วัดได้",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nข้อ 1 ไม่ถูกต้อง: การสังเคราะห์ด้วยแสงไม่ใช่ตัวแปรควบคุม แต่เป็นผลลัพธ์หรือตัวแปรตามที่ต้องการศึกษา\n\nข้อ 2 ไม่ถูกต้อง: ตัวแปรต้นของการทดลองนี้ไม่ได้มีแค่เรื่องแสงอย่างเดียว แต่ยังรวมถึงปริมาณแก๊สคาร์บอนไดออกไซด์ด้วย (เนื่องจากใบที่ 3 มีการใส่โซเดียมไฮดรอกไซด์เพื่อดูดซับคาร์บอนไดออกไซด์)\n\nข้อ 3 ถูกต้อง: โซเดียมไฮดรอกไซด์ (โซดาไฟ) มีคุณสมบัติในการดูดซับแก๊สคาร์บอนไดออกไซด์ เมื่อแก๊สคาร์บอนไดออกไซด์ซึ่งเป็นวัตถุดิบในการสังเคราะห์ด้วยแสงลดลง จึงทำให้กระบวนการสังเคราะห์ด้วยแสงของใบที่ 3 ลดลงหรือไม่เกิดขึ้นเลย\n\nข้อ 4 ไม่ถูกต้อง: ต้นแก้วเป็นพืชสีเขียวทั่วไปที่สามารถสังเคราะห์ด้วยแสงได้ หากได้รับแสงและคาร์บอนไดออกไซด์เพียงพอ (เช่น ใบที่ 2) ก็จะสามารถสร้างและพบแป้งได้ตามปกติ",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 4,
+    "id2": "o-net2565_g9_0004",
+    "domain": "BIO",
+    "content": "การปฏิสนธิซ้อนของพืชดอก",
+    "tag_content": "การปฏิสนธิซ้อน",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าท่อละอองเรณูเข้าร่วมปฏิสนธิเอง / สับสนระหว่างนิวเคลียสขั้วกับเซลล์ไข่ จึงสลับผลผลิตระหว่างไซโกตกับเอนโดสเปิร์ม / เข้าใจว่าไมโครไพล์เป็นเซลล์ที่ร่วมปฏิสนธิ ทั้งที่เป็นช่องเปิดของออวุล",
+    "title": "4. การปฏิสนธิของพืชดอก ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1aIXGtmXVoljiXIkWA3WGoThSADBxpxgw",
+    "options": [
+      "1. ① เซลล์ B และ C เข้าปฏิสนธิในออวุล",
+      "2. ② การปฏิสนธิของสเปิร์มกับ D จะได้เป็นไซโกต (zygote)",
+      "3. ③ การปฏิสนธิของสเปิร์มกับ F จะเกิดเป็นเอนโดสเปิร์ม (endosperm)",
+      "4. ④ การปฏิสนธิซ้อน (double fertilization) เกิดจากการปฏิสนธิที่ D และ E"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "ระบุก่อนว่าตัวอักษรแต่ละตัวในภาพคือโครงสร้างใด แล้วทบทวนว่าสเปิร์ม 2 เซลล์ไปรวมกับอะไรบ้าง และได้ผลผลิตเป็น 2n หรือ 3n",
+    "explanation_correct": "เฉลย: ข้อ ④\nการแปลความหมายตัวละตินในภาพ\nA = ยอดเกสรตัวเมีย (stigma)\nB = ท่อละอองเรณู (pollen tube)\nC = สเปิร์ม 2 เซลล์\nD = นิวเคลียสขั้ว (polar nuclei) 2 นิวเคลียส\nE = เซลล์ไข่ (egg cell)\nF = ไมโครไพล์ (micropyle)\nเฉลยแต่ละตัวเลือก\n① ผิด — B (ท่อละอองเรณู) ทำหน้าที่เพียงนำสเปิร์มเข้าสู่ออวุล ไม่ได้เข้าร่วมปฏิสนธิเอง มีเพียงสเปิร์ม (C) เท่านั้นที่เข้าปฏิสนธิ\n\n② ผิด — D คือนิวเคลียสขั้ว ไม่ใช่เซลล์ไข่ การปฏิสนธิระหว่างสเปิร์มกับ D จะได้เอนโดสเปิร์ม (3n) ไม่ใช่ไซโกต\n\n③ ผิด — F คือไมโครไพล์ (ช่องเปิดด้านบนของออวุล) ไม่ใช่นิวเคลียสขั้ว จึงไม่ก่อให้เกิดเอนโดสเปิร์ม\n\n④ ถูกต้อง ✓ — การปฏิสนธิซ้อน (double fertilization) คือการปฏิสนธิ 2 ครั้งในคราวเดียว:\n\nสเปิร์ม + เซลล์ไข่ (E) → ไซโกต (2n)\nสเปิร์ม + นิวเคลียสขั้ว (D) → เอนโดสเปิร์ม (3n)",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 5,
+    "id2": "o-net2565_g9_0005",
+    "domain": "BIO",
+    "content": "การทำงานของระบบขับถ่ายและหน่วยไต",
+    "tag_content": "ระบบขับถ่าย",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าท่อหน่วยไตส่งปัสสาวะไปยังท่อปัสสาวะโดยตรง / คิดว่าไม่มีการดูดกลับโซเดียมที่ท่อหน่วยไต / คิดว่าเซลล์เม็ดเลือดแดงถูกกรองที่โกลเมอรูลัสได้",
+    "title": "5. ไตแต่ละข้างแบ่งเป็น 2 ชั้น ได้แก่ ไตชั้นนอกและไตชั้นใน ภายในไตประกอบไปด้วยหน่วยไต (nephron) เป็นจำนวนมาก ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1Nvbkddiy6BFs2957n2OhJcmJVMVipSVa",
+    "options": [
+      "1. ① ท่อหน่วยไตทำหน้าที่ลำเลียงปัสสาวะเข้าสู่ท่อปัสสาวะเพื่อรอการกำจัดออก",
+      "2. ② สารที่มีประโยชน์และของเสียในเลือดจะถูกกรองที่โกลเมอรูลัสเข้าสู่โบว์แมนแคปซูล",
+      "3. ③ ท่อหน่วยไตมีการดูดกลับกลูโคสและกรดอะมิโน แต่ไม่พบการดูดกลับโซเดียมเข้าสู่หลอดเลือดฝอย",
+      "4. ④ เซลล์เม็ดเลือดแดงถูกกรองออกจากหลอดเลือดฝอยเข้าสู่โบว์แมนแคปซูลและถูกดูดกลับที่ท่อหน่วยไต"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "ไล่ลำดับการเดินทางของสารในหน่วยไต: โกลเมอรูลัส → โบว์แมนแคปซูล → ท่อหน่วยไต แล้วคิดว่าการกรองที่โกลเมอรูลัสเลือกสารจากอะไร (ขนาดโมเลกุล) และท่อหน่วยไตทำหน้าที่อะไรกับสารที่ผ่านเข้ามา",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 2\n\nข้อ 1 ไม่ถูกต้อง: ท่อหน่วยไตทำหน้าที่ดูดกลับและหลั่งสารต่างๆ ก่อนจะส่งปัสสาวะเข้าสู่ท่อรวม (collecting duct) และกรวยไต ไม่ได้ลำเลียงเข้าสู่ท่อปัสสาวะโดยตรง\nข้อ 2 ถูกต้อง: โกลเมอรูลัส (Glomerulus) ทำหน้าที่กรองสารโมเลกุลเล็ก ทั้งสารที่มีประโยชน์ (เช่น กลูโคส น้ำ) และของเสีย (เช่น ยูเรีย) เข้าสู่โบว์แมนแคปซูล (Bowman's capsule)\nข้อ 3 ไม่ถูกต้อง: ท่อหน่วยไตมีการดูดกลับโซเดียมกลับเข้าสู่หลอดเลือดฝอยด้วยเช่นกัน (โดยเฉพาะที่หลอดหน่วยไตส่วนต้น)\nข้อ 4 ไม่ถูกต้อง: เซลล์เม็ดเลือดแดงและโปรตีนโมเลกุลใหญ่จะไม่ถูกกรองผ่านโกลเมอรูลัสตั้งแต่แรก เนื่องจากมีขนาดใหญ่เกินกว่าจะผ่านรูของผนังหลอดเลือดฝอย",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 6,
+    "id2": "o-net2565_g9_0006",
+    "domain": "BIO",
+    "content": "กลไกการหายใจเข้า",
+    "tag_content": "ระบบหายใจ",
+    "tag_skill": "L1",
+    "tag_misconception": "คิดว่ากล้ามเนื้อกระบังลมคลายตัวขณะหายใจเข้า / คิดว่ากล้ามเนื้อระหว่างซี่โครงคลายตัวขณะหายใจเข้า / คิดว่าเมื่อปริมาตรช่องอกเพิ่มขึ้น ความดันจะเพิ่มขึ้นด้วย",
+    "title": "6. ข้อใดคือสิ่งที่เกิดขึ้นขณะที่คนหายใจเข้า",
+    "image": "https://lh3.googleusercontent.com/d/1BIjpkIyMz1SC_NA9WezbCpkBXWiDifXh",
+    "options": [
+      "1. ① กล้ามเนื้อกระบังลมหดตัว / กล้ามเนื้อกระดูกซี่โครงหดตัว/ ปริมาตรช่องอกเพิ่มขึ้น / ความดันช่องอกลดลง",
+      "2. ② กล้ามเนื้อกระบังลมหดตัว / กล้ามเนื้อกระดูกซี่โครงคลายตัว/ ปริมาตรช่องอกเพิ่มขึ้น / ความดันช่องอกลดลง",
+      "3. ③ กล้ามเนื้อกระบังลมคลายตัว / กล้ามเนื้อกระดูกซี่โครงหดตัว/ ปริมาตรช่องอกเพิ่มขึ้น / ความดันช่องอกเพิ่มขึ้น",
+      "4. ④ กล้ามเนื้อกระบังลมคลายตัว / กล้ามเนื้อกระดูกซี่โครงคลายตัว/ ปริมาตรช่องอกเพิ่มขึ้น / ความดันช่องอกลดลง"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ขณะหายใจเข้า ช่องอกต้องขยายเพื่อให้อากาศไหลเข้า ลองคิดว่ากระบังลมและซี่โครงต้องเคลื่อนที่อย่างไรจึงขยายช่องอกได้ และปริมาตรกับความดันของแก๊สมีความสัมพันธ์กันอย่างไร",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nกล้ามเนื้อกระบังลม: หดตัว (กระบังลมจะเคลื่อนต่ำลง ทำให้ช่องอกขยายตัว)\nกล้ามเนื้อระหว่างกระดูกซี่โครงแถบนอก: หดตัว (ยกกระดูกซี่โครงขึ้นและดันออก ทำให้ปริมาตรช่องอกเพิ่มขึ้น)\nปริมาตรช่องอก: เพิ่มขึ้น\nความดันภายในช่องอก: ลดลงต่ำกว่าความดันบรรยากาศภายนอก อากาศจึงเคลื่อนที่เข้าสู่ปอด",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 7,
+    "id2": "o-net2565_g9_0007",
+    "domain": "BIO",
+    "content": "พันธุศาสตร์และการถ่ายทอดลักษณะด้อย",
+    "tag_content": "พันธุศาสตร์",
+    "tag_skill": "L3",
+    "tag_misconception": "คิดว่าพ่อหรือแม่ที่เป็นพาหะเพียงฝ่ายเดียวก็ทำให้ลูกเป็นโรคลักษณะด้อยได้ / คิดว่าพาหะมีอาการของโรค / ลืมว่าผู้ที่เป็นโรค (genotype ด้อยทั้งคู่) ก็ส่งแอลลีลด้อยให้ลูกได้",
+    "title": "7. ในโรงพยาบาลแห่งหนึ่ง แพทย์ได้สั่งตรวจหายีนพาหะของโรคธาลัสซีเมีย ซึ่งเป็นโรคทางพันธุกรรมที่เป็นลักษณะด้อยในหญิงตั้งครรภ์และสามี จำนวน 4 คู่ ได้ผลตรวจดังตาราง จากผลการตรวจคู่สามีภรรยาคู่ใดที่มีความเสี่ยงที่ลูกในครรภ์จะเป็นโรคธาลัสซีเมีย",
+    "image": "https://lh3.googleusercontent.com/d/1mAWVJF0fT-B-iZR6JV7-DlIeNBRnVvcd",
+    "options": [
+      "1. ①คู่ที่ 1 และ คู่ที่ 2",
+      "2. ②คู่ที่ 1 และ คู่ที่ 3",
+      "3. ③คู่ที่ 2 และ คู่ที่ 3",
+      "4. ④คู่ที่ 2 และ คู่ที่ 4"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "ลักษณะด้อยจะแสดงออกเมื่อลูกได้รับแอลลีลด้อยจากทั้งพ่อและแม่ ให้เขียนจีโนไทป์ของแต่ละคู่แล้วดูว่าคู่ใดที่พ่อและแม่ต่างมีแอลลีลด้อยให้ส่งต่อได้",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 4\n\nหลักการ: โรคธาลัสซีเมียเป็นลักษณะด้อย (กำหนดให้ bb เป็นแอลลีลของโรค และ BB เป็นแอลลีลปกติ) ลูกจะเป็นโรคเมื่อมีจีโนไทปป์เป็น bb (ได้รับยีนด้อยจากทั้งพ่อและแม่)\n\nคู่ที่ 1 (BB x BB): ลูกทุกคนมีจีโนไทปป์เป็น BB (ปกติทั้งหมด ไม่เป็นโรค) \nคู่ที่ 2 (Bb x Bb): พ่อและแม่เป็นพาหะทั้งคู่ ลูกมีโอกาสเป็นโรค (bb) 25% \nคู่ที่ 3 (Bb x BB): แม่เป็นพาหะแต่พ่อปกติ ลูกไม่มีโอกาสเป็นโรค แต่มีโอกาสเป็นพาหะ 50% \nคู่ที่ 4 (Bb x bb): แม่เป็นพาหะและพ่อเป็นโรค ลูกมีโอกาสเป็นโรค (bb) 50% \n\nสรุป: คู่ที่มีความเสี่ยงให้กำเนิดบุตรที่เป็นโรคธาลัสซีเมียคือ คู่ที่ 2 และ คู่ที่ 4",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 8,
+    "id2": "o-net2565_g9_0008",
+    "domain": "BIO",
+    "content": "การแบ่งเซลล์แบบไมโอซิส",
+    "tag_content": "การแบ่งเซลล์",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าไมโอซิสให้เซลล์ลูกที่มีจำนวนโครโมโซมเท่าเซลล์แม่ (สับสนกับไมโทซิส) / คิดว่าเซลล์ลูกได้โครโมโซมทั้งคู่จากโฮโมโลกัสคู่เดียวกัน / ไม่ตรวจรูปร่างและขนาดของโครโมโซมให้ตรงกับเซลล์แม่",
+    "title": "8. พิจารณาโครโมโซมภายในนิวเคลียสของพืชชนิดหนึ่ง เมื่อมีการแบ่งเซลล์แบบไมโอซิส จะได้ผลเป็นดังภาพใด",
+    "image": "https://lh3.googleusercontent.com/d/1xDLIvag79c5LEY2FCqtwIGAe1B6Y-3TE",
+    "options": [
+      "1. ① ภาพ ก",
+      "2. ② ภาพ ข",
+      "3. ③ภาพ ค",
+      "4. ④ ภาพ ง"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "ไมโอซิสทำให้จำนวนโครโมโซมลดลงครึ่งหนึ่ง เซลล์ลูกแต่ละเซลล์ต้องได้โครโมโซม 1 แท่งจากแต่ละคู่โฮโมโลกัส และรูปร่างต้องตรงกับที่มีในเซลล์แม่",
+    "explanation_correct": "เฉลย: ข้อ 3 (ภาพ ค)\nหลักการวิเคราะห์\nเซลล์แม่ (2n=4) มีโครโมโซม 2 คู่:\n\nคู่ที่ 1: B และ b (โครโมโซมยาว คู่เหมือนกัน)\nคู่ที่ 2: D และ D (โครโมโซมรูปร่ากลาง/metacentric คู่เหมือนกัน)\nหลังไมโอซิส แต่ละเซลล์ลูกต้อง:\n\nมีจำนวนโครโมโซม n=2 (ครึ่งหนึ่งของ 2n)\nได้รับโครโมโซม 1 แท่งจากแต่ละคู่\nรูปร่างโครโมโซมต้องตรงกับในเซลล์แม่\n\nเฉลยแต่ละตัวเลือก\n① ภาพ ก - ผิด ✗\nมี 2 โครโมโซม (D + b) จำนวนถูกต้อง แต่โครโมโซม D มีรูปร่างเป็นแท่งเรียบ (telocentric) ไม่ตรงกับในเซลล์แม่ที่เป็น metacentric\n\n② ภาพ ข - ผิด ✗\nมี 4 โครโมโซม (B, D, D, b) ยังคงเป็น 2n ไม่ได้ลดจำนวนลงครึ่งหนึ่ง\n\n③ ภาพ ค - ถูกต้อง ✓\nมี 2 โครโมโซม (จำนวนถูกต้อง n=2)\nประกอบด้วย D และ b (ได้รับจากแต่ละคู่ครบ)\nโครโมโซม D มีรูปร่าง metacentric ตรงกับในเซลล์แม่\n\n④ ภาพ ง - ผิด ✗\nมี 4 โครโมโซม (D, D, B, b) ยังเป็น 2n ไม่ใช่ผลจากไมโอซิส",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 9,
+    "id2": "o-net2565_g9_0009",
+    "domain": "CHEM",
+    "content": "สมบัติทางกายภาพของโลหะและอโลหะ",
+    "tag_content": "สมบัติของสาร",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าจุดหลอมเหลวสูงหรือต่ำใช้ตัดสินว่าเป็นโลหะหรืออโลหะได้ / คิดว่าธาตุที่เป็นของแข็งทุกชนิดเป็นโลหะ",
+    "title": "9. พิจารณาข้อมูลสมบัติของธาตุดังต่อไปนี้ ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1tM668UlAzfc-WoY5MDav9LHj4xsdwyGt",
+    "options": [
+      "1. ① ธาตุ ก และ ง เป็นอโลหะ เพราะไม่นำไฟฟ้า",
+      "2. ② ธาตุ ก และ ข เป็นโลหะ เพราะมีจุดหลอมเหลวต่ำ",
+      "3. ③ ธาตุ ค และ ง เป็นโลหะ เพราะมีจุดหลอมเหลวสูง",
+      "4. ④ ทุกธาตุเป็นโลหะ เนื่องจากเป็นของแข็ง"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ทบทวนสมบัติเฉพาะที่ใช้จำแนกโลหะกับอโลหะ (ความมันวาว การนำไฟฟ้า การทุบ/ตีแผ่) แล้วพิจารณาว่าเหตุผลในแต่ละตัวเลือกเป็นสมบัติที่ใช้จำแนกได้จริงหรือไม่",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nหลักการ: สมบัติของโลหะคือ ผิวมันวาว นำไฟฟ้าได้ดี ตีแผ่เป็นแผ่นหรือดึงเป็นเส้นลวดได้ (เหนียว) ส่วนอโลหะจะมีสมบัติตรงกันข้าม คือ ไม่มันวาว เปราะ แตกหักง่าย และไม่นำไฟฟ้า\nการวิเคราะห์:\nธาตุ ก และ ง มีสมบัติ ไม่มันวาว, เปราะแตกง่าย, และไม่นำไฟฟ้า จึงเป็น อโลหะ\nธาตุ ข และ ค มีสมบัติ มันวาว, ทุบไม่แตก (เหนียว), และนำไฟฟ้า จึงเป็น โลหะ\nดังนั้น ตัวเลือกที่ 1 จึงถูกต้องที่สุด",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 10,
+    "id2": "o-net2565_g9_0010",
+    "domain": "CHEM",
+    "content": "การเปลี่ยนสถานะของสารและแบบจำลองโมเลกุล",
+    "tag_content": "สถานะของสาร",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าไอน้ำยังมีแรงดึงดูดระหว่างโมเลกุลมากเหมือนของเหลว / สับสนการจัดเรียงโมเลกุลของของเหลวกับแก๊ส (คิดว่าแก๊สมีโมเลกุลชิดกัน)",
+    "title": "10. ข้าวโพดคั่วเป็นขนมขบเคี้ยวที่ปรุงจากการให้ความร้อนแก่เมล็ดข้าวโพด เมื่อความชื้นหรือน้ำในเนื้อเมล็ดข้าวโพดได้รับความร้อนจะเกิดการเปลี่ยนแปลงสถานะกลายเป็นไอน้ำทั้งหมดจนมีความดันไอสูงพอจะดันออกจากรอยแตกของเปลือกทำให้เนื้อเมล็ดข้าวโพดบานออก ดังรูปด้านล่าง จงเลือกจับคู่รูปจำลองของโมเลกุลน้ำในเนื้อเมล็ดข้าวโพด (A-D) กับภาพการปรุงข้าวโพดคั่วด้านบน (รูป 1 และ 2) พร้อมระบุขนาดแรงระหว่างโมเลกุลของโมเลกุลน้ำขณะเนื้อข้าวโพดบานออกจากเปลือกของเมล็ดเป็นข้าวโพดคั่ว",
+    "image": "https://lh3.googleusercontent.com/d/1X7BgWQcRxspeBDIcTxShNSkuob0B5S5i",
+    "options": [
+      "1. ① รูป 1 = A และ 2 = C ตามลำดับ แรงดึงดูดระหว่างโมเลกุลมีค่าน้อยมาก",
+      "2. ② รูป 1 = A และ 2 = C ตามลำดับ แรงดึงดูดระหว่างโมเลกุลมีค่ามาก",
+      "3. ③ รูป 1 = A และ 2 = D ตามลำดับ แรงดึงดูดระหว่างโมเลกุลมีค่าน้อยมาก",
+      "4. ④ รูป 1 = A และ 2 = D ตามลำดับ แรงดึงดูดระหว่างโมเลกุลมีค่ามาก"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "ก่อนให้ความร้อน น้ำในเมล็ดเป็นของเหลว แต่ตอนเมล็ดบานน้ำกลายเป็นไอน้ำแล้ว ลองเทียบว่าโมเลกุลของของเหลวกับแก๊สอยู่ห่างกันและเคลื่อนที่ต่างกันอย่างไร และแรงดึงดูดระหว่างโมเลกุลของแก๊สมากหรือน้อย",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 11,
+    "id2": "o-net2565_g9_0011",
+    "domain": "CHEM",
+    "content": "วิธีการแยกสารและการนำไปใช้",
+    "tag_content": "การแยกสาร",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าการกลั่นอย่างง่ายแยกของเหลวได้ทุกชนิด / คิดว่าโครมาโทกราฟีแบบกระดาษอาศัยสภาพการอิ่มตัวของสารละลาย / คิดว่าการระเหยแห้งใช้ได้กับสารละลายที่ตัวทำละลายเป็นน้ำเท่านั้น",
+    "title": "11. ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1ZzzQizonwkbNe0gLwZjL9IPD4FIYJaGa",
+    "options": [
+      "1. ① การสกัดด้วยตัวทำละลายเหมาะสำหรับการสกัดสีจากใบไม้",
+      "2. ② การกลั่นอย่างง่ายสามารถแยกสารละลายที่เป็นของเหลวได้ทุกชนิด",
+      "3. ③ โครมาโทกราฟีแบบกระดาษใช้แยกสารได้โดยอาศัยสภาพการอิ่มตัวของสารละลาย",
+      "4. ④ การระเหยแห้งเหมาะสำหรับการแยกสารที่เป็นของแข็งละลายในน้ำเท่านั้น"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ให้ระบุหลักการของวิธีแยกสารแต่ละวิธี (อาศัยการละลาย จุดเดือด หรือการดูดซับ) แล้วสังเกตคำที่กว้างหรือเจาะจงเกินไป เช่น \"ทุกชนิด\" และ \"เท่านั้น\"",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nข้อ 1 ถูกต้อง: การสกัดด้วยตัวทำละลาย (Solvent extraction) เหมาะสำหรับการแยกสารหรือสกัดสารสำคัญ เช่น สีเขียวของคลอโรฟิลล์จากใบไม้ โดยอาศัยความสามารถในการละลายที่ต่างกันของสารในตัวทำละลาย\n\nข้อ 2 ไม่ถูกต้อง: การกลั่นอย่างง่าย (Simple distillation) ใช้แยกสารละลายที่มีจุดเดือดต่างกันมากๆ หรือแยกของแข็งที่ละลายในของเหลว ไม่สามารถใช้แยกของเหลวได้ทุกชนิด (เช่น ของเหลวที่มีจุดเดือดใกล้เคียงกันต้องใช้การกลั่นลำดับส่วน)\n\nข้อ 3 ไม่ถูกต้อง: โครมาโทกราฟีแบบกระดาษ (Paper chromatography) แยกสารโดยอาศัยความสามารถในการละลายและการดูดซับของสารระหว่างตัวทำละลาย (Mobile phase) กับกระดาษ (Stationary phase) ไม่ใช่สภาพการอิ่มตัว\nข้อ 4 ไม่ถูกต้อง: การระเหยแห้งเหมาะสำหรับแยกของแข็งที่ละลายในของเหลวระเหยง่าย ซึ่งไม่ใช่แค่น้ำเท่านั้น แต่รวมถึงตัวทำละลายชนิดอื่นๆ ด้วย",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 12,
+    "id2": "o-net2565_g9_0012",
+    "domain": "CHEM",
+    "content": "ปฏิกิริยาเคมีและกฎทรงมวล",
+    "tag_content": "ปฏิกิริยาเคมี",
+    "tag_skill": "L3",
+    "tag_misconception": "คิดว่ามวลที่ลดลงแสดงว่าไม่เป็นไปตามกฎทรงมวล / คิดว่ามวลที่ลดลงคือมวลของโลหะที่ทำปฏิกิริยา / ไม่คำนึงว่าแก๊สที่เกิดขึ้นหรือหลุดออกจากระบบทำให้มวลที่ชั่งได้เปลี่ยนไป",
+    "title": "12. จากการทดลองทำปฏิกิริยาระหว่างลวดแมกนีเซียมกับสารละลายกรดไฮโดรคลอริก เริ่มการทดลองโดยใส่ลวดแมกนีเซียมในลูกโป่งและสารละลายกรดไฮโดรคลอริกในขวดรูปชมพู่ ดังรูป เมื่อสิ้นสุดปฏิกิริยา จดบันทึกค่า X แล้วถอดลูกโป่งออก นำสารละลายและลูกโป่งมาชั่งน้ำหนักอีกครั้ง ดังรูป ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1xbZFpfyXIAYGHvJBbYANQnWtidgP0uj5",
+    "options": [
+      "1. ① X ควรมีค่าเท่ากับ 218.80 ตามกฎทรงมวล",
+      "2. ② การทดลองเป็นไปตามกฎทรงมวล จึงสรุปได้ว่า มวลของลวดแมกนีเซียมที่ทำปฏิกิริยาไป เท่ากับ 0.20 กรัม",
+      "3. ③ เมื่อสิ้นสุดปฏิกิริยา มวลที่ลดลง 0.20 กรัม คือมวลของแก๊สไฮโดรเจน และไอกรดที่ระเหยไป",
+      "4. ④ ผลิตภัณฑ์น้ำหนักรวมน้อยกว่าน้ำหนักสารตั้งต้นแสดงว่า การทดลองไม่เป็นไปตามกฎทรวงมวล"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "กฎทรงมวลใช้กับระบบปิดที่ไม่มีสารเข้าหรือออก ลองคิดว่าเมื่อถอดลูกโป่งออก แก๊สที่เกิดขึ้นไปอยู่ที่ไหน และมวลที่ชั่งได้หลังถอดลูกโป่งจะเปลี่ยนไปอย่างไร",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 13,
+    "id2": "o-net2565_g9_0013",
+    "domain": "CHEM",
+    "content": "ความเข้มข้นของสารละลายร้อยละ",
+    "tag_content": "สารละลาย",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าความเข้มข้นร้อยละ 10 คือตัวละลาย 10 กรัมในตัวทำละลาย (น้ำ) 100 ลูกบาศก์เซนติเมตร แทนที่จะเป็นในสารละลาย 100 ส่วน / คิดว่าเมื่อต้มแล้วตัวละลายระเหยหายไปด้วย / คิดว่าเติมตัวละลายเพิ่มแล้วนำเปอร์เซ็นต์มาบวกกันได้ตรง ๆ",
+    "title": "13. นักเรียนต้องการสั่งเครื่องดื่มชามะนาว พนักงานที่ร้านจึงสอบถามว่า ต้องการความหวานกี่เปอร์เซ็นต์ ระหว่าง 0, 5, 10 นักเรียนตอบว่า 5 เปอร์เซ็นต์ สมมติว่าความหวานดังกล่าวมีค่าเท่ากับความเข้มข้นน้ำตาลของสารละลาย ข้อใดถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1mXDLhyVWeQBpxqzCQB0NT4GHVc0KNfEQ",
+    "options": [
+      "1. ① ชามะนาวความหวาน 5 เปอร์เซ็นต์ มีปริมาณน้ำตาล 5 ส่วน ในสารละลายทั้งหมด 100 ส่วน",
+      "2. ② ชามะนาวมักมีความเข้มข้นร้อยละ 10 หมายถึง มีน้ำตาล 10 กรัม ในน้ำ 100 ลูกบาศก์เซนติเมตร",
+      "3. ③ หากนำชามะนาวไปให้ความร้อนแล้วพบว่าปริมาตรลดลง แสดงว่าปริมาณน้ำตาลก็จะหายไปด้วน",
+      "4. ④ หากนักเรียนเติมน้ำตาล 5 กรัม ลงไปในชามะนาวความหวาน 5 เปอร์เซ็นต์ ความเข้มข้นของสารละลายจะเพิ่มขึ้นเป็น 10 เปอร์เซ็นต์"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ความเข้มข้นร้อยละคือปริมาณตัวละลายต่อสารละลายทั้งหมด 100 ส่วน ให้ตรวจแต่ละตัวเลือกว่าอ้างอิงกับ \"สารละลาย\" หรือ \"ตัวทำละลาย\" และเมื่อเติมตัวละลาย มวลของสารละลายรวมก็เปลี่ยนด้วย",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nข้อ 1 ถูกต้อง: ความเข้มข้นร้อยละโดยมวลต่อปริมาตร หรือร้อยละโดยมวล หมายถึง ปริมาณตัวละลาย (น้ำตาล) 5 หน่วย ในสารละลายทั้งหมด 100 หน่วย\n\nข้อ 2 ไม่ถูกต้อง: ความเข้มข้นร้อยละ 10 หมายถึง มีน้ำตาล 10 กรัม ในสารละลาย 100 ลูกบาศก์เซนติเมตร ไม่ใช่ใน \"น้ำ\" 100 ลูกบาศก์เซนติเมตร\n\nข้อ 3 ไม่ถูกต้อง: เมื่อนำไปให้ความร้อน น้ำจะระเหยออกไป แต่ปริมาณน้ำตาล (ตัวละลาย) ยังคงอยู่เท่าเดิม ไม่ได้หายไปไหน\n\nข้อ 4 ไม่ถูกต้อง: การเติมน้ำตาลเพิ่มลงไป จะทำให้มวลของตัวละลายและสารละลายเปลี่ยนไปทั้งระบบ การคำนวณความเข้มข้นใหม่จึงไม่ใช่การบวกเปอร์เซ็นต์เพิ่มขึ้นตรงๆ เป็น 10 เปอร์เซ็นต์",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 14,
+    "id2": "o-net2565_g9_0014",
+    "domain": "PHY",
+    "content": "ความดันของของเหลวและปริมาตรแก๊ส",
+    "tag_content": "ความดันของเหลว",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าจำนวนอนุภาคอากาศในฟองเพิ่มขึ้นเมื่อฟองลอยขึ้น / คิดว่าแรงต้านของน้ำหรือความเร็วของฟองเป็นสาเหตุหลักของการขยายตัว / คิดว่าความดันที่ลดลงทำให้แก๊สหดตัว",
+    "title": "14. ชายคนหนึ่งกำลังดำน้ำลึก สังเกตเห็นฟองอากาศขนาดเล็กที่ออกจากท่อหายใจของเขามีขนาดใหญ่ขึ้นเมื่อฟองอากาศลอยขึ้นสู่ผิวน้ำ การเปลี่ยนแปลงของขนาดของฟองอากาศนี้เป็นผลมาจากการเปลี่ยนแปลงในข้อใดเป็นหลัก",
+    "image": "https://lh3.googleusercontent.com/d/1_KKDEGZfjhEqzbx4sEQw7uSmJ2oA821x",
+    "options": [
+      "1. ① แรงต้านของน้ำ",
+      "2. ② ความดันของน้ำ",
+      "3. ③ ความเร็วของฟองอากาศ",
+      "4. ④ จำนวนอนุภาคอากาศในฟองอากาศ"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "เมื่อลอยขึ้นสู่ผิวน้ำ ความดันที่กระทำต่อฟองจะมากขึ้นหรือน้อยลง และเมื่อความดันเปลี่ยนในขณะที่อุณหภูมิและจำนวนอนุภาคคงที่ ปริมาตรของแก๊สจะเปลี่ยนไปอย่างไร (นึกถึงกฎของบอยล์)",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 15,
+    "id2": "o-net2565_g9_0015",
+    "domain": "PHY",
+    "content": "แรงพยุงของของเหลว",
+    "tag_content": "แรงพยุง",
+    "tag_skill": "L3",
+    "tag_misconception": "คิดว่าวัตถุที่ลอยมีแรงพยุงมากกว่าวัตถุที่จม / คิดว่าแรงพยุงขึ้นกับมวลหรือชนิดของวัสดุ / คิดว่าวัตถุที่จมมิดเหมือนกันมีแรงพยุงเท่ากันโดยไม่คำนึงถึงขนาด",
+    "title": "15. นักเรียนคนหนึ่งสาธิตเรื่องแรงพยุงของของเหลวโดยการปล่อยวัตถุทรงกลม 3 ชิ้น ที่ทำจากวัสดุแตกต่างกัน ลงในภาชนะที่บรรจุของเหลวชนิดหนึ่ง วัตถุ A มีเส้นผ่านศูนย์กลาง 5 เซนติเมตร วัตถุ B มีเส้นผ่านศูนย์กลาง 5 เซนติเมตร วัตถุ C มีเส้นผ่านศูนย์กลาง 7 เซนติเมตร พบว่าวัตถุ A มีบางส่วนจมอยู่ใต้ผิวของของเหลว วัตถุ B และ C จมมิดอยู่ที่ก้นภาชนะตามที่แสดงในภาพ กำหนดให้ FA FB และ FC เป็นแรงพยุงที่กระทำต่อวัตถุ A, B และ C ตามลำดับ ข้อใดเปรียบเทียบขนาดของแรงพยุงได้ถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1txvWnuZfgXlNjCmyUcl8Bq0yE6L5AirO",
+    "options": [
+      "1. ① F_A > F_B = F_C",
+      "2. ② F_A > F_C > F_B",
+      "3. ③ F_C = F_B > F_A",
+      "4. ④ F_C > F_B > F_A"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "แรงพยุงเท่ากับน้ำหนักของของเหลวที่ถูกแทนที่ จึงขึ้นกับปริมาตรส่วนที่จมในของเหลวเดียวกัน ไม่ขึ้นกับมวลหรือชนิดวัสดุ ให้เรียงลำดับปริมาตรส่วนที่จมของ A, B และ C",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 4\n\nหลักการ: แรงพยุง (Fb) หาได้จากสูตร Fb = D(liquid) x V(submerged) x g (ความหนาแน่นของเหลว x ปริมาตรส่วนที่จม x ความเร่งเนื่องจากโน้มถ่วง) โดยขนาดของแรงพยุงจะแปรผันตรงกับปริมาตรของวัตถุส่วนที่จมอยู่ในของเหลว การวิเคราะห์:\n\nวัตถุ A: ลอยอยู่และจมบางส่วน ทำให้มีปริมาตรส่วนที่จมน้ำน้อยที่สุด แรงพยุงจึงน้อยที่สุด (FA น้อยที่สุด)\nวัตถุ B และ C: จมมิดทั้งคู่ แต่ วัตถุ C มีเส้นผ่านศูนย์กลาง 7 เซนติเมตร ซึ่งใหญ่กว่าวัตถุ B (5 เซนติเมตร) ทำให้วัตถุ C มีปริมาตรมากกว่า และมีปริมาตรส่วนที่จมมากกว่าวัตถุ B ส่งผลให้แรงพยุงที่กระทำต่อวัตถุ C มากกว่าวัตถุ B (FC > FB > FA)",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 16,
+    "id2": "o-net2565_g9_0016",
+    "domain": "PHY",
+    "content": "แรงเสียดทานและแรงกด",
+    "tag_content": "แรงเสียดทาน",
+    "tag_skill": "L2",
+    "tag_misconception": "แยกตัวแปรที่เปลี่ยนในการทดลองไม่ออก จึงเลือกปัจจัยอื่นที่ไม่ได้ถูกเปลี่ยน (พื้นที่ผิวสัมผัส ลักษณะผิวสัมผัส หรือความเร็วในการดึง) / ไม่เชื่อมโยงว่าน้ำหนักที่เพิ่มขึ้นทำให้แรงกดตั้งฉากเพิ่มขึ้น",
+    "title": "16. ในการทดลองเรื่องปัจจัยที่ส่งผลต่อขนาดของแรงเสียดทาน ผู้ทดลองวางถุงทรายบนแผ่นไม้ และค่อยๆ ดึงแผ่นไม้ในแนวระดับด้วยเครื่องชั่งสปริงตามที่แสดงในภาพ ผู้ทดลองบันทึกค่าของแรงที่ใช้ในการทำให้แผ่นไม้เริ่มเคลื่อนที่ จากนั้นเพิ่มจำนวนถุงทรายบนแผ่นไม้ และทำการทดลองซ้ำ การทดลองนี้ศึกษาปัจจัยในข้อใดที่มีผลต่อขนาดของแรงเสียดทาน",
+    "image": "https://lh3.googleusercontent.com/d/1hW4-zelgfSM9Gd1CXyiQ3HQw9zkJoS5I",
+    "options": [
+      "1. ① แรงที่วัตถุกดพื้น",
+      "2. ② ความเร็วในการดึงแผ่นไม้",
+      "3. ③ พื้นที่ผิวสัมผัสระหว่างแผ่นไม้กับพื้น",
+      "4. ④ ลักษณะของผิวสัมผัสระหว่างแผ่นไม้กับพื้น"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ดูว่าผู้ทดลองเปลี่ยนอะไรในแต่ละครั้ง (จำนวนถุงทราย) แล้วถามตัวเองว่าการเพิ่มถุงทรายทำให้แรงที่แผ่นไม้กดลงบนพื้นเปลี่ยนไปอย่างไร ส่วนปัจจัยอื่นในตัวเลือกถูกเปลี่ยนหรือไม่",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nหลักการ: การเพิ่มจำนวนถุงทรายบนแผ่นไม้เป็นการเพิ่มน้ำหนักของวัตถุ ซึ่งจะส่งผลให้แรงกดตั้งฉากระหว่างวัตถุกับพื้นเพิ่มขึ้น (แรงที่วัตถุกดพื้น) ทำให้ขนาดของแรงเสียดทานมีค่าเพิ่มขึ้นตามไปด้วย\nการวิเคราะห์:\nการทดลองนี้เปลี่ยนจำนวนถุงทราย (น้ำหนัก/แรงกด) แต่ใช้แผ่นไม้แผ่นเดิมและพื้นผิวเดิม จึงไม่ได้ศึกษาเรื่องพื้นที่ผิวสัมผัสหรือลักษณะของผิวสัมผัส และไม่ได้เปลี่ยนความเร็วในการดึง ดังนั้นตัวเลือกที่ 1 จึงเป็นการศึกษาเรื่องแรงที่วัตถุกดพื้น",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 17,
+    "id2": "o-net2565_g9_0017",
+    "domain": "PHY",
+    "content": "โมเมนต์ของแรงและสมดุลการหมุน",
+    "tag_content": "โมเมนต์ของแรง",
+    "tag_skill": "L3",
+    "tag_misconception": "วัดระยะจากปลายไม้บรรทัดแทนที่จะวัดจากจุดหมุน / คิดว่าน้ำหนักเท่ากันต้องแขวนห่างจากจุดหมุนเท่ากัน หรือใช้ตัวเลขตำแหน่งแทนระยะจากจุดหมุน / ลืมว่าวัตถุที่สองต้องอยู่คนละฝั่งของจุดหมุนกับของเล่น",
+    "title": "17. ไม้บรรทัดยาว 30 เซนติเมตร เมื่อแขวนด้วยเชือกที่ตำแหน่ง 15 เซนติเมตร ไม้บรรทัดจะวางตัวอยู่นิ่งในแนวระดับ ต่อมานำของเล่นหนัก 0.6 นิวตันมาแขวนที่ตำแหน่ง 5 เซนติเมตร จะต้องนำวัตถุอีกชิ้นหนึ่งน้ำหนักเท่าใด แขวนที่ตำแหน่งใด เพื่อทำให้ไม้บรรทัดวางตัวในแนวระดับได้ดังเดิม",
+    "image": "https://lh3.googleusercontent.com/d/1PWT98jYir1Ua9cd47BtIgJRZs6Wcykgv",
+    "options": [
+      "1. ① น้ำหนัก 0.6 นิวตัน แขวนที่ตำแหน่ง 20 เซนติเมตร",
+      "2. ② น้ำหนัก 0.6 นิวตัน แขวนที่ตำแหน่ง 30 เซนติเมตร",
+      "3. ③ น้ำหนัก 1.2 นิวตัน แขวนที่ตำแหน่ง 20 เซนติเมตร",
+      "4. ④ น้ำหนัก 1.2 นิวตัน แขวนที่ตำแหน่ง 30 เซนติเมตร"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "สมดุลต้องมีโมเมนต์ทวนเข็ม = โมเมนต์ตามเข็ม โดยโมเมนต์ = แรง × ระยะจากจุดหมุน (15 ซม.) ให้หาโมเมนต์ของของเล่นก่อน แล้วทดสอบทีละตัวเลือก",
+    "explanation_correct": "เฉลย: ข้อ ③ (น้ำหนัก 1.2 นิวตัน แขวนที่ตำแหน่ง 20 เซนติเมตร)\nหลักการ\nไม้บรรทัดแขวนที่ตำแหน่ง 15 ซม. แล้วสมดุล แสดงว่า จุดหมุน (pivot) อยู่ที่ 15 ซม. ซึ่งเป็นตำแหน่งจุดศูนย์กลางมวลพอดี\n\nเงื่อนไขสมดุล: ทอร์กซ้าย = ทอร์กขวา (ทอร์ก = แรง × ระยะจากจุดหมุน)\n\nวิธีคิด\nของเล่นชิ้นแรก (ด้านซ้ายของจุดหมุน):\n\nระยะจากจุดหมุน = 15 − 5 = 10 ซม.\nทอร์ก = 0.6 × 10 = 6 N·ซม. (หมุนทวนเข็มนาฬิกา)\nวัตถุชิ้นที่สอง (ต้องอยู่ด้านขวา ให้ทอร์กเท่ากัน):\nW×d=6 N⋅ซม.\nเฉลยแต่ละตัวเลือก\n① ผิด ✗ — แรงบิด = 0.6 × (20−15) = 3 N·ซม. น้อยกว่า 6 N·ซม. ไม่สมดุล\n\n② ผิด ✗ — แรงบิด = 0.6 × (30−15) = 9 N·ซม. มากกว่า 6 N·ซม. ไม่สมดุล\n\n③ ถูกต้อง ✓ — แรงบิด = 1.2 × (20−15) = 6 N·ซม. เท่ากับฝั่งซ้ายพอดี → สมดุล\n\n④ ผิด ✗ — แรงบิด = 1.2 × (30−15) = 18 N·ซม. มากกว่า 6 N·ซม. ไม่สมดุล",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 18,
+    "id2": "o-net2565_g9_0018",
+    "domain": "PHY",
+    "content": "อัตราเร็วเฉลี่ยจากกราฟระยะทางกับเวลา",
+    "tag_content": "การเคลื่อนที่",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดเฉพาะช่วงเวลาที่รถเคลื่อนที่ โดยไม่นับช่วงที่หยุดนิ่ง / อ่านอัตราเร็วจากความชันของบางช่วงแล้วเข้าใจว่าเป็นอัตราเร็วเฉลี่ยทั้งช่วง",
+    "title": "18. รถวิทยุบังคับคันหนึ่งเคลื่อนที่เป็นเส้นตรง โดยมีความสัมพันธ์ระหว่างระยะทางของการเคลื่อนที่กับเวลาแสดงดังกราฟ อัตราเร็วเฉลี่ยของรถวิทยุบังคับในช่วงเวลา 10 วินาทีที่แสดงในกราฟมีค่าเท่าใด",
+    "image": "https://lh3.googleusercontent.com/d/1_msXJFXrlwwBfkO4uQtFRJf7C7jArhlF",
+    "options": [
+      "1. ①4 เมตรต่อวินาที",
+      "2. ②5 เมตรต่อวินาที",
+      "3. ③6 เมตรต่อวินาที",
+      "4. ④10 เมตรต่อวินาที"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "อัตราเร็วเฉลี่ยคือระยะทางรวมหารด้วยเวลารวมทั้งหมด ให้อ่านค่าระยะทางสุดท้ายจากกราฟ และใช้เวลาทั้ง 10 วินาที รวมช่วงที่รถหยุดด้วย",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nหลักการ: อัตราเร็วเฉลี่ยหาได้จากสูตร อัตราเร็วเฉลี่ย = ระยะทางรวมทั้งหมด / เวลาทั้งหมดที่ใช้ในการเคลื่อนที่\nการวิเคราะห์:\nจากกราฟ ช่วงเวลาทั้งหมดคือ 10 วินาที\nระยะทางรวมที่รถเคลื่อนที่ได้ทั้งหมดคือ 40 เมตร (สังเกตจากช่วงวินาทีที่ 8 ถึง 10 กราฟหยุดนิ่งอยู่ที่ระยะทาง 40 เมตร)\nคำนวณอัตราเร็วเฉลี่ย = 40 เมตร / 10 วินาที = 4 เมตรต่อวินาที ดังนั้นตัวเลือกที่ 1 จึงถูกต้องที่สุด",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 19,
+    "id2": "o-net2565_g9_0019",
+    "domain": "PHY",
+    "content": "ความร้อนจำเพาะและสมดุลความร้อน",
+    "tag_content": "พลังงานความร้อน",
+    "tag_skill": "L3",
+    "tag_misconception": "ใช้มวลน้ำแข็ง (3.0 kg) แทนมวลโลหะในสูตร Q = mcΔT / คิดว่าอุณหภูมิสุดท้ายไม่ใช่ 0 °C ทั้งที่ยังมีน้ำแข็งเหลืออยู่ / สับสนหน่วย kJ กับ J",
+    "title": "19. ใส่ก้อนโลหะ B มวล 0.50 kg อุณหภูมิ 60 องศาเซลเซียส ลงในน้ำแข็ง 3.0 kg อุณหภูมิ 0 องศาเซลเซียส ที่อยู่ในภาชนะที่เป็นฉนวน พบว่าเมื่อเข้าสู่สมดุลความร้อน ยังเหลือน้ำแข็งที่ยังไม่หลอมเหลวอีกจำนวนหนึ่ง โดยในกระบวนการนี้ น้ำแข็งได้รับความร้อน 12 kJ ความร้อนจำเพาะของโลหะ B คือข้อใด",
+    "image": "https://lh3.googleusercontent.com/d/1Xo4c-cHLbHiDOy9ybGGBdH67mCVN7cVM",
+    "options": [
+      "1. ① 0.20 kJ/kg K",
+      "2. ② 0.40 kJ/kg K",
+      "3. ③1.0 kJ/kg K",
+      "4. ④4.2 kJ/kg K"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "ความร้อนที่โลหะสูญเสียเท่ากับความร้อนที่น้ำแข็งได้รับ และเมื่อยังมีน้ำแข็งเหลืออยู่ อุณหภูมิสุดท้ายของระบบต้องเป็นเท่าใด จากนั้นใช้ Q = mcΔT กับโลหะ B",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 2\n\nหลักการ: สมดุลความร้อน ความร้อนที่โลหะสูญเสียเท่ากับความร้อนที่น้ำแข็งได้รับ (Q_ลด = Q_เพิ่ม) โดยใช้สูตร Q = m x c x (Delta T)\nการวิเคราะห์:\nน้ำแข็งได้รับความร้อน Q = 12 kJ (หรือ 12,000 J) ดังนั้นโลหะ B จะต้องสูญเสียความร้อนเท่ากันคือ 12 kJ\nอุณหภูมิผสมที่เข้าสู่สมดุลกับน้ำแข็งที่ยังเหลืออยู่คือ 0 องศาเซลเซียส ดังนั้นโลหะ B ลดอุณหภูมิจาก 60 องศาเซลเซียส เหลือ 0 องศาเซลเซียส (Delta T = 60 องศาเซลเซียส หรือ 60 K)\nคำนวณหาความร้อนจำเพาะ (c) จาก 12 kJ = 0.50 kg x c x 60 K จะได้ c = 12 / (0.50 x 60) = 12 / 30 = 0.40 kJ/kg K",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 20,
+    "id2": "o-net2565_g9_0020",
+    "domain": "PHY",
+    "content": "การอนุรักษ์พลังงานกล",
+    "tag_content": "พลังงานกล",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าพลังงานกลเปลี่ยนไปตามตำแหน่ง ทั้งที่ไม่มีแรงต้านจึงคงตัว / คิดว่าพลังงานศักย์ที่จุดสูงสุดเท่ากับพลังงานจลน์ตอนเริ่มต้น หรือนำพลังงานทั้งสองมารวมกันผิด",
+    "title": "20. ปาก้อนหินออกไปจากหน้าผาทำมุมค่าหนึ่ง โดยตอนออกจากมือก้อนหินมีพลังงานจลน์ 80 J และมีพลังงานกล 80 J เมื่อขึ้นไปถึงจุดสูงสุด พลังงานจลน์ลดลงเหลือ 20 J พลังงานศักย์ของก้อนหินที่จุดสูงสุดคือข้อใด",
+    "image": "https://lh3.googleusercontent.com/d/1qAdZwvfAx9yQcDkqjxIIrBKrQjQNtBf4",
+    "options": [
+      "1. ①20 J",
+      "2. ②60 J",
+      "3. ③80 J",
+      "4. ④140 J"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "พลังงานกล = พลังงานจลน์ + พลังงานศักย์ และเมื่อไม่คิดแรงต้านอากาศ พลังงานกลมีค่าคงตัวทุกตำแหน่ง ให้ใช้ค่าพลังงานกลตอนเริ่มต้นกับพลังงานจลน์ที่จุดสูงสุด",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 2\n\nหลักการ: กฎการอนุรักษ์พลังงานกล ในระบบที่ไม่มีแรงภายนอกมากกระทำ (ไม่คิดแรงเสียดทานของอากาศ) พลังงานกลรวมของวัตถุจะมีค่าคงตัวเสมอ ณ ทุกตำแหน่ง โดย พลังงานกล (E) = พลังงานจลน์ (Ek) + พลังงานศักย์ (Ep)\nการวิเคราะห์:\nตอนเริ่มต้นพลังงานกลรวมเท่ากับ 80 J ดังนั้นพลังงานกลรวมของก้อนหินตลอดการเคลื่อนที่จะเท่ากับ 80 J เสมอ\nเมื่อก้อนหินเคลื่อนที่ขึ้นไปถึงจุดสูงสุด โจทย์กำหนดให้มีพลังงานจลน์เหลือ 20 J\nจาก E = Ek + Ep จะได้ 80 J = 20 J + Ep ดังนั้นพลังงานศักย์ที่จุดสูงสุด (Ep) = 80 - 20 = 60 J",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 21,
+    "id2": "o-net2565_g9_0021",
+    "domain": "PHY",
+    "content": "วงจรไฟฟ้าผสมและความสัมพันธ์ V=IR",
+    "tag_content": "วงจรไฟฟ้า",
+    "tag_skill": "L3",
+    "tag_misconception": "คิดว่ากระแสไฟฟ้าผ่านตัวต้านทานทุกตัวเท่ากัน / ไม่รวมกระแสจากสาขาขนานทั้งสองก่อนเข้าสู่ตัวต้านทานที่ต่ออนุกรม / คิดว่าตัวต้านทานที่ต่อขนานมีกระแสเท่ากันแทนที่จะมีความต่างศักย์เท่ากัน",
+    "title": "21. ส่วนหนึ่งของวงจรไฟฟ้ากระแสตรง ประกอบด้วยตัวต้านทาน 3 ตัว ต่อกันดังรูป พบบว่ากระแสไฟฟ้าที่ผ่านตัวต้านทาน 2 โอห์ม มีค่า 2 แอมแปร์ กระแสไฟฟ้าที่ผ่านตัวต้านทาน 8 โอห์ม มีค่ากี่แอมแปร์",
+    "image": "https://lh3.googleusercontent.com/d/1JtUX7EDnlqo1WHK2WkVpOZj3pV9Qf_4a",
+    "options": [
+      "1. ①2 A",
+      "2. ②3 A",
+      "3. ③4 A",
+      "4. ④8 A"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "เริ่มจากหาความต่างศักย์คร่อมตัวต้านทาน 2 โอห์ม ซึ่งต่อขนานกับตัวต้านทาน 4 โอห์ม จึงมีความต่างศักย์เท่ากัน จากนั้นหากระแสในสาขาที่เหลือ แล้วคิดว่ากระแสที่ผ่านตัวต้านทาน 8 โอห์มที่ต่ออนุกรมคือกระแสส่วนใด",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 2\n\nหลักการ: วงจรไฟฟ้าผสม การต่อตัวต้านทานแบบขนานมีความต่างศักย์เท่ากัน (V = I x R) และกระแสไฟฟ้าทั้งหมดในวงจรหลักจะไหลผ่านตัวต้านทานที่ต่ออนุกรมอยู่\nการวิเคราะห์:\nหาความต่างศักย์ตกคร่อมตัวต้านทาน 2 โอห์ม ที่มีกระแสไฟฟ้าไหลผ่าน 2 แอมแปร์: V = 2 A x 2 โอห์ม = 4 โวลต์\nเนื่องจากตัวต้านทาน 2 โอห์ม และ 4 โอห์ม ต่อขนานกัน จึงมีความต่างศักย์เท่ากันคือ 4 โวลต์\nคำนวณหากระแสไฟฟ้าที่ไหลผ่านตัวต้านทาน 4 โอห์ม: I = V / R = 4 โวลต์ / 4 โอห์ม = 1 แอมแปร์\nกระแสไฟฟ้าวมทั้งหมดที่ไหลมารวมกันก่อนเข้าสู่ตัวต้านทาน 8 โอห์ม (ซึ่งต่ออนุกรมอยู่) จะเท่ากับกระแสไฟฟ้าจากสาขาขนานทั้งสองบวกกัน: I_รวม = 2 A + 1 A = 3 แอมแปร์\nดังนั้น กระแสไฟฟ้าที่ผ่านตัวต้านทาน 8 โอห์ม จึงมีค่าเท่ากับ 3 แอมแปร์",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 22,
+    "id2": "o-net2565_g9_0022",
+    "domain": "PHY",
+    "content": "การเกิดภาพจากกระจกเงาราบ",
+    "tag_content": "การสะท้อนของแสง",
+    "tag_skill": "L1",
+    "tag_misconception": "คิดว่าเมื่อเข้าใกล้กระจกเงาราบ ภาพจะใหญ่ขึ้นเหมือนการมองวัตถุใกล้ตา / คิดว่าระยะภาพคงที่ไม่ขึ้นกับตำแหน่งวัตถุ",
+    "title": "22. วางแอปเปิ้ลหน้ากระจกเงาราพบานหนึ่ง ถ้าขยับแอปเปิ้ลให้ใกล้กระจกมากขึ้น ข้อใดต่อไปนี้ถูกต้อง",
+    "image": "https://lh3.googleusercontent.com/d/1X00JugFiF-UTeeEBXGKt_Bu-imb-Cw_q",
+    "options": [
+      "1. ① ระยะภาพเท่าเดิม ภาพมีขนาดเท่าเดิม",
+      "2. ② ระยะภาพเท่าเดิม ภาพมีขนาดใหญ่ขึ้น",
+      "3. ③ ระยะภาพลดลง ภาพมีขนาดเท่าเดิม",
+      "4. ④ ระยะภาพลดลง ภาพมีขนาดใหญ่ขึ้น"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "ทบทวนสมบัติของภาพจากกระจกเงาราบ: ระยะภาพเทียบกับระยะวัตถุเป็นอย่างไร และขนาดภาพเทียบกับขนาดวัตถุเป็นอย่างไร ไม่ว่าวัตถุจะอยู่ใกล้หรือไกล",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nหลักการ: สมบัติของภาพจากกระจกเงาราบ ระยะวัตถุจะเท่ากับระยะภาพ (s = s') และขนาดของภาพจะเท่ากับขนาดของวัตถุเสมอ โดยไม่ขึ้นอยู่กับระยะห่าง\nการวิเคราะห์:\nเมื่อขยับแอปเปิ้ลให้เข้าใกล้กระจกมากขึ้น (ระยะวัตถุลดลง) จะทำให้ระยะภาพลดลงตามไปด้วยเนื่องจากระยะภาพเท่ากับระยะวัตถุ\nในส่วนของขนาดภาพ กระจกเงาราบจะให้ภาพที่มีขนาดเท่ากับวัตถุเสมอ ขนาดภาพจึงมีขนาดเท่าเดิม ไม่เปลี่ยนแปลง",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 23,
+    "id2": "o-net2565_g9_0023",
+    "domain": "EARTH",
+    "content": "ชนิดของเมฆและสภาพลมฟ้าอากาศ",
+    "tag_content": "ลมฟ้าอากาศ",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าเมฆทุกชนิดทำให้ฝนตก / สับสนว่าเมฆแผ่นหนาสีเทาเข้มบ่งบอกอากาศดี หรือเมฆบางสีขาวบ่งบอกฝนตกหนัก",
+    "title": "23. จากการสังเกตท้องฟ้าในเวลาเดียวกันที่จังหวัดนครปฐม นครสวรรค์ นครราชสีมา และนครศรีธรรมราช พบว่าแต่ละที่มีลักษณะของเมฆดังนี้ จากข้อมูลข้างต้น ลมฟ้าอากาศหลังจากเวลาที่สังเกตไม่นานในบริเวณที่ทำการสังเกตของแต่ละจังหวัดควรจะเป็นอย่างไร",
+    "image": "https://lh3.googleusercontent.com/d/1FzuV4zNffPnvdzLVeEqLwBYX_ajakXul",
+    "options": [
+      "1. ① จ.นครปฐม น่าจะมีอากาศดีและท้องฟ้าแจ่มใส",
+      "2. ② จ.นครปฐม ฝนน่าจะตกหนัก",
+      "3. ③ จ.นครราชสีมา น่าจะมีอากาศดีและท้องฟ้าแจ่มใส",
+      "4. ④ จ.นครราชสีมา ฝนน่าจะตกหนัก"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ดูลักษณะเมฆของจังหวัดนครปฐมและนครราชสีมาในตาราง เมฆบางสีขาวกับเมฆแผ่นหนาสีเทาเข้มหรือเมฆที่ก่อตัวในแนวตั้ง บ่งบอกสภาพอากาศที่ต่างกันอย่างไร",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nหลักการ: ชนิดและลักษณะของเมฆสามารถใช้บอกสภาพลมฟ้าอากาศได้ โดยเมฆแผ่นบางสีขาว (เช่น เมฆเซอร์โรสตراتัส หรือเซอร์รัส) มักบ่งบอกถึงอากาศดี ท้องฟ้าแจ่มใส หรือมีแดดจัด ส่วนเมฆแผ่นสีเทาเข้มหรือเมฆก่อตัวทางตั้งหนาแน่น (เช่น เมฆนิมโบสตราตัส หรือคิวมูโลนิมบัส) มักทำให้เกิดฝนตก\nการวิเคราะห์:\nจ.นครปฐม: เมฆเป็นแผ่นบางสีขาวเจิดจ้า บ่งบอกถึงท้องฟ้าโปร่งใสและอากาศดี ตัวเลือกที่ 1 จึงถูกต้อง\nจ.นครราชสีมา: เมฆเป็นแผ่นสีเทาเข้ม (เช่น เมฆสตราตัสหรือนิมบูสตราตัส) มักจะมีฝนตกปรอยๆ หรือฝนตกทั่วไป ไม่ใช่อากาศดีและท้องฟ้าแจ่มใส",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 24,
+    "id2": "o-net2565_g9_0024",
+    "domain": "EARTH",
+    "content": "วัฏจักรการเกิดพายุฝนฟ้าคะนอง",
+    "tag_content": "พายุฝนฟ้าคะนอง",
+    "tag_skill": "L2",
+    "tag_misconception": "สับสนลักษณะของระยะโตเต็มที่ (ฝนหนัก ลมกระโชก ฟ้าผ่า) กับระยะสลายตัว (ฝนปรอย ลมเย็น) / เรียงลำดับตามหมายเลขตำแหน่งโดยไม่พิจารณาทิศทางการเคลื่อนที่ของกลุ่มฝน",
+    "title": "24. บ่ายวันหนึ่งบริเวณตำแหน่งที่ 1 2 และ 3 ดังสรูป พบลักษณะลมฟ้าอากาศที่แตกต่างกันดังนี้ ตำแหน่งที่ 1 มีลมเย็น ๆ ในพื้นที่ ฝนตกปรอย ๆ และสลายไปในที่สุด ตำแหน่งที่ 2 เกิดฝนฟ้าคะนองตกลงมาอย่างหนัก ในเวลาต่อมามีลมกระโชกแรง ฟ้าร้อง และฟ้าผ่า สังเกตเห็นเมฆขนาดใหญ่ ตำแหน่งที่ 3 อากาศร้อนอบอ้าว สังเกตเห็นเมฆก้อนปกคลุมท้องฟ้า หากกลุ่มฝนเคลื่อนที่จากทางตะวันออก (หมายเลข 3) ไปทางตะวันตก (หมายเลข 1) ข้อใดเป็นการเรียงลำดับของระยะเจริญเติบโตของพายุฝนฟ้าคะนอง ดังนี้ ระยะเจริญเติบโต ระยะเจริญเติบโตเต็มที่ และระยะสลายตัว",
+    "image": "https://lh3.googleusercontent.com/d/10gqMtzQ9_sbMAGKplzHJ4-aCjkVvaCr1",
+    "options": [
+      "1. ① หมายเลข 1 2 และ 3",
+      "2. ② หมายเลข 2 3 และ 1",
+      "3. ③ หมายเลข 3 2 และ 1",
+      "4. ④ หมายเลข 2 1 และ 3"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "จับคู่ลักษณะอากาศของแต่ละตำแหน่งกับระยะของพายุก่อน (เมฆก้อนและอากาศอบอ้าว / ฝนตกหนักลมแรง / ฝนปรอยและสลายตัว) แล้วเรียงตามลำดับเวลา",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nหลักการ: วัฏจักรชีวิตของพายุฝนฟ้าคะนองแบ่งเป็น 3 ระยะ ได้แก่\nระยะเจริญเติบโต (Cumulus stage): อากาศร้อนยกตัวขึ้น เกิดเมฆก้อน (ตรงกับตำแหน่งที่ 3)\nระยะเจริญเติบโตเต็มที่หรือระยะโตเต็มวัย (Mature stage): เกิดฝนตกหนัก ลมกระโชกแรง และฟ้าคะนอง (ตรงกับตำแหน่งที่ 2)\nระยะสลายตัว (Dissipating stage): ฝนเริ่มเบาลง ลมเย็นลง และเมฆสลายตัว (ตรงกับตำแหน่งที่ 1)\nการวิเคราะห์: เมื่อกลุ่มฝนเคลื่อนที่จากตำแหน่ง 3 ไป 2 และ 1 จึงเป็นการเรียงลำดับตามระยะการเจริญเติบโตของพายุจากเริ่มต้น จนถึงโตเต็มที่ และสลายตัวตามลำดับ คือ หมายเลข 3, 2 และ 1",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 25,
+    "id2": "o-net2565_g9_0025",
+    "domain": "EARTH",
+    "content": "กำเนิดเชื้อเพลิงซากดึกดำบรรพ์",
+    "tag_content": "เชื้อเพลิงซากดึกดำบรรพ์",
+    "tag_skill": "L1",
+    "tag_misconception": "คิดว่าปิโตรเลียมเกิดจากซากพืชบกหรือต้นไม้ใหญ่ / สับสนวัตถุต้นกำเนิดของถ่านหินกับปิโตรเลียม",
+    "title": "25. พิจารณาตารางข้อมูลของเชื้อเพลิงซากดึกดำบรรพ์ที่มีวัตถุต้นกำเนิดประเภทต่าง ๆ แล้วตอบคำถาม เชื้อเพลิงซากดึกดำบรรพ์ชนิดใดคือปิโตรเลียม",
+    "image": "https://lh3.googleusercontent.com/d/16QpRJ-CxglxAybROJV-BHserU32Dr3xH",
+    "options": [
+      "1. ① ชนิดที่ 1 และ 2",
+      "2. ② ชนิดที่ 1 และ 3",
+      "3. ③ ชนิดที่ 2 และ 3",
+      "4. ④ ชนิดที่ 2 และ 4"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "ปิโตรเลียมและถ่านหินเกิดจากซากสิ่งมีชีวิตคนละประเภทและคนละสภาพแวดล้อมการทับถม ให้ดูว่าวัตถุต้นกำเนิดในตารางชนิดใดมาจากทะเลหรือแหล่งน้ำ และชนิดใดมาจากพืชบก",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 4\n\nหลักการ: ปิโตรเลียม (น้ำมันดิบและก๊าซธรรมชาติ) เกิดจากการทับถมของซากพืชและซากสัตว์ โดยเฉพาะพวกแพลงก์ตอน สาหร่าย และสัตว์ทะเลขนาดเล็กที่จมลงสู่ก้นทะเล ส่วนถ่านหินเกิดจากซากพืชบกหรือต้นไม้ใหญ่\nการวิเคราะห์:\nชนิดที่ 1 (ต้นไม้ใหญ่) เป็นวัตถุต้นกำเนิดของถ่านหิน\nชนิดที่ 2 และ 4 (สัตว์ขนาดเล็ก, สาหร่ายและสัตว์ทะเล) เป็นวัตถุต้นกำเนิดของปิโตรเลียม (น้ำมันดิบและก๊าซธรรมชาติ) ดังนั้นตัวเลือกที่ 4 จึงถูกต้องที่สุด",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 26,
+    "id2": "o-net2565_g9_0026",
+    "domain": "EARTH",
+    "content": "กระบวนการกัดเซาะและสะสมตัวของแม่น้ำ",
+    "tag_content": "การเปลี่ยนแปลงทางธรณีวิทยา",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าด้านในของโค้งแม่น้ำถูกกัดเซาะมากที่สุด / สับสนระหว่างบริเวณที่เกิดการกัดเซาะกับบริเวณที่เกิดการสะสมตะกอน",
+    "title": "26. จากรูป บริเวณหมายเลขใดต่อไปนี้เป็นบริเวณที่มีการผุพังจากการกัดเซาะของแม่น้ำทั้งหมด",
+    "image": "https://lh3.googleusercontent.com/d/1WzwsZ4LODw07pXskrjb7t0nhMnFfZTOX",
+    "options": [
+      "1. ① บริเวณหมายเลข 1 2 และ 5",
+      "2. ② บริเวณหมายเลข 4 5 และ 6",
+      "3. ③ บริเวณหมายเลข 2 4 และ 6",
+      "4. ④ บริเวณหมายเลข 3 4 และ 6"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "ที่ส่วนโค้งของแม่น้ำ น้ำไหลเร็วที่ด้านนอกโค้งหรือด้านใน และเมื่อน้ำไหลเร็วจะเกิดการกัดเซาะหรือตกตะกอน ให้ระบุด้านนอก/ด้านในของแต่ละหมายเลขในภาพ",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nหลักการ: บริเวณส่วนโค้งของแม่น้ำ กระแสน้ำที่ไหลวนด้านนอกของส่วนโค้งจะมีความเร็วสูง ทำให้เกิดการกัดเซาะ (Erosion) ส่วนบริเวณด้านในของส่วนโค้งน้ำจะไหลช้า ทำให้เกิดการตกตะกอนสะสมตัว (Deposition)\nการวิเคราะห์:\nเมื่อพิจารณาจากทิศทางการไหลของกระแสน้ำตามลูกศร:\nหมายเลข 2, 4 และ 6 อยู่บริเวณฝั่งด้านนอกของส่วนโค้งน้ำ ซึ่งกระแสน้ำไหลผ่านด้วยความเร็วสูง จึงเกิดการผุพังและการกัดเซาะ\nหมายเลข 1, 3 และ 5 อยู่บริเวณฝั่งด้านในของส่วนโค้งน้ำ ซึ่งกระแสน้ำไหลช้า จึงเกิดการสะสมตัวของตะกอน\nดังนั้น บริเวณที่มีการกัดเซาะทั้งหมดคือ หมายเลข 2, 4 และ 6",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 27,
+    "id2": "o-net2565_g9_0027",
+    "domain": "MULTI",
+    "content": "วิทยาการคำนวณ: การคิดเชิงคำนวณและการค้นหาลำดับ",
+    "tag_content": "การคิดเชิงคำนวณ",
+    "tag_skill": "L3",
+    "tag_misconception": "เลือกส่วนผสมที่อยู่ปลายทางของลำดับ (ไม่มีส่วนผสมถัดไป) เป็นจุดเริ่มต้น / ไม่ไล่ตามความเชื่อมโยงทีละขั้น และไม่ตรวจว่าเริ่มจากจุดนั้นแล้วค้นหาครบ 5 อย่างหรือไม่",
+    "title": "27. สูตรลับในการทำเค้กต้องมีส่วนผสมทั้งหมด 5 อย่าง ภาพด้านบนแสดงส่วนผสมของสูตรลับ การตามหาส่วนผสมแต่ละอย่าง ต้องอ่านจากภาพ ตัวภาพแสดงให้เห็นส่วนผสมที่ต้องใช้อยู่ด้านบน และที่ด้านล่าง คือ ส่วนผสมลำดับถัดไปที่ต้องค้นหา ถ้าในภาพระบุเพียงส่วนผสมเดียว แสดงว่าไม่ต้องค้นหาส่วนผสมถัดไป จากสถานการณ์ข้างต้น การค้นหาสูตรลับของเค้กให้ครบ 5 อย่าง นักเรียนต้องเริ่มต้นด้วยการค้นหาส่วนผสมใดเป็นลำดับแรก เพื่อที่จะตามหาส่วนผสมอื่น ๆ ได้",
+    "image": "https://lh3.googleusercontent.com/d/1twnqnNyzjudDbn4sd5j3fI8gb8EYMzbu",
+    "options": [
+      "1. ① สตอร์เบอร์รี",
+      "2. ② แอปเปิ้ล",
+      "3. ③ แตงโม",
+      "4. ④ มะม่วง"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "ส่วนผสมแต่ละอย่างจะบอกส่วนผสมถัดไป ให้ลองไล่ตามทีละขั้นจากแต่ละตัวเลือก แล้วดูว่าเริ่มจากตัวใดจึงเดินทางไปถึงส่วนผสมครบทั้ง 5 อย่างโดยไม่ตกหล่น",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 28,
+    "id2": "o-net2565_g9_0028",
+    "domain": "MULTI",
+    "content": "วิทยาการคำนวณ: สัญญาณแอนะล็อกและดิจิทัล",
+    "tag_content": "เทคโนโลยีสารสนเทศ",
+    "tag_skill": "L2",
+    "tag_misconception": "คิดว่าสัญญาณดิจิทัลช่วยลดการเกิดสัญญาณรบกวนได้ (ที่จริงทนต่อสัญญาณรบกวนและกู้คืนข้อมูลได้ แต่สัญญาณรบกวนยังเกิดอยู่) / อ่านโจทย์คำว่า \"ไม่ใช่\" เป็น \"ใช่\"",
+    "title": "28. จากข้อเท็จจริงที่ว่า \"สัญญาณแอนะล็อกเป็นสัญญาณแบบต่อเนื่อง เมื่อมีสัญญาณรบกวนค่าของสัญญาณจะเปลี่ยนแปลงและทำให้คุณภาพของสัญญาณลดลงทันที ในขณะที่สัญญาณดิจิทัลซึ่งเป็นสัญญาณแบบไม่ต่อเนื่อง มีการเปลี่ยนแปลงของสัญญาณสลับไปมา 2 ค่า คือ 0 และ 1 เมื่อมีสัญญาณรบกวนจะสามารถกู้คืนสถานะเดิมของสัญญาณได้ สัญญาณมีความคงทนต่อการรบกวนได้ดีกว่าสัญญาณแอนะล็อก คุณภาพของการรับส่งข้อมูลมีความแม่นยำสูง ทำให้สัญญาณดี คมชัด อยู่เสมอ\" ข้อใดไม่ใช่สาเหตุที่ทำให้ต้องมีการพัฒนา \"สัญญาณแอนะล็อก\" เป็น \"สัญญาณดิจิทัล\"",
+    "image": "https://lh3.googleusercontent.com/d/1449r2MTc9rrm-GvVK-nbLb-FUECN-z6D",
+    "options": [
+      "1. ①ต้องการลดการเกิดสัญญาณรบกวน",
+      "2. ②ต้องการให้มีความเสถียรของสัญญาณ",
+      "3. ③ต้องการให้มีคุณภาพของสัญญาณดี คมชัด",
+      "4. ④ต้องการให้มีความแม่นยำของการรับส่งข้อมูล"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "โจทย์ถามข้อที่ \"ไม่ใช่\" สาเหตุ ให้ตรวจแต่ละตัวเลือกกับข้อความที่ให้มา และแยกให้ออกระหว่าง \"ลดการเกิดสัญญาณรบกวน\" กับ \"ทนต่อสัญญาณรบกวนเมื่อเกิดขึ้นแล้ว\"",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 1\n\nหลักการ: สัญญาณดิจิทัลถูกพัฒนาขึ้นมาเพื่อแก้ปัญหาข้อจำกัดของสัญญาณแอนะล็อก เช่น ความทนทานต่อสัญญาณรบกวน ความคมชัด และความแม่นยำในการรับส่งข้อมูล แต่ตัวสัญญาณรบกวน (Noise) เป็นปัจจัยแวดล้อมภายนอกที่ไม่สามารถ \"ลดการเกิดขึ้น\" ที่ต้นเหตุได้โดยตรงจากการเปลี่ยนประเภทสัญญาณ เพียงแต่สัญญาณดิจิทัลมีความสามารถในการ \"ทนต่อ\" หรือ \"กู้คืนข้อมูล\" เมื่อมีสัญญาณรบกวนมากกระทบเท่านั้น\nการวิเคราะห์:\nข้อ 2, 3 และ 4 เป็นคุณสมบัติและเป้าหมายหลักของการพัฒนามาใช้สัญญาณดิจิทัลตามข้อความที่กำหนด\nข้อ 1 การระบุว่าต้องการลดการเกิดสัญญาณรบกวนนั้น ไม่ถูกต้อง เพราะสัญญาณรบกวนยังคงเกิดขึ้นได้จากภายนอก แต่สัญญาณดิจิทัลเด่นเรื่องความทนทานและการกู้คืนข้อมูลเมื่อเกิดสัญญาณรบกวนขึ้นแล้ว",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 29,
+    "id2": "o-net2565_g9_0029",
+    "domain": "MULTI",
+    "content": "วิทยาการคำนวณ: อัลกอริทึมการเรียงลำดับ (Bubble Sort)",
+    "tag_content": "อัลกอริทึม",
+    "tag_skill": "L3",
+    "tag_misconception": "นับจำนวนการสลับผิดเพราะสลับทุกคู่โดยไม่ตรวจเงื่อนไข / หยุดนับก่อนที่แถวจะเรียงครบ หรือนับรวมการเปรียบเทียบที่ไม่เกิดการสลับ",
+    "title": "29. ในช่วงเวลาเข้าแถวเคารพธงชาติ ณ โรงเรียนแห่งหนึ่ง มีนักเรียนมาโรงเรียนสาย จำนวน 5 คน ซึ่งเข้าแถวตามรูปต่อไปนี้ ครูต้องการให้นักเรียนเข้าแถวแถวตอนลึก เรียงลำดับตามความสูง โดยให้นักเรียนคนที่มีส่วนสูงน้อยที่สุดอยู่ข้างหน้า คนสูงที่สุดอยู่ท้ายแถว โดยมีเงื่อนไข คือ นักเรียนแต่ละคนเปรียบเทียบความสูงของตนเองกับเพื่อนที่อยู่ตรงหน้า 1 คนเท่านั้น หากนักเรียนพบว่าเพื่อนคนข้างหน้าสูงกว่าตนเอง นักเรียนคนนั้นจะสลับตำแหน่งกับนักเรียนคนข้างหน้า 1 ครั้ง จากสถานการณ์ดังกล่าว นักเรียนต้องสลับตำแหน่งอย่างน้อยที่สุดกี่ครั้ง",
+    "image": "https://lh3.googleusercontent.com/d/1KQ8gZ4gthSOtPITxMI3Elkn4i3tP_AM6",
+    "options": [
+      "1. ① 2 ครั้ง",
+      "2. ②3 ครั้ง",
+      "3. ③4 ครั้ง",
+      "4. ④5 ครั้ง"
+    ],
+    "answer": [
+      3
+    ],
+    "hint": "จำลองทีละคู่ตามเงื่อนไข: สลับเฉพาะเมื่อคนข้างหน้าสูงกว่า แล้วนับเฉพาะครั้งที่มีการสลับจริง ทำซ้ำจนแถวเรียงจากเตี้ยไปสูง",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 3\n\nหลักการ: การนับจำนวนครั้งในการสลับตำแหน่ง (Bubble Sort) ตามเงื่อนไขที่กำหนด คือเปรียบเทียบกับคนข้างหน้าทีละคู่ หากคนข้างหลังเตี้ยกว่าคนข้างหน้า จะทำการสลับตำแหน่งกันจนกว่าจะได้ลำดับจากเตี้ยไปสูง\nการวิเคราะห์:\nลำดับเริ่มต้น: [170, 150, 165, 160, 180]\nรอบที่ 1:\nเปรียบเทียบ 170 กับ 150 (150 เตี้ยกว่า สลับกัน) -> ได้ [150, 170, 165, 160, 180] (สลับ 1 ครั้ง)\nเปรียบเทียบ 170 กับ 165 (165 เตี้ยกว่า สลับกัน) -> ได้ [150, 165, 170, 160, 180] (สลับ 2 ครั้ง)\nเปรียบเทียบ 170 กับ 160 (160 เตี้ยกว่า สลับกัน) -> ได้ [150, 165, 160, 170, 180] (สลับ 3 ครั้ง)\nเปรียบเทียบ 170 กับ 180 (180 สูงกว่า ไม่สลับ)\nรอบที่ 2:\nเปรียบเทียบ 165 กับ 160 (160 เตี้ยกว่า สลับกัน) -> ได้ [150, 160, 165, 170, 180] (สลับ 4 ครั้ง)\nเมื่อตรวจสอบแถวอีกครั้งจะได้ [150, 160, 165, 170, 180] ซึ่งเรียงจากน้อยไปมากถูกต้องแล้ว รวมจำนวนครั้งที่ต้องสลับตำแหน่งทั้งหมด 4 ครั้ง",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 30,
+    "id2": "o-net2565_g9_0030",
+    "domain": "MULTI",
+    "content": "วิทยาการคำนวณ: การไล่โค้ดโปรแกรม Python",
+    "tag_content": "การโปรแกรม",
+    "tag_skill": "L2",
+    "tag_misconception": "อ่านเงื่อนไข i < n เป็น i <= n จึงนับ i = 10 รวมเข้าไปด้วย / สับสนว่า i % 2 == 0 คือเลขคี่ / นับรอบวนทั้งหมดแทนที่จะนับเฉพาะรอบที่เงื่อนไข if เป็นจริง",
+    "title": "30. พิจารณาโปรแกรมต่อไปนี้ ================= def my_function(n): i = 1 while(i < n): if(i % 2 == 0): print(True) i += 1 n = int(input()) my_function(n) ============== ถ้าข้อมูลนำเข้ามีค่าเท่ากับ 10 ผลลัพธ์ที่ได้จากการรันโปรแกรมจะแสดงค่า True ออกทางหน้าจอทั้งหมดกี่ครั้ง",
+    "image": "https://lh3.googleusercontent.com/d/1P3pE42NbvjEiY1YseJAv6VQROrr7-EYr",
+    "options": [
+      "1. ①1 ครั้ง",
+      "2. ②2 ครั้ง",
+      "3. ③3 ครั้ง",
+      "4. ④4 ครั้ง"
+    ],
+    "answer": [
+      4
+    ],
+    "hint": "ตรวจว่าลูป while ทำงานเมื่อ i มีค่าตั้งแต่เท่าใดถึงเท่าใด (สังเกตเครื่องหมาย <) แล้วนับเฉพาะค่า i ที่หารด้วย 2 ลงตัวในช่วงนั้น",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 4\n\nหลักการ: การทำงานของคำสั่งวนซ้ำ (while loop) และเงื่อนไข (if) ในภาษา Python โดยโปรแกรมจะตรวจสอบค่า i ตั้งแต่เริ่มต้นจนถึงค่าน้อยกว่า n (i < n) และตรวจสอบว่า i เป็นเลขคู่หรือไม่ (i % 2 == 0) ถ้าใช่จะพิมพ์คำว่า True ออกมา\nการวิเคราะห์:\nกำหนดให้ข้อมูลนำเข้า n = 10 ลูปจะทำงานตั้งแต่ i = 1 จนถึง i = 9 (เนื่องจากเงื่อนไขคือ i < 10)\nในช่วง i = 1 ถึง 9 มีเลขคู่ทั้งหมด 4 จำนวน ได้แก่ 2, 4, 6 และ 8\nเมื่อ i มีค่าเป็นเลขคู่ เงื่อนไข if(i % 2 == 0) จะเป็นจริง ทำให้คำสั่ง print(True) ทำงาน ดังนั้นจะแสดงคำว่า True ออกทางหน้าจอทั้งหมด 4 ครั้ง",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 31,
+    "id2": "o-net2565_g9_0031",
+    "domain": "ASTRO",
+    "content": "ดาราศาสตร์: การขึ้น-ตกของดวงจันทร์และข้างขึ้นข้างแรม",
+    "tag_content": "ดวงจันทร์",
+    "tag_skill": "L2",
+    "tag_misconception": "สับสนระหว่างข้างขึ้น 8 ค่ำ (ขึ้นเที่ยงวัน ตกเที่ยงคืน) กับข้างแรม 8 ค่ำ (ขึ้นเที่ยงคืน ตกเที่ยงวัน) / คิดว่าดวงจันทร์ครึ่งดวงตกตอนหัวค่ำ",
+    "title": "31. วันขึ้น 8 ค่ำ ดวงจันทร์จะตกขอบฟ้าประมาณกี่โมง",
+    "image": "https://lh3.googleusercontent.com/d/1EXbeRsDQzPiqvdNJ2VM0vpl5_scZdmTE",
+    "options": [
+      "1. ①3 ทุ่ม",
+      "2. ② เที่ยงคืน",
+      "3. ③6 โมงเช้า",
+      "4. ④9 โมงเช้า"
+    ],
+    "answer": [
+      2
+    ],
+    "hint": "วันขึ้น 8 ค่ำ ดวงจันทร์เป็นครึ่งดวง (ข้างขึ้น) ลองคิดว่าดวงจันทร์ขึ้นจากขอบฟ้าประมาณกี่โมง และอยู่บนท้องฟ้าราวครึ่งวัน จึงตกประมาณกี่โมง",
+    "explanation_correct": "คำตอบที่ถูกต้อง: ข้อ 2\n\nหลักการ: ตำแหน่งและเวลาการขึ้น-ตกของดวงจันทร์ในแต่ละข้าง (ข้างขึ้น-ข้างแรม) โดยในวันขึ้น 8 ค่ำ ดวงจันทร์จะอยู่ตรงกับมุมตั้งฉากระหว่างโลกและดวงอาทิตย์ (เห็นดวงจันทร์ครึ่งดวงทางทิศตะวันตกในช่วงหัวค่ำ)\nการวิเคราะห์:\nวันขึ้น 8 ค่ำ ดวงจันทร์จะขึ้นจากขอบฟ้าทางทิศตะวันออกประมาณเที่ยงวัน (12.00 น.)\nและจะตกขอบฟ้าทางทิศตะวันตกประมาณเที่ยงคืน (24.00 น.) ของวันเดียวกัน ดังนั้นดวงจันทร์จึงตกขอบฟ้าเวลาประมาณเที่ยงคืน",
+    "explanation_incorrect": ""
+  },
+  {
+    "id": 32,
+    "id2": "o-net2565_g9_0032",
+    "domain": "ASTRO",
+    "content": "ดาราศาสตร์: กฎของเคปเลอร์กับการโคจรของดาวเคราะห์",
+    "tag_content": "การโคจรของดาวเคราะห์",
+    "tag_skill": "L3",
+    "tag_misconception": "คิดว่าคาบการโคจรแปรผันตรงกับรัศมีวงโคจร / ลืมยกกำลังสองของคาบและยกกำลังสามของรัศมีตามกฎข้อที่ 3 ของเคปเลอร์ / ใช้ค่าจากดาวเคราะห์คนละดวงมาเทียบกันผิดคู่",
+    "title": "32. ข้อมูลการโคจรของดาวเคราะห์ 2 ดวงรอบดาวฤกษ์ดวงเดียวกันเป็นดังตาราง ค่า x มีค่าเท่ากับเท่าไร",
+    "image": "https://lh3.googleusercontent.com/d/1-UduaKDZ2Wl_xn9aeUaXMl7eajE-TGRx",
+    "options": [
+      "1. ①0.2",
+      "2. ②0.4",
+      "3. ③0.6",
+      "4. ④3.2"
+    ],
+    "answer": [
+      1
+    ],
+    "hint": "ดาวเคราะห์ที่โคจรรอบดาวฤกษ์ดวงเดียวกันมีอัตราส่วนระหว่างกำลังสองของคาบกับกำลังสามของรัศมีวงโคจร (T²/R³) เท่ากัน ให้ตั้งสมการเทียบดาวเคราะห์ทั้งสองดวงแล้วแก้หาค่า x",
+    "explanation_correct": "",
+    "explanation_incorrect": ""
+  }
+];
+
+        const extraQuestions = [];
+
+        // STATE MANAGEMENT
+        let currentQuizSet = [];
+        let currentIndex = 0;
+        let userAnswers = {};
+        let misconceptionsTriggered = [];
+        let logoClickCount = 0;
+        let logoClickTimer = null;
+        let isTeacherMode = false;
+        let hintShownFor = {};
+        let lastBreakQ = 0;
+
+        /* ============================================================
+           2) WEB AUDIO API SOUND ENGINE
+           ============================================================ */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+                } else if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(196, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+                }
+            } catch(e){}
+        }
+
+        /* ============================================================
+           3) DYNAMIC DOMAIN COLOR PALETTE & THEME SWITCH
+           ============================================================ */
+        function applyDomainPalette(domain) {
+            const root = document.documentElement;
+            const palettes = {
+                BIO: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 900: '#14532d' },
+                CHEM: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 900: '#0c4a6e' },
+                PHY: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
+                EARTH: { 50: '#faf5ff', 100: '#f3e8ff', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 900: '#581c87' },
+                ASTRO: { 50: '#faf5ff', 100: '#f3e8ff', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce', 900: '#581c87' },
+                MULTI: { 50: '#fff7ed', 100: '#ffedd5', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 900: '#7c2d12' }
+            };
+            const p = palettes[domain] || palettes.MULTI;
+            Object.keys(p).forEach(k => root.style.setProperty(`--c-${k}`, p[k]));
+        }
+
+        function toggleTheme() {
+            playSound('click');
+            document.documentElement.classList.toggle('dark');
+        }
+
+        /* ============================================================
+           4) SMART IMAGE ENGINE & CLEAN TITLE
+           ============================================================ */
+        function getImageHtml(q) {
+            if (q.imageCode) return `<div class="my-4 flex justify-center">${q.imageCode}</div>`;
+
+            const url = q.image || q.imageUrl || "";
+            if (!url) return "";
+
+            let finalUrl = url.trim();
+            if (/drive\.google\.com|lh3\.googleusercontent\.com/.test(finalUrl)) {
+                const m = finalUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+                       || finalUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)
+                       || finalUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                if (m && m[1]) finalUrl = `https://lh3.googleusercontent.com/d/${m[1]}`;
+            }
+
+            const airtableMatch = finalUrl.match(/\((https?:\/\/[^\)]+)\)/);
+            if (airtableMatch && airtableMatch[1]) {
+                finalUrl = airtableMatch[1];
+            }
+
+            return `
+                <div class="my-4 flex justify-center">
+                    <img src="${finalUrl}" alt="Question Image" class="max-h-80 md:max-h-[500px] w-auto object-contain rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2" onerror="this.onerror=null;this.parentElement.style.display='none';">
+                </div>
+            `;
+        }
+
+        function cleanTitle(title) {
+            if (!title) return "";
+            return title
+                .replace(/^\[.*?\]\s*/, '')
+                .replace(/^ข้อที่\s*\d+[\.\:\s]*/, '')
+                .replace(/^\d+[\.\:\s]+/, '')
+                .replace(/\(\w+_\w+.*?\)\s*$/, '')
+                .trim();
+        }
+
+        /* ============================================================
+           5) FISHER-YATES SHUFFLE & MULTI-ANSWER SUPPORT HELPERS
+           ============================================================ */
+        function shuffleArray(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function isMultiAnswer(q) {
+            return Array.isArray(q.answer) && q.answer.length > 1;
+        }
+        function normalizeAnswer(ans) {
+            const arr = Array.isArray(ans) ? [...ans] : (ans === undefined || ans === null ? [] : [ans]);
+            return arr.slice().sort((a, b) => a - b);
+        }
+        function arraysEqual(a, b) {
+            if (a.length !== b.length) return false;
+            return a.every((v, i) => v === b[i]);
+        }
+        function isAnswerCorrect(q, userAns) {
+            if (userAns === undefined || userAns === null) return false;
+            if (Array.isArray(userAns) && userAns.length === 0) return false;
+            return arraysEqual(normalizeAnswer(q.answer), normalizeAnswer(userAns));
+        }
+
+        /* ============================================================
+           6) QUIZ CONTROLLER & RENDER ENGINE
+           ============================================================ */
+        function startQuiz() {
+            playSound('click');
+            currentQuizSet = shuffleArray(questions);
+            currentIndex = 0;
+            lastBreakQ = 0;
+            hintShownFor = {};
+            userAnswers = {};
+            misconceptionsTriggered = [];
+
+            document.getElementById('screenWelcome').classList.add('hidden');
+            document.getElementById('screenResult').classList.add('hidden');
+            document.getElementById('screenQuiz').classList.remove('hidden');
+
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const container = document.getElementById('quizContainer');
+            const q = currentQuizSet[currentIndex];
+            const qNum = currentIndex + 1;
+            const total = currentQuizSet.length;
+
+            // Periodic Caution Alert Banner (ทุกๆ 10 ข้อ)
+            const slot = document.getElementById("cautionBannerSlot");
+            if (qNum % 10 === 0) {
+                slot.innerHTML = `
+                    <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-800 dark:text-rose-200 text-xs font-bold flex items-center gap-2 shadow-sm animate-pulse mb-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600 text-sm flex-shrink-0"></i>
+                        <span>กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</span>
+                    </div>
+                `;
+                if (qNum > lastBreakQ) { 
+                    lastBreakQ = qNum; 
+                    showBreakModal(qNum); 
+                }
+            } else {
+                slot.innerHTML = "";
+            }
+
+            const optionColors = [
+                { bg: 'bg-rose-50/80 border-rose-300 text-rose-950 hover:bg-rose-100', numBg: 'bg-rose-500 text-white' },
+                { bg: 'bg-sky-50/80 border-sky-300 text-sky-950 hover:bg-sky-100', numBg: 'bg-sky-500 text-white' },
+                { bg: 'bg-emerald-50/80 border-emerald-300 text-emerald-950 hover:bg-emerald-100', numBg: 'bg-emerald-500 text-white' },
+                { bg: 'bg-amber-50/80 border-amber-300 text-amber-950 hover:bg-amber-100', numBg: 'bg-amber-500 text-white' }
+            ];
+
+            let optionsHtml = q.options.map((opt, idx) => {
+                const optNum = idx + 1;
+                const color = optionColors[idx % 4];
+                const isMulti = isMultiAnswer(q);
+                const selectedVal = userAnswers[q.id];
+                const isSelected = isMulti
+                    ? Array.isArray(selectedVal) && selectedVal.includes(optNum)
+                    : selectedVal === optNum;
+
+                const cleanOptText = opt.replace(/^\d+[\.\:\s]+/, '').replace(/^[①②③④]\s*/, '');
+
+                return `
+                    <button onclick="selectOption(${q.id}, ${optNum})" 
+                        class="pill-btn w-full text-left p-3.5 px-5 rounded-full border-2 text-sm md:text-base font-bold flex items-center gap-4 transition-all ${isSelected ? 'bg-amber-100 border-amber-500 ring-4 ring-amber-300/50' : `${color.bg}`} shadow-md dark:bg-slate-800 dark:border-slate-700 dark:text-white">
+                        
+                        <div class="w-8 h-8 rounded-full ${color.numBg} font-black flex items-center justify-center text-sm shadow-sm shrink-0">
+                            ${optNum}
+                        </div>
+                        
+                        <span class="flex-grow leading-snug">${cleanOptText}</span>
+                        
+                        ${isSelected ? '<i class="fa-solid fa-circle-check text-xl text-emerald-600"></i>' : ''}
+                    </button>
+                `;
+            }).join('');            
+
+            const multiHintHtml = isMultiAnswer(q)
+                ? `<p class="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> ข้อนี้เลือกคำตอบที่ถูกต้องได้มากกว่า 1 ข้อ</p>`
+                : '';
+
+            container.innerHTML = `
+                <div class="glass-panel rounded-3xl p-6 md:p-8 space-y-6 shadow-xl border border-slate-200 dark:border-slate-800">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-400">
+                        <span>ข้อที่ ${qNum} จาก ${total} (ข้อที่ในต้นฉบับ: ${q.id})</span>
+                        <button onclick="askGeminiTutor('screenQuiz', currentQuizSet[${currentIndex}])" class="text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-1">
+                            <span>🦉 ให้ครู Owlvy ใบ้ข้อนี้</span>
+                        </button>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <div class="bg-brand-600 h-full transition-all duration-300" style="width: ${(qNum / total) * 100}%"></div>
+                    </div>
+
+                    <h3 class="text-base md:text-lg font-bold text-slate-900 dark:text-white leading-relaxed whitespace-pre-line">
+                        ${cleanTitle(q.title)}
+                    </h3>
+
+                    ${getImageHtml(q)}
+
+                    <div id="hintBox" class="${hintShownFor[q.id] ? '' : 'hidden'} p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-sm flex items-start gap-3">
+                        <span class="text-xl shrink-0">💡</span>
+                        <div>
+                            <span class="font-bold block text-amber-900 dark:text-amber-200">คำใบ้สะกิดความคิด:</span>
+                            <span id="hintText" class="text-xs md:text-sm text-amber-800 dark:text-amber-300 leading-relaxed">${q.hint || "ลองพิจารณาเนื้อหาและตัวเลือกอย่างละเอียด"}</span>
+                        </div>
+                    </div>
+
+                    ${multiHintHtml}
+                    <div class="space-y-3">
+                        ${optionsHtml}
+                    </div>
+
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <div class="flex gap-2 items-center">
+                            <button onclick="prevQuestion()" ${currentIndex === 0 ? 'disabled class="opacity-30 cursor-not-allowed px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs"' : 'class="px-5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition"'}>
+                                <i class="fa-solid fa-arrow-left mr-1"></i> ย้อนกลับ
+                            </button>
+                            ${q.hint && q.hint.trim()
+                                ? `<button onclick="toggleHint()" class="px-4 py-2.5 rounded-xl bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 font-bold text-xs transition">
+                                      💡 ขอคำใบ้
+                                   </button>`
+                                : `<button disabled title="ข้อนี้ยังไม่มีคำใบ้ในระบบ — ลองกด 🦉 ให้ครู Owlvy ใบ้ข้อนี้แทน"
+                                      class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 font-bold text-xs cursor-not-allowed">
+                                      💡 ขอคำใบ้
+                                   </button>`}
+                        </div>
+                        ${currentIndex === total - 1 ? `
+                            <button onclick="submitQuiz()" class="px-7 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> ส่งคำตอบ
+                            </button>
+                        ` : `
+                            <button onclick="nextQuestion()" class="px-7 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                                ถัดไป <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectOption(qId, choiceNum) {
+            playSound('click');
+            const q = currentQuizSet[currentIndex];
+            if (isMultiAnswer(q)) {
+                const arr = Array.isArray(userAnswers[qId]) ? [...userAnswers[qId]] : [];
+                const pos = arr.indexOf(choiceNum);
+                if (pos === -1) arr.push(choiceNum); else arr.splice(pos, 1);
+                userAnswers[qId] = arr;
+            } else {
+                userAnswers[qId] = choiceNum;
+            }
+            renderCurrentQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentIndex < currentQuizSet.length - 1) {
+                playSound('click');
+                currentIndex++;
+                renderCurrentQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                playSound('click');
+                currentIndex--;
+                renderCurrentQuestion();
+            }
+        }
+
+        function showBreakModal(qNum) {
+            if (document.getElementById('breakModal')) return;
+            const modal = document.createElement('div');
+            modal.id = 'breakModal';
+            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[105] flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full text-center space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700">
+                    <div class="text-5xl">🧘</div>
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white">พักสมองสักครู่นะ</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">ผ่านมาแล้ว ${qNum} ข้อ — หายใจลึก ๆ แล้วอ่านโจทย์ข้อถัดไปอย่างตั้งใจ<br><br><b class="text-rose-600">กรุณาอ่านคำถามอย่างละเอียด ตรวจสอบคำตอบให้รอบคอบก่อนกดส่งทุกครั้งครับ</b></p>
+                    <button onclick="this.closest('#breakModal').remove()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm transition">พร้อมแล้ว ไปข้อต่อไป 💪</button>
+                </div>`;
+            document.body.appendChild(modal);
+            playSound('click');
+        }
+
+        function toggleHint() {
+            playSound('click');
+            const q = currentQuizSet[currentIndex];
+            if (!q.hint || !q.hint.trim()) return;
+            hintShownFor[q.id] = !hintShownFor[q.id];
+            renderCurrentQuestion();
+        }
+
+        function submitQuiz() {
+            playSound('correct');
+            let score = 0;
+            misconceptionsTriggered = [];
+            currentQuizSet.forEach(q => {
+                const userAns = userAnswers[q.id];
+                if (isAnswerCorrect(q, userAns)) {
+                    score++;
+                } else {
+                    misconceptionsTriggered.push({ 
+                        id: q.id, 
+                        tag_misconception: q.tag_misconception || "จุดที่ควรทบทวนความเข้าใจ", 
+                        content: q.content, 
+                        title: q.title,
+                        explanation: q.explanation_correct || ""
+                    });
+                }
+            });
+
+            document.getElementById('screenQuiz').classList.add('hidden');
+            document.getElementById('screenResult').classList.remove('hidden');
+
+            const total = currentQuizSet.length;
+            const pct = Math.round((score / total) * 100);
+
+            const resultContainer = document.getElementById('resultCard');
+            resultContainer.innerHTML = `
+                <div class="text-center space-y-4">
+                    <div class="inline-flex p-4 rounded-full ${pct >= 70 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'} text-5xl">
+                        ${pct >= 70 ? '🏆' : '💪'}
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 dark:text-white">สรุปผลการทดสอบ</h2>
+                    <p class="text-sm text-slate-500">${quizTitle}</p>
+
+                    <div class="p-6 rounded-2xl bg-slate-100/80 dark:bg-slate-800/50 max-w-sm mx-auto border border-slate-200 dark:border-slate-700">
+                        <span class="text-4xl font-black text-brand-600 dark:text-brand-400">${score}</span>
+                        <span class="text-lg text-slate-400"> / ${total}</span>
+                        <p class="text-xs font-bold text-slate-500 mt-1">คิดเป็น ${pct}%</p>
+                    </div>
+
+                    <div id="misconceptionSummary" class="text-left bg-slate-100/70 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs">
+                        ${misconceptionsTriggered.length > 0 ? `
+                            <p class="font-bold text-rose-600 dark:text-rose-400 mb-2">จุดที่ควรทบทวนเพิ่มเติม (Misconceptions):</p>
+                            <ul class="list-disc pl-5 space-y-1.5 text-slate-600 dark:text-slate-300">
+                                ${[...new Set(misconceptionsTriggered.map(m => m.tag_misconception))].map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        ` : `<p class="font-bold text-emerald-600">ยอดเยี่ยมมาก! คุณทำถูกต้องครบทุกข้อ 🎉</p>`}
+                    </div>
+
+                    <div class="pt-2 flex flex-col md:flex-row justify-center gap-3">
+                        <button onclick="startQuiz()" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> ทำแบบทดสอบอีกครั้ง
+                        </button>
+                        <button onclick="generateRemedialQuestions()" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition">
+                            🦉 ให้ครู Owlvy สร้างโจทย์ซ่อมเสริมจากข้อที่ตอบผิด
+                        </button>
+                        <button onclick="goHome()" class="px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs transition">
+                            <i class="fa-solid fa-house mr-1"></i> กลับหน้าหลัก
+                        </button>                
+                    </div>
+                </div>
+
+                <div id="remedialOutput" class="space-y-3 pt-4"></div>
+            `;
+        }
+
+        function goHome() {
+            playSound('click');
+            document.getElementById('screenResult').classList.add('hidden');
+            document.getElementById('screenQuiz').classList.add('hidden');
+            document.getElementById('screenWelcome').classList.remove('hidden');
+            currentQuizSet = [];
+            currentIndex = 0;
+            userAnswers = {};
+            misconceptionsTriggered = [];
+            hintShownFor = {};
+            lastBreakQ = 0;
+            document.getElementById('resultCard').innerHTML = "";
+            window.scrollTo(0, 0);
+        }
+
+        /* ============================================================
+           7) HIDDEN TEACHER ACCESS & SECURITY
+           ============================================================ */
+        function handleLogoClick() {
+            logoClickCount++;
+            clearTimeout(logoClickTimer);
+            logoClickTimer = setTimeout(() => logoClickCount = 0, 800);
+            if (logoClickCount === 3) {
+                logoClickCount = 0;
+                openPinModal();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'e') {
+                e.preventDefault();
+                openPinModal();
+            }
+        });
+
+        function openPinModal() {
+            document.getElementById('pinModal').classList.remove('hidden');
+        }
+
+        function closePinModal() {
+            document.getElementById('pinModal').classList.add('hidden');
+            document.getElementById('pinInput').value = "";
+        }
+
+        function verifyPin() {
+            const val = document.getElementById('pinInput').value.trim();
+            if (val === "alibaba19956") {
+                isTeacherMode = true;
+                closePinModal();
+                document.getElementById('teacherModeBadge').classList.remove('hidden');
+                openTeacherPanel();
+            } else {
+                alert("รหัส PIN ไม่ถูกต้อง!");
+            }
+        }
+
+        /* ============================================================
+           8) IN-APP LIVE EDITOR & STATE MANAGEMENT
+           ============================================================ */
+        function openTeacherPanel() {
+            if (!isTeacherMode) return;
+            const panel = document.getElementById('teacherPanel');
+            panel.classList.remove('hidden');
+            const list = document.getElementById('editorList');
+            list.innerHTML = "";
+
+            questions.forEach(q => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2";
+                const optionsHtml = q.options.map((opt, idx) => `
+                    <div class="flex items-center gap-2">
+                        <span class="w-5 text-center font-bold text-slate-400">${idx + 1}</span>
+                        <input class="flex-grow border rounded-lg p-2 text-xs dark:bg-slate-900 dark:text-white" value="${opt.replace(/"/g, '&quot;')}" oninput="mutateOption(${q.id}, ${idx}, this.value)">
+                        <label class="flex items-center gap-1 text-[10px] text-slate-400 whitespace-nowrap">
+                            <input type="checkbox" ${normalizeAnswer(q.answer).includes(idx + 1) ? 'checked' : ''} onchange="toggleAnswerOption(${q.id}, ${idx}, this.checked)"> เฉลย
+                        </label>
+                    </div>
+                `).join('');
+                row.innerHTML = `
+                    <p class="font-bold text-brand-600">ข้อที่ ${q.id} (id2: ${q.id2 || '-'})</p>
+                    <textarea class="w-full border rounded-lg p-2 text-xs dark:bg-slate-900 dark:text-white" rows="2" oninput="mutateQuestion(${q.id}, 'title', this.value)">${q.title}</textarea>
+                    <input class="w-full border rounded-lg p-2 text-xs dark:bg-slate-900 dark:text-white font-mono" value="${q.image || ''}" placeholder="Image URL" oninput="mutateQuestion(${q.id}, 'image', this.value)">
+                    <div class="space-y-1.5 pt-1">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">ตัวเลือก</p>
+                        ${optionsHtml}
+                    </div>
+                    <input class="w-full border rounded-lg p-2 text-xs dark:bg-slate-900 dark:text-white" value="${q.hint || ''}" placeholder="คำใบ้" oninput="mutateQuestion(${q.id}, 'hint', this.value)">
+                `;
+                list.appendChild(row);
+            });
+
+            const targetSel = document.getElementById('aiImageTargetSelect');
+            if (targetSel) {
+                targetSel.innerHTML = questions.map(q => `<option value="${q.id}">ข้อที่ ${q.id}: ${q.title.slice(0, 30)}...</option>`).join('');
+            }
+        }
+
+        function mutateOption(qId, optIdx, value) {
+            const idx = questions.findIndex(q => q.id === qId);
+            if (idx !== -1) questions[idx].options[optIdx] = value;
+        }
+
+        function toggleAnswerOption(qId, optIdx, checked) {
+            const idx = questions.findIndex(q => q.id === qId);
+            if (idx === -1) return;
+            const val = optIdx + 1;
+            let arr = normalizeAnswer(questions[idx].answer);
+            if (checked) {
+                if (!arr.includes(val)) arr.push(val);
+            } else {
+                arr = arr.filter(v => v !== val);
+            }
+            arr.sort((a, b) => a - b);
+            questions[idx].answer = arr.length <= 1 ? (arr[0] ?? questions[idx].answer) : arr;
+        }
+
+        function closeTeacherPanel() {
+            document.getElementById('teacherPanel').classList.add('hidden');
+        }
+
+        function mutateQuestion(id, field, value) {
+            const idx = questions.findIndex(q => q.id === id);
+            if (idx !== -1) questions[idx][field] = value;
+        }
+
+        /* ============================================================
+           9) OWLVY AI COMPANION — Canvas Runtime Engine
+           ============================================================ */
+        const GEMINI_TEXT_MODELS = [
+            "gemini-3-flash-preview",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash"
+        ];
+        const GEMINI_IMAGE_MODELS = [
+            "gemini-2.5-flash-image-preview",
+            "gemini-2.0-flash-preview-image-generation"
+        ];
+        let _cachedTextModel = null;
+        let owlvyBusy = false;
+        let remedialQuestions = [];
+
+        function openOwlvyDrawer() {
+            playSound('click');
+            document.getElementById('owlvyDrawerBackdrop').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('owlvyDrawerBackdrop').classList.remove('opacity-0');
+                document.getElementById('owlvyDrawer').classList.remove('translate-x-full');
+            }, 10);
+        }
+        function closeOwlvyDrawer() {
+            document.getElementById('owlvyDrawerBackdrop').classList.add('opacity-0');
+            document.getElementById('owlvyDrawer').classList.add('translate-x-full');
+            setTimeout(() => {
+                document.getElementById('owlvyDrawerBackdrop').classList.add('hidden');
+            }, 300);
+        }
+
+        function appendChatMessage(sender, text) {
+            const body = document.getElementById("owlvyChatBody");
+            const msg = document.createElement("div");
+            msg.className = sender.includes("ครู")
+                ? "p-3 rounded-xl bg-brand-50 dark:bg-brand-950/60 border border-brand-100 dark:border-brand-900/50 text-brand-900 dark:text-brand-200"
+                : "p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 ml-auto max-w-[85%]";
+            msg.innerHTML = `<p class="font-bold text-[11px] mb-1 text-brand-600">${sender}</p><div>${text}</div>`;
+            body.appendChild(msg);
+            body.scrollTop = body.scrollHeight;
+            return msg;
+        }
+        function getCurrentQuestion() {
+            const quizVisible = !document.getElementById("screenQuiz").classList.contains("hidden");
+            return quizVisible ? currentQuizSet[currentIndex] : null;
+        }
+        function warnCard(m) {
+            return `<div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-amber-800 dark:text-amber-200 text-xs">${m}</div>`;
+        }
+        function okCard(m) {
+            return `<div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-800 dark:text-emerald-200 text-xs font-bold">${m}</div>`;
+        }
+        function modeBadge(mode) {
+            return mode === "ai"
+                ? `<span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 mb-1">⚡ Gemini Live</span><br>`
+                : `<span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300 mb-1">📘 Offline Intelligence</span><br>`;
+        }
+
+        async function callGeminiAPI(prompt, temperature = 0.7, schema = null) {
+            const models = _cachedTextModel ? [_cachedTextModel] : GEMINI_TEXT_MODELS;
+            const generationConfig = { temperature };
+            if (schema) {
+                generationConfig.responseMimeType = "application/json";
+                generationConfig.responseSchema = schema;
+            }
+            const body = { contents: [{ parts: [{ text: prompt }] }], generationConfig };
+
+            let lastErr;
+            for (const m of models) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey || "")}`;
+                    const res = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body)
+                    });
+                    if (!res.ok) {
+                        const t = await res.text();
+                        const err = new Error(`HTTP ${res.status} @ ${m}`);
+                        err.modelNotFound = res.status === 404 ||
+                            (res.status === 400 && /not found|not supported|unknown/i.test(t));
+                        err.detail = t.slice(0, 140);
+                        throw err;
+                    }
+                    const data = await res.json();
+                    if (data.promptFeedback?.blockReason) throw new Error("ถูกบล็อก: " + data.promptFeedback.blockReason);
+                    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("") || "";
+                    if (!text) throw new Error("AI ตอบว่าง");
+                    _cachedTextModel = m;
+                    return text;
+                } catch (e) {
+                    lastErr = e;
+                    if (!e.modelNotFound) break;
+                }
+            }
+            throw lastErr || new Error("เรียก AI ไม่สำเร็จ");
+        }
+
+        const REMEDIAL_SCHEMA = {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    title:       { type: "STRING" },
+                    options:     { type: "ARRAY", items: { type: "STRING" } },
+                    answer:      { type: "INTEGER" },
+                    explanation: { type: "STRING" }
+                },
+                required: ["title", "options", "answer", "explanation"]
+            }
+        };
+
+        function extractJSON(text) {
+            const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+            try { return JSON.parse(cleaned); } catch (e) {}
+            const aS = cleaned.indexOf("["), aE = cleaned.lastIndexOf("]");
+            if (aS !== -1 && aE > aS) return JSON.parse(cleaned.slice(aS, aE + 1));
+            throw new Error("แปลง JSON ไม่สำเร็จ");
+        }
+
+        function buildOfflineReply(userMsg) {
+            const q = getCurrentQuestion();
+            const lower = (userMsg || "").toLowerCase();
+            if (!q) {
+                const resultVisible = !document.getElementById("screenResult").classList.contains("hidden");
+                if (resultVisible && misconceptionsTriggered.length) {
+                    const list = misconceptionsTriggered.map(m => `• ${cleanTitle(m.title)}`).join("<br>");
+                    return `📊 <b>สรุปจุดที่ควรทบทวน</b><br>ตอบผิด ${misconceptionsTriggered.length} ข้อ:<br>${list}`;
+                }
+                return `👋 อ่านโจทย์ให้ครบก่อนดูตัวเลือก และใช้ปุ่ม "ให้ครู Owlvy ใบ้ข้อนี้" เมื่อต้องการคำแนะนำครับ`;
+            }
+            if (/(เฉลย|คำตอบ|answer|ตอบว่า|ข้อไหนถูก)/.test(lower)) {
+                return `🤫 ครูจะไม่เฉลยตรง ๆ นะครับ<br><br>💡 <b>คำใบ้:</b> ${q.hint || "อ่านโจทย์ซ้ำช้า ๆ แล้วไล่ตัดตัวเลือกที่ขัดกับหลักการวิทยาศาสตร์"}`;
+            }
+            const optMatch = lower.match(/(?:ตัวเลือก|ข้อ\s*ที|ตอบ)\s*([1-4])/);
+            if (optMatch) {
+                const n = Number(optMatch[1]);
+                return `🔍 <b>ตัวเลือก ${n}:</b> ${q.options[n - 1]}<br><br>ลองคิดดูว่าเหตุผลของตัวเลือกนี้สอดคล้องกับแนวคิดในโจทย์หรือเปล่า?<br><br>💡 ${q.hint || "—"}`;
+            }
+            return `🦉 วิธีคิดสำหรับข้อนี้:<br><br>1️⃣ พิจารณาประเด็นสำคัญที่โจทย์ถาม<br>2️⃣ <b>คำใบ้:</b> ${q.hint || "โฟกัสคำสำคัญในโจทย์"}<br>3️⃣ ตัดตัวเลือกที่ไม่สอดคล้องออกทีละข้อ<br><br>สอบถามเพิ่มเติมได้เสมอครับ 😊`;
+        }
+
+        async function handleAskCompanion() {
+            const input = document.getElementById("owlvyQueryInput");
+            const msg = input.value.trim();
+            if (!msg || owlvyBusy) return;
+            playSound("click");
+            appendChatMessage("คุณ", msg);
+            input.value = "";
+            owlvyBusy = true;
+            const loading = appendChatMessage("🦉 ครู Owlvy", "<i class='fa-solid fa-spinner fa-spin mr-1'></i>กำลังคิด...");
+
+            const q = getCurrentQuestion();
+            const ctx = q
+                ? `[โจทย์ปัจจุบัน] ${cleanTitle(q.title)}\n[ตัวเลือก]\n${q.options.join("\n")}\n[คำใบ้ที่มี] ${q.hint || "—"}\n`
+                : "";
+            const role = q
+                ? "ใช้ Socratic Method ชี้นำให้ผู้เรียนคิดเอง ห้ามเฉลยตรง ๆ"
+                : "ให้คำแนะนำเตรียมสอบวิทยาศาสตร์ O-NET ม.3 และให้กำลังใจ";
+
+            try {
+                const text = await callGeminiAPI(
+                    `คุณคือ "ครู Owlvy" ผู้เชี่ยวชาญวิทยาศาสตร์ ม.ต้น ตอบภาษาไทยสั้นกระชับอบอุ่นไม่เกิน 120 คำ\n${ctx}[คำถามผู้เรียน] ${msg}\n[บทบาท] ${role}`, 0.6);
+                loading.remove();
+                appendChatMessage("🦉 ครู Owlvy", modeBadge("ai") + text.replace(/\n/g, "<br>"));
+            } catch (e) {
+                loading.remove();
+                appendChatMessage("🦉 ครู Owlvy", modeBadge("offline") + buildOfflineReply(msg));
+            } finally {
+                owlvyBusy = false;
+            }
+        }
+
+        async function askGeminiTutor(screenName, contextData) {
+            openOwlvyDrawer();
+            if (owlvyBusy) return;
+            owlvyBusy = true;
+            const loading = appendChatMessage("🦉 ครู Owlvy", "<i class='fa-solid fa-spinner fa-spin mr-1'></i>กำลังเตรียมคำใบ้...");
+
+            try {
+                let prompt, fallback;
+                if (screenName === "screenQuiz" && contextData) {
+                    prompt = `คุณคือ "ครู Owlvy" ใช้ Socratic Method ใบ้แนวทางการคิดโดยไม่บอกเฉลยตรงๆ ตอบไทยไม่เกิน 100 คำ\n[โจทย์] ${cleanTitle(contextData.title)}\n[ตัวเลือก]\n${contextData.options.join("\n")}\n[คำใบ้ที่มี] ${contextData.hint || "—"}`;
+                    fallback = `💡 <b>คำใบ้สะกิดความคิด:</b><br>${contextData.hint || "อ่านคำถามซ้ำ แล้วไล่เทียบทีละตัวเลือก"}<br><br>❓ ตัวเลือกไหนที่มีเหตุผลสอดคล้องกับหลักวิทยาศาสตร์ที่สุด?`;
+                } else if (screenName === "screenResult") {
+                    const total = currentQuizSet.length;
+                    const score = total - misconceptionsTriggered.length;
+                    const misList = misconceptionsTriggered.map(m => `- ${cleanTitle(m.title)} (${m.tag_misconception || 'จุดที่ควรทบทวน'})`).join("\n");
+                    prompt = `คุณคือ "ครู Owlvy" สรุปจุดอ่อนและแนวทางทบทวน ตอบไทยไม่เกิน 150 คำ\n[ผลการสอบ O-NET วิทย์ ม.3] คะแนน ${score}/${total}\n[จุดที่ตอบผิด]\n${misList || "ตอบถูกต้องทุกข้อ!"}`;
+                    fallback = buildOfflineReply("สรุปผล");
+                } else {
+                    prompt = `คุณคือ "ครู Owlvy" ให้เทคนิคเตรียมสอบวิทยาศาสตร์ O-NET ม.3 และให้กำลังใจ ตอบไทยไม่เกิน 100 คำ`;
+                    fallback = `💪 อ่านโจทย์ช้า ๆ วงคำสำคัญ สังเกตคำว่า "ไม่ใช่" "ข้อใดถูกต้อง" ให้ดี แล้วค่อยตัดตัวเลือกครับ`;
+                }
+                const text = await callGeminiAPI(prompt, 0.6);
+                loading.remove();
+                appendChatMessage("🦉 ครู Owlvy", modeBadge("ai") + text.replace(/\n/g, "<br>"));
+            } catch (e) {
+                loading.remove();
+                appendChatMessage("🦉 ครู Owlvy", modeBadge("offline") + buildOfflineReply(""));
+            } finally {
+                owlvyBusy = false;
+            }
+        }
+
+        async function generateRemedialQuestions() {
+            playSound("click");
+            const output = document.getElementById("remedialOutput");
+            if (!misconceptionsTriggered.length) { output.innerHTML = okCard("🎉 ไม่มีข้อที่ตอบผิด ยอดเยี่ยมมากครับ!"); return; }
+
+            output.innerHTML = `<div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs text-center">
+                <i class="fa-solid fa-spinner fa-spin mr-1"></i> กำลังเตรียมโจทย์ซ่อมเสริมจาก ${misconceptionsTriggered.length} จุดที่ตอบผิด...</div>`;
+
+            try {
+                const wrongList = misconceptionsTriggered.map((m, i) => `${i + 1}. ${cleanTitle(m.title)} (เข้าใจผิดเกี่ยวกับ: ${m.tag_misconception || 'แนวคิดนี้'})`).join("\n");
+                const raw = await callGeminiAPI(
+                    `คุณเป็นครูวิทยาศาสตร์ ม.3 นักเรียนทำข้อสอบ O-NET ผิดในข้อเหล่านี้:\n${wrongList}\n\nสร้างโจทย์ซ่อมเสริมใหม่ 1 ข้อ ต่อ 1 จุดที่ผิด (เปลี่ยนสถานการณ์/ตัวเลข แต่คงแนวคิดหลักเดิม) มี 4 ตัวเลือก มีเฉลย 1 ข้อ พร้อมคำอธิบาย`,
+                    0.8, REMEDIAL_SCHEMA);
+                remedialQuestions = extractJSON(raw)
+                    .filter(q => q.title && Array.isArray(q.options) && q.options.length === 4)
+                    .map(q => ({ ...q, answer: Array.isArray(q.answer) ? q.answer[0] : Number(q.answer) }));
+                if (remedialQuestions.length) { renderRemedialOutput(output, "ai"); return; }
+            } catch (e) { }
+
+            remedialQuestions = misconceptionsTriggered
+                .map(m => currentQuizSet.find(q => q.id === m.id) || questions.find(q => q.id === m.id))
+                .filter(Boolean);
+            if (!remedialQuestions.length) { output.innerHTML = warnCard("⚠️ หาโจทย์ซ่อมเสริมไม่ได้"); return; }
+            renderRemedialOutput(output, "offline");
+        }
+
+        function renderRemedialOutput(output, mode) {
+            output.innerHTML = modeBadge(mode) + `<h4 class="font-bold text-sm text-brand-700 dark:text-brand-300 mb-3">🦉 โจทย์ซ่อมเสริม (${remedialQuestions.length} ข้อ) — คลิกเลือกคำตอบเพื่อตรวจสอบทันที</h4>` +
+                remedialQuestions.map((q, qi) => renderRemedialCard(q, qi)).join("");
+        }
+
+        function renderRemedialCard(q, qi) {
+            const btns = q.options.map((opt, oi) =>
+                `<button onclick="selectRemedial(${qi}, ${oi + 1})" data-opt="${oi + 1}" class="rem-btn-${qi} text-left w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs hover:border-brand-400 transition mb-1.5 dark:text-white">${opt}</button>`
+            ).join("");
+            return `<div id="remedialCard_${qi}" class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2">
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-100">${qi + 1}. ${cleanTitle(q.title)}</p>
+                ${btns}
+                <div id="remedialExp_${qi}" class="hidden p-2.5 rounded-lg bg-brand-50 dark:bg-brand-950/50 border border-brand-100 text-[11px] text-brand-900 dark:text-brand-200 leading-relaxed"></div>
+            </div>`;
+        }
+
+        function selectRemedial(qi, choice) {
+            const q = remedialQuestions[qi];
+            const correct = Array.isArray(q.answer) ? q.answer[0] : q.answer;
+            const card = document.getElementById(`remedialCard_${qi}`);
+            card.querySelectorAll(".rem-btn-" + qi).forEach(b => {
+                b.disabled = true;
+                b.classList.add("opacity-70", "cursor-not-allowed");
+                if (Number(b.dataset.opt) === correct) b.classList.add("!border-emerald-500", "!bg-emerald-50", "!text-emerald-800", "!opacity-100");
+                if (Number(b.dataset.opt) === choice && choice !== correct) b.classList.add("!border-rose-500", "!bg-rose-50", "!text-rose-800");
+            });
+            const exp = document.getElementById(`remedialExp_${qi}`);
+            exp.classList.remove("hidden");
+            const expText = q.explanation || q.explanation_correct || q.hint || "ทบทวนแนวคิดแล้วลองสังเกตเหตุผลในแต่ละตัวเลือกอีกครั้ง";
+            exp.innerHTML = (choice === correct ? "✅ <b>ถูกต้อง!</b> " : `❌ <b>ยังไม่ถูก</b> (เฉลยคือข้อ ${correct}) `) + expText;
+            choice === correct ? playSound("correct") : playSound("wrong");
+        }
+
+        async function generateAiDiagram() {
+            const qId = parseInt(document.getElementById("aiImageTargetSelect").value);
+            const promptText = document.getElementById("aiImagePromptInput").value.trim();
+            const preview = document.getElementById("aiImagePreview");
+            if (!promptText) { alert("กรุณาพิมพ์คำอธิบายภาพก่อน"); return; }
+
+            preview.innerHTML = `<div class="text-xs text-indigo-600"><i class="fa-solid fa-spinner fa-spin mr-1"></i>กำลังสร้างภาพ...</div>`;
+            try {
+                const src = await generateDiagramImage(promptText);
+                preview.innerHTML = `
+                    <img src="${src}" class="max-w-full max-h-60 object-contain rounded-xl shadow border border-slate-200 my-2">
+                    <div class="flex gap-2">
+                        <button onclick="applyAiImageToQuestion(${qId}, '${src}')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-bold text-xs hover:bg-emerald-700 transition">
+                            <i class="fa-solid fa-check mr-1"></i> ใช้ภาพนี้กับข้อที่ ${qId}
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">สร้างภาพสำเร็จ</p>`;
+            } catch (e) {
+                preview.innerHTML = warnCard(`❌ สร้างภาพไม่สำเร็จ: ${e.message}<br><span class="opacity-70">${e.detail || ""}</span>`);
+            }
+        }
+
+        function applyAiImageToQuestion(qId, src) {
+            mutateQuestion(qId, 'image', src);
+            alert(`อัปเดตรูปภาพสำหรับข้อที่ ${qId} เรียบร้อยแล้ว!`);
+        }
+
+        async function generateDiagramImage(promptText) {
+            const body = {
+                contents: [{ parts: [{ text: "สร้างภาพไดอะแกรมการเรียนรู้วิทยาศาสตร์ เรียบ ชัดเจน มีป้ายกำกับภาษาไทย: " + promptText }] }],
+                generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
+            };
+            let lastErr;
+            for (const m of GEMINI_IMAGE_MODELS) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodeURIComponent(apiKey || "")}`;
+                    const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+                    if (!res.ok) {
+                        const err = new Error(`HTTP ${res.status} @ ${m}`);
+                        err.modelNotFound = res.status === 404;
+                        throw err;
+                    }
+                    const data = await res.json();
+                    const parts = data?.candidates?.[0]?.content?.parts || [];
+                    const p = parts.find(x => x.inlineData || x.inline_data);
+                    const inline = p ? (p.inlineData || p.inline_data) : null;
+                    if (!inline) throw new Error("AI ไม่ได้ส่งภาพกลับมา");
+                    return `data:${inline.mimeType || inline.mime_type};base64,${inline.data}`;
+                } catch (e) { lastErr = e; if (!e.modelNotFound) break; }
+            }
+            throw lastErr || new Error("สร้างภาพไม่สำเร็จ");
+        }
+
+        /* ============================================================
+           10) INITIALIZATION
+           ============================================================ */
+        window.addEventListener('DOMContentLoaded', () => {
+            applyDomainPalette(quizDomain);
+            document.getElementById('appTitleText').textContent = quizTitle;
+            document.getElementById('startScreenTitle').textContent = quizTitle;
+            document.getElementById('welcomeContent').textContent = quizContent;
+            document.getElementById('totalQCount').textContent = `${questions.length} ข้อ`;
+            document.getElementById('appSubtitleText').textContent = "เฉลยและวิเคราะห์ข้อสอบ O-NET วิทยาศาสตร์ ม.3 ปีการศึกษา 2565";
+            document.getElementById('welcomeDomainBadge').textContent = `${quizDomain} • ${quizContent}`;
+        });
+    </script>
+</body>
+</html>
